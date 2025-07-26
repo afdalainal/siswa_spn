@@ -24,17 +24,22 @@
                     <ul class="submenu ">
                         <li>
                             <a href="{{route('pengasuh.index')}}">
-                                <span>List pengasuh</span>
+                                <span>Data pengasuh</span>
                             </a>
                         </li>
                         <li>
                             <a href="{{route('siswa.index')}}">
-                                <span>List siswa</span>
+                                <span>Data siswa</span>
                             </a>
                         </li>
                         <li>
                             <a href="{{route('akunpeleton.index')}}">
-                                <span>Akun Peleton</span>
+                                <span>Akun User Peleton</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{route('tugaspeleton.index')}}">
+                                <span>Tugas Peleton</span>
                             </a>
                         </li>
                     </ul>

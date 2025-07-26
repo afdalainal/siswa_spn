@@ -25,6 +25,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('siswa', \App\Http\Controllers\Superadmin\SiswaController::class);
         Route::resource('pengasuh', \App\Http\Controllers\Superadmin\PengasuhController::class);
         Route::resource('akunpeleton', \App\Http\Controllers\Superadmin\AkunPeletonController::class);
+        Route::resource('tugaspeleton', \App\Http\Controllers\Superadmin\TugasPeletonController::class);
     });
 
     // peleton
