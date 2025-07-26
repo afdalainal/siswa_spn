@@ -16,15 +16,25 @@
                     </a>
                 </li>
                 <li
-                    class="sidebar-item  has-sub {{ request()->routeIs('anggota.index') || request()->routeIs('regis.index') ? 'active' : '' }}">
+                    class="sidebar-item  has-sub {{ request()->routeIs('siswa.index') || request()->routeIs('pengasuh.index') ? 'active' : '' }}">
                     <a href="#" class='sidebar-link'>
                         <i data-feather="user" width="20"></i>
-                        <span>Setting Penilaian</span>
+                        <span>Master Data</span>
                     </a>
                     <ul class="submenu ">
                         <li>
-                            <a href="{{route('anggota.index')}}">
-                                <span>List Anggota</span>
+                            <a href="{{route('pengasuh.index')}}">
+                                <span>List pengasuh</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{route('siswa.index')}}">
+                                <span>List siswa</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{route('akunpeleton.index')}}">
+                                <span>Akun Peleton</span>
                             </a>
                         </li>
                     </ul>

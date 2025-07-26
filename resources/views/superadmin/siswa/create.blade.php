@@ -6,18 +6,25 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">Input anggota</h4>
+                    <h4 class="card-title">Input siswa</h4>
                 </div>
 
                 <div class="card-body">
-                    <form method="POST" action="{{ route('anggota.store') }}">
+                    <form method="POST" action="{{ route('siswa.store') }}">
                         @csrf
                         <div class="row">
-                            <div class="col-sm-12">
+                            <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label for="squareText">anggota</label>
-                                    <input type="text" id="squareText" name="name" class="form-control square"
-                                        placeholder="Input Nama anggota" required>
+                                    <label for="nama">Nama Siswa</label>
+                                    <input type="text" id="nama" name="nama" class="form-control square"
+                                        placeholder="Input Nama Lengkap Siswa" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="nama">Nosis Siswa</label>
+                                    <input type="number" id="nosis" name="nosis" class="form-control square"
+                                        placeholder="Input Nosis Siswa" required>
                                 </div>
                             </div>
                         </div>

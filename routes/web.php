@@ -7,7 +7,6 @@ use App\Http\Controllers\ProfileController;
 
 Route::get('/', fn() => view('welcome'));
 
-// Grup login
 Route::middleware(['auth'])->group(function () {
     // Redirect otomatis berdasarkan role
     Route::get('/dashboard', function () {
@@ -20,14 +19,15 @@ Route::middleware(['auth'])->group(function () {
         };
     })->name('dashboard');
 
-    // Halaman superadmin
+    // superadmin
     Route::middleware(['role:superadmin'])->group(function () {
         Route::get('/dashboard/superadmin', [\App\Http\Controllers\Superadmin\DashboardController::class, 'index'])->name('dashboard.superadmin');
-        Route::resource('anggota', \App\Http\Controllers\Superadmin\AnggotaController::class);
-
+        Route::resource('siswa', \App\Http\Controllers\Superadmin\SiswaController::class);
+        Route::resource('pengasuh', \App\Http\Controllers\Superadmin\PengasuhController::class);
+        Route::resource('akunpeleton', \App\Http\Controllers\Superadmin\AkunPeletonController::class);
     });
 
-    // Halaman peleton
+    // peleton
     Route::middleware(['role:peleton'])->group(function () {
         Route::get('/dashboard/peleton', [\App\Http\Controllers\Peleton\DashboardController::class, 'index'])->name('dashboard.peleton');
     });
