@@ -9,8 +9,8 @@ class Pengasuh extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'jabatan',
         'nama',
+        'jabatan',
         'pangkat_nrp',
     ];
 }

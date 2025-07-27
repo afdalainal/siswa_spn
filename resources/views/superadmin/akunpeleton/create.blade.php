@@ -30,13 +30,11 @@
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="role">Role</label>
-                                    <select class="form-select" id="role" name="role" required>
-                                        <option value="" disabled selected>-- Pilih Role --</option>
-                                        <option value="superadmin">Superadmin</option>
-                                        <option value="peleton">Peleton</option>
-                                    </select>
+                                    <input type="text" id="role" name="role" class="form-control square" value="peleton"
+                                        readonly required>
                                 </div>
                             </div>
+
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="password">Password</label>

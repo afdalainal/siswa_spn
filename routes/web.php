@@ -26,6 +26,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('pengasuh', \App\Http\Controllers\Superadmin\PengasuhController::class);
         Route::resource('akunpeleton', \App\Http\Controllers\Superadmin\AkunPeletonController::class);
         Route::resource('tugaspeleton', \App\Http\Controllers\Superadmin\TugasPeletonController::class);
+        Route::delete('/tugaspeleton/{id}/softdelete', [\App\Http\Controllers\Superadmin\TugasPeletonController::class, 'softdelete'])->name('tugaspeleton.softdelete');
+        Route::patch('tugaspeleton/restore/{id}', [\App\Http\Controllers\Superadmin\TugasPeletonController::class, 'restore'])->name('tugaspeleton.restore');
     });
 
     // peleton

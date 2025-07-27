@@ -16,7 +16,7 @@
                     </a>
                 </li>
                 <li
-                    class="sidebar-item  has-sub {{ request()->routeIs('siswa.index') || request()->routeIs('pengasuh.index') ? 'active' : '' }}">
+                    class="sidebar-item  has-sub {{ request()->routeIs('siswa.index') || request()->routeIs('pengasuh.index')  || request()->routeIs('akunpeleton.index')  || request()->routeIs('tugaspeleton.index') ? 'active' : '' }}">
                     <a href="#" class='sidebar-link'>
                         <i data-feather="user" width="20"></i>
                         <span>Master Data</span>

@@ -34,7 +34,7 @@ class AkunPeletonController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:superadmin,peleton',  
+            'role' => 'required|in:peleton',  
         ]);
     
         $user = \App\Models\User::create([
