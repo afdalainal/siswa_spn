@@ -53,6 +53,13 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
+                <li
+                    class="sidebar-item {{ request()->routeIs('penilaianpengamatan.index') || request()->routeIs('penilaianpengamatan.show') ? 'active' : '' }}">
+                    <a href="{{route('penilaianpengamatan.index')}}" class='sidebar-link'>
+                        <i data-feather="home" width="20"></i>
+                        <span>Penilaian Pengamatan</span>
+                    </a>
+                </li>
                 @endif
 
             </ul>
