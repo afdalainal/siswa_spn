@@ -31,7 +31,7 @@
                         <th>Danki</th>
                         <th>Danmen</th>
                         <th>Peleton</th>
-                        <th>Ton/Ki/Yon</th>
+                        <th>Minggu Ke</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -43,7 +43,7 @@
                         <td>{{ $tugaspeletons->pengasuhDanki->nama ?? '-' }}</td>
                         <td>{{ $tugaspeletons->pengasuhDanmen->nama ?? '-' }}</td>
                         <td>{{ $tugaspeletons->peleton->name ?? '-' }}</td>
-                        <td>{{ $tugaspeletons->ton_ki_yon }}</td>
+                        <td>{{ $tugaspeletons->minggu_ke ?? '-' }}</td>
                         <td>
                             <div class="btn-group btn-group-sm">
                                 <div class="btn-group btn-group-sm">
@@ -58,21 +58,22 @@
                                     @else
                                     <a href="{{ route('tugaspeleton.edit', $tugaspeletons->id) }}"
                                         class="btn btn-outline-primary"><i data-feather="edit"></i></a>
-
-                                    <form action="{{ route('tugaspeleton.destroy', $tugaspeletons->id) }}" method="POST"
-                                        style="display:inline-block">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm"
-                                            onclick="return confirm('Yakin hapus permanen?')">Hapus Permanen</button>
-                                    </form>
-
                                     <form action="{{ route('tugaspeleton.softdelete', $tugaspeletons->id) }}"
                                         method="POST" style="display:inline-block">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-warning btn-sm"
-                                            onclick="return confirm('Yakin nonaktifkan data ini?')">Nonaktifkan</button>
+                                        <button type="submit" class="btn btn-outline-warning"
+                                            onclick="return confirm('Yakin nonaktifkan data ini?')">
+                                            <i class="bi bi-ban"></i>
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('tugaspeleton.destroy', $tugaspeletons->id) }}" method="POST"
+                                        style="display:inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-outline-danger"
+                                            onclick="return confirm('Yakin hapus permanen?')"><i
+                                                data-feather="delete"></i></button>
                                     </form>
                                     @endif
                                 </div>
