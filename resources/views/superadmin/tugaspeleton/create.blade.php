@@ -70,11 +70,17 @@
                                         multiple required>
                                         <option value="" disabled>-- Pilih --</option>
                                         @foreach($siswa as $siswas)
-                                        <option value="{{ $siswas->id }}">{{ $siswas->nama }}</option>
+                                        @php
+                                        $status = $tugasSiswaStatus[$siswas->id] ?? null;
+                                        @endphp
+                                        <option value="{{ $siswas->id }}">
+                                            {{ $siswas->nama }}{{ $status === 'nonaktif' ? ' - nonaktif' : '' }}
+                                        </option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
+
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="ton_ki_yon">Ton/Ki/Yon</label>

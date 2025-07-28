@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('tugas_peleton_id')->constrained('tugas_peletons')->cascadeOnDelete();
             $table->foreignId('siswa_id')->constrained('siswas')->cascadeOnDelete();
             $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
+            $table->unique(['tugas_peleton_id', 'siswa_id']);
             $table->timestamps();
         });
     }

@@ -79,9 +79,15 @@
                                 required>
                                 <option value="" disabled>-- Pilih --</option>
                                 @foreach($siswa as $siswas)
+                                @php
+                                $tugasSiswa = $tugaspeleton->tugasSiswa->firstWhere('siswa_id', $siswas->id);
+                                $status = $tugasSiswa ? $tugasSiswa->status : null;
+                                $selectedSiswa = old('siswa_id', $tugaspeleton->tugasSiswa->where('status',
+                                'aktif')->pluck('siswa_id')->toArray());
+                                @endphp
                                 <option value="{{ $siswas->id }}"
-                                    {{ in_array($siswas->id, old('siswa_id', $tugaspeleton->siswa->pluck('id')->toArray())) ? 'selected' : '' }}>
-                                    {{ $siswas->nama }}
+                                    {{ in_array($siswas->id, $selectedSiswa) ? 'selected' : '' }}>
+                                    {{ $siswas->nama }} {{ $status === 'nonaktif' ? '- NONAKTIF' : '' }}
                                 </option>
                                 @endforeach
                             </select>
