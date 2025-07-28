@@ -75,19 +75,26 @@
                     <div class="col-sm-6">
                         <div class="form-group">
                             <label for="siswa_id">Pilih Siswa</label>
+                            @php
+                            $oldSelected = old('siswa_id');
+                            if (is_array($oldSelected)) {
+                            $selectedSiswa = $oldSelected;
+                            } else {
+                            $selectedSiswa = $tugaspeleton->tugasSiswa->where('status',
+                            'aktif')->pluck('siswa_id')->toArray();
+                            }
+                            @endphp
+
                             <select class="choices form-select multiple-remove" id="siswa_id" name="siswa_id[]" multiple
                                 required>
                                 <option value="" disabled>-- Pilih --</option>
                                 @foreach($siswa as $siswas)
                                 @php
-                                $tugasSiswa = $tugaspeleton->tugasSiswa->firstWhere('siswa_id', $siswas->id);
-                                $status = $tugasSiswa ? $tugasSiswa->status : null;
-                                $selectedSiswa = old('siswa_id', $tugaspeleton->tugasSiswa->where('status',
-                                'aktif')->pluck('siswa_id')->toArray());
+                                $status = $tugasSiswaStatus[$siswas->id] ?? null;
                                 @endphp
                                 <option value="{{ $siswas->id }}"
                                     {{ in_array($siswas->id, $selectedSiswa) ? 'selected' : '' }}>
-                                    {{ $siswas->nama }} {{ $status === 'nonaktif' ? '- NONAKTIF' : '' }}
+                                    {{ $siswas->nama }} {{ $status === 'nonaktif' ? '- nonaktif' : '' }}
                                 </option>
                                 @endforeach
                             </select>
@@ -261,4 +268,48 @@
         </div>
     </div>
 </section>
+
+
+<script>
+const hariIndo = ['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];
+const bulanIndo = [
+    'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
+    'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER'
+];
+
+// Fungsi format tanggal ke string Indo
+function formatTanggalIndo(date) {
+    const hari = hariIndo[date.getDay()];
+    const tanggal = date.getDate();
+    const bulan = bulanIndo[date.getMonth()];
+    const tahun = date.getFullYear();
+    return `${hari}, ${tanggal} ${bulan} ${tahun}`;
+}
+
+// Event listener untuk semua date picker
+document.querySelectorAll('.picker-field').forEach(picker => {
+    picker.addEventListener('change', function() {
+        const id = this.getAttribute('data-target');
+        const textInput = document.getElementById(`hari_tgl_${id}`);
+        const inputDate = new Date(this.value);
+
+        if (!isNaN(inputDate)) {
+            textInput.value = formatTanggalIndo(inputDate);
+            this.classList.add('d-none');
+            textInput.classList.remove('d-none');
+        }
+    });
+});
+
+// Event listener untuk semua input text yang sudah jadi formatted-field
+document.querySelectorAll('.formatted-field').forEach(textInput => {
+    textInput.addEventListener('click', function() {
+        const id = this.id.split('_')[2];
+        const picker = document.getElementById(`picker_${id}`);
+        this.classList.add('d-none');
+        picker.classList.remove('d-none');
+        picker.focus();
+    });
+});
+</script>
 @endsection

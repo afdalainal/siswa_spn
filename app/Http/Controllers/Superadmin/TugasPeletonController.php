@@ -132,8 +132,14 @@ class TugasPeletonController extends Controller
         $tugaspeleton = TugasPeleton::with(['tugasSiswa', 'siswa'])->findOrFail($id);
         $pengasuh = Pengasuh::all();
         $user = User::all();
-        $siswa = Siswa::all();
-        return view('superadmin.tugaspeleton.show', compact('tugaspeleton','pengasuh','user','siswa'));
+        $siswaAktifIds = TugasSiswa::where('status', 'aktif')->pluck('siswa_id')->toArray();
+        $siswaIdsInTugas = $tugaspeleton->siswa->pluck('id')->toArray();
+        $siswa = Siswa::whereNotIn('id', $siswaAktifIds)
+                      ->orWhereIn('id', $siswaIdsInTugas)
+                      ->get();
+        $tugasSiswaStatus = TugasSiswa::whereIn('siswa_id', $siswa->pluck('id'))
+                            ->pluck('status', 'siswa_id')->toArray();
+        return view('superadmin.tugaspeleton.show', compact('tugaspeleton', 'pengasuh', 'user', 'siswa', 'tugasSiswaStatus', 'siswaAktifIds'));
     }
 
     public function update(Request $request, $id)
@@ -163,9 +169,9 @@ class TugasPeletonController extends Controller
             'tempat_7' => 'required|string',
             'keterangan' => 'nullable|string',
         ]);
-    
+
         $tugasPeleton = TugasPeleton::with('tugasSiswa')->findOrFail($id);
-    
+
         $tugasPeleton->update([
             'pengasuh_danton_id' => $validated['pengasuh_danton_id'],
             'pengasuh_danki_id' => $validated['pengasuh_danki_id'],
@@ -189,39 +195,33 @@ class TugasPeletonController extends Controller
             'tempat_7' => $validated['tempat_7'],
             'keterangan' => $validated['keterangan'] ?? null,
         ]);
-    
+
         $siswaBaruIds = $validated['siswa_id'];
-    
         $tugasSiswaLama = $tugasPeleton->tugasSiswa;
-    
+
+        foreach ($siswaBaruIds as $siswaId) {
+            $tugasSiswaExist = TugasSiswa::where('siswa_id', $siswaId)->first();
+        
+            if ($tugasSiswaExist) {
+                $tugasSiswaExist->update([
+                    'tugas_peleton_id' => $tugasPeleton->id,
+                    'status' => 'aktif',
+                ]);
+            }
+        }
+
         foreach ($tugasSiswaLama as $tugasSiswa) {
             if (!in_array($tugasSiswa->siswa_id, $siswaBaruIds)) {
                 $tugasSiswa->update(['status' => 'nonaktif']);
-            } else {
-                $tugasSiswa->update(['status' => 'aktif']);
             }
         }
-    
-        $siswaLamaIds = $tugasSiswaLama->pluck('siswa_id')->toArray();
-        $siswaUntukDitambahkan = array_diff($siswaBaruIds, $siswaLamaIds);
-    
-        foreach ($siswaUntukDitambahkan as $siswaId) {
-            $tugasSiswaBaru = TugasSiswa::create([
-                'tugas_peleton_id' => $tugasPeleton->id,
-                'siswa_id' => $siswaId,
-                'status' => 'aktif',
-            ]);
-    
-            PenilaianPengamatan::create(['tugas_siswa_id' => $tugasSiswaBaru->id]);
-            PenilaianHarian::create(['tugas_siswa_id' => $tugasSiswaBaru->id]);
-            PenilaianMingguan::create(['tugas_siswa_id' => $tugasSiswaBaru->id]);
-        }
-    
+
         return redirect()->route('tugaspeleton.index')->with([
             'message' => 'Tugas Peleton berhasil diperbarui!',
             'alert-type' => 'warning'
         ]);
     }
+
 
     public function destroy($id)
     {
