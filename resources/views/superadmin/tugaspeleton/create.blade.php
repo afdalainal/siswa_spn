@@ -73,7 +73,6 @@
                                         <option value="{{ $siswas->id }}">{{ $siswas->nama }}</option>
                                         @endforeach
                                     </select>
-
                                 </div>
                             </div>
                             <div class="col-sm-6">

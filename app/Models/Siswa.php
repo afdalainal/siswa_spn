@@ -9,4 +9,10 @@ class Siswa extends Model
 {
     use HasFactory;
     protected $fillable = ['nama','nosis'];
+    
+    public function tugasSiswas()
+    {
+        return $this->hasMany(TugasSiswa::class);
+    }
+
 }

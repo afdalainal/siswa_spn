@@ -60,6 +60,6 @@ class TugasPeleton extends Model
     }
     public function tugasSiswa(){
         return $this->hasMany(TugasSiswa::class);
-      }
-      
+    }
+
 }

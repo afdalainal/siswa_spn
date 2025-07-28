@@ -19,4 +19,9 @@ class PenilaianHarian extends Model
         'nilai_harian_7',
         'keterangan',
     ];
+    public function tugasSiswa()
+    {
+        return $this->belongsTo(TugasSiswa::class);
+    }
+
 }

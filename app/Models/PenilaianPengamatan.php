@@ -40,4 +40,10 @@ class PenilaianPengamatan extends Model
         'nilai_akhir',
         'rank_harian',
     ];
+
+    public function tugasSiswa()
+    {
+        return $this->belongsTo(TugasSiswa::class);
+    }
+
 }

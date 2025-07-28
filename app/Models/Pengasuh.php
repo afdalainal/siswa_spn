@@ -13,4 +13,18 @@ class Pengasuh extends Model
         'jabatan',
         'pangkat_nrp',
     ];
+
+    public function dantonTugas()
+    {
+        return $this->hasMany(TugasPeleton::class, 'pengasuh_danton_id');
+    }
+    public function dankiTugas()
+    {
+        return $this->hasMany(TugasPeleton::class, 'pengasuh_danki_id');
+    }
+    public function danmenTugas()
+    {
+        return $this->hasMany(TugasPeleton::class, 'pengasuh_danmen_id');
+    }
+
 }

@@ -28,4 +28,14 @@ class TugasSiswa extends Model
         return $this->hasOne(\App\Models\PenilaianPengamatan::class);
     }
 
+    public function tugasPeleton()
+    {
+        return $this->belongsTo(TugasPeleton::class);
+    }
+
+    public function siswa()
+    {
+        return $this->belongsTo(Siswa::class);
+    }
+
 }

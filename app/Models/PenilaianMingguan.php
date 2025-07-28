@@ -21,4 +21,10 @@ class PenilaianMingguan extends Model
         'rank_mingguan',
         'keterangan',
     ];
+
+    public function tugasSiswa()
+    {
+        return $this->belongsTo(TugasSiswa::class);
+    }
+
 }
