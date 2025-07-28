@@ -117,33 +117,17 @@ class TugasPeletonController extends Controller
 
     public function edit($id)
     {
-      $tugaspeleton = TugasPeleton::with('tugasSiswa')->findOrFail($id);
-      return view('superadmin.tugaspeleton.show', [
-        'tugaspeleton' => $tugaspeleton,
-        'pengasuh' => Pengasuh::all(),
-        'user' => User::all(),
-        'siswas' => Siswa::all(),
-        'siswa_terkait' => $tugaspeleton->tugasSiswa,
-        'siswa_ids_aktif' => $tugaspeleton->tugasSiswa()->where('status','aktif')->pluck('siswa_id')->toArray(),
-      ]);
+        $tugaspeleton = TugasPeleton::with(['tugasSiswa', 'siswa'])->findOrFail($id);
+        $pengasuh = Pengasuh::all();
+        $user = User::all();
+        $siswa = Siswa::all();
+
+        return view('superadmin.tugaspeleton.show', compact('tugaspeleton','pengasuh','user','siswa'));
     }
 
     public function update(Request $request, $id)
     {
       $tugaspeleton = TugasPeleton::with('tugasSiswa')->findOrFail($id);
-  
-      $validated = $request->validate([
-        'pengasuh_danton_id' => 'required|exists:pengasuhs,id',
-        'pengasuh_danki_id'   => 'required|exists:pengasuhs,id',
-        'pengasuh_danmen_id'  => 'required|exists:pengasuhs,id',
-        'user_id'             => 'required|exists:users,id',
-        'siswa_id'            => 'required|array',
-        'siswa_id.*'          => 'exists:siswas,id',
-        'ton_ki_yon','minggu_ke','hari_tgl_1','tempat_1','hari_tgl_2','tempat_2','hari_tgl_3',
-        'tempat_3','hari_tgl_4','tempat_4','hari_tgl_5','tempat_5','hari_tgl_6','tempat_6',
-        'hari_tgl_7','tempat_7','keterangan'
-      ]);
-      // map fillable as needed...
   
       DB::beginTransaction();
       try {

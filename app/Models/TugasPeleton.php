@@ -54,12 +54,14 @@ class TugasPeleton extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-    public function siswa()
-    {
-        return $this->belongsTo(Siswa::class, 'siswa_id');
-    }
+
     public function tugasSiswa(){
         return $this->hasMany(TugasSiswa::class);
     }
-
+    
+    public function siswa()
+    {
+        return $this->hasManyThrough(Siswa::class, TugasSiswa::class, 'tugas_peleton_id', 'id', 'id', 'siswa_id');
+    }
+    
 }
