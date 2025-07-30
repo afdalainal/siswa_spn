@@ -93,6 +93,38 @@ class PenilaianPengamatanController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $request->validate([
+            'mental_spiritual_1' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_spiritual_2' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_spiritual_3' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_ideologi_1' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_ideologi_2' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_ideologi_3' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_kejuangan_1' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_kejuangan_2' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_kejuangan_3' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_kejuangan_4' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'watak_pribadi_1' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'watak_pribadi_2' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'watak_pribadi_3' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'watak_pribadi_4' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_kepemimpinan_1' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_kepemimpinan_2' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_kepemimpinan_3' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_kepemimpinan_4' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_kepemimpinan_5' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_kepemimpinan_6' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_kepemimpinan_7' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'mental_kepemimpinan_8' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'jumlah_indikator' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'skor' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'nilai_konversi' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'pelanggaran_prestasi_minus' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'pelanggaran_prestasi_plus' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'nilai_akhir' => 'nullable|numeric|between:-99999999.99,99999999.99',
+            'rank_harian' => 'nullable|numeric|between:-99999999.99,99999999.99',
+        ]);
+
         $penilaian = PenilaianPengamatan::with(['tugasSiswa.tugasPeleton', 'tugasSiswa.siswa'])
             ->findOrFail($id);
     

@@ -10,8 +10,12 @@
             <form action="{{ route('tugaspeleton.update', $tugaspeleton->id) }}" method="POST">
                 @csrf @method('PUT')
 
-                <div class="row">
-                    <div class="col-sm-6">
+                <!-- Section 1: Pengasuh dan Peleton -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h5 class="text-primary">Pengasuh dan Peleton</h5>
+                    </div>
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label for="pengasuh_danton_id">Pilih Pengasuh Danton</label>
                             <select class="choices form-select multiple-remove" id="pengasuh_danton_id"
@@ -26,7 +30,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label for="pengasuh_danki_id">Pilih Pengasuh Danki</label>
                             <select class="choices form-select multiple-remove" id="pengasuh_danki_id"
@@ -41,13 +45,12 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label for="pengasuh_danmen_id">Pilih Pengasuh Danmen</label>
                             <select class="choices form-select multiple-remove" id="pengasuh_danmen_id"
                                 name="pengasuh_danmen_id" required>
                                 <option value="" disabled selected>-- Pilih --</option>
-
                                 @foreach($pengasuh as $pengasuhs)
                                 <option value="{{ $pengasuhs->id }}"
                                     {{ old('pengasuh_danmen_id', $tugaspeleton->pengasuh_danmen_id) == $pengasuhs->id ? 'selected' : '' }}>
@@ -57,12 +60,11 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label for="user_id">Pilih Peleton</label>
                             <select class="choices form-select multiple-remove" id="user_id" name="user_id" required>
                                 <option value="" disabled selected>-- Pilih --</option>
-
                                 @foreach($user as $users)
                                 <option value="{{ $users->id }}"
                                     {{ old('user_id', $tugaspeleton->user_id) == $users->id ? 'selected' : '' }}>
@@ -72,7 +74,14 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                </div>
+
+                <!-- Section 2: Siswa dan Informasi Dasar -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h5 class="text-primary">Siswa dan Informasi Dasar</h5>
+                    </div>
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label for="siswa_id">Pilih Siswa</label>
                             @php
@@ -100,7 +109,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label for="ton_ki_yon">Ton/Ki/Yon</label>
                             <input type="text" id="ton_ki_yon" name="ton_ki_yon" class="form-control square"
@@ -108,7 +117,7 @@
                                 value="{{ old('ton_ki_yon', $tugaspeleton->ton_ki_yon ?? '') }}">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label for="minggu_ke">Minggu Ke</label>
                             <input type="text" id="minggu_ke" name="minggu_ke" class="form-control square"
@@ -116,30 +125,39 @@
                                 value="{{ old('minggu_ke', $tugaspeleton->minggu_ke ?? '') }}">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                </div>
+
+                <!-- Section 3: Tanggal dan Tempat -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h5 class="text-primary">Tanggal dan Tempat</h5>
+                    </div>
+
+                    <!-- Day 1 -->
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label for="hari_tgl_1">hari_tgl_1</label>
+                            <label for="hari_tgl_1">Hari Tanggal 1</label>
                             <input type="text" id="hari_tgl_1" name="hari_tgl_1"
                                 class="form-control square formatted-field" readonly placeholder="Input hari_tgl_1"
                                 required value="{{ old('hari_tgl_1', $tugaspeleton->hari_tgl_1 ?? '') }}">
-
                             <input type="date" id="picker_1" name="picker_1"
                                 class="form-control square picker-field d-none" data-target="1"
                                 value="{{ old('picker_1', $tugaspeleton->picker_1 ?? '') }}">
                         </div>
                     </div>
-
-                    <div class="col-sm-6">
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label for="tempat_1">tempat_1</label>
+                            <label for="tempat_1">Tempat 1</label>
                             <input type="text" id="tempat_1" name="tempat_1" class="form-control square"
                                 placeholder="Input tempat_1" required
                                 value="{{ old('tempat_1', $tugaspeleton->tempat_1 ?? '') }}">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+
+                    <!-- Day 2 -->
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label for="hari_tgl_2">hari_tgl_2</label>
+                            <label for="hari_tgl_2">Hari Tanggal 2</label>
                             <input type="text" id="hari_tgl_2" name="hari_tgl_2"
                                 class="form-control square formatted-field" readonly placeholder="Input hari_tgl_2"
                                 required value="{{ old('hari_tgl_2', $tugaspeleton->hari_tgl_2 ?? '') }}">
@@ -148,17 +166,19 @@
                                 value="{{ old('picker_2', $tugaspeleton->picker_2 ?? '') }}">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label for="tempat_2">tempat_2</label>
+                            <label for="tempat_2">Tempat 2</label>
                             <input type="text" id="tempat_2" name="tempat_2" class="form-control square"
                                 placeholder="Input tempat_2" required
                                 value="{{ old('tempat_2', $tugaspeleton->tempat_2 ?? '') }}">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+
+                    <!-- Day 3 -->
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label for="hari_tgl_3">hari_tgl_3</label>
+                            <label for="hari_tgl_3">Hari Tanggal 3</label>
                             <input type="text" id="hari_tgl_3" name="hari_tgl_3"
                                 class="form-control square formatted-field" readonly placeholder="Input hari_tgl_3"
                                 required value="{{ old('hari_tgl_3', $tugaspeleton->hari_tgl_3 ?? '') }}">
@@ -167,17 +187,19 @@
                                 value="{{ old('picker_3', $tugaspeleton->picker_3 ?? '') }}">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label for="tempat_3">tempat_3</label>
+                            <label for="tempat_3">Tempat 3</label>
                             <input type="text" id="tempat_3" name="tempat_3" class="form-control square"
                                 placeholder="Input tempat_3" required
                                 value="{{ old('tempat_3', $tugaspeleton->tempat_3 ?? '') }}">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+
+                    <!-- Day 4 -->
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label for="hari_tgl_4">hari_tgl_4</label>
+                            <label for="hari_tgl_4">Hari Tanggal 4</label>
                             <input type="text" id="hari_tgl_4" name="hari_tgl_4"
                                 class="form-control square formatted-field" readonly placeholder="Input hari_tgl_4"
                                 required value="{{ old('hari_tgl_4', $tugaspeleton->hari_tgl_4 ?? '') }}">
@@ -186,17 +208,19 @@
                                 value="{{ old('picker_4', $tugaspeleton->picker_4 ?? '') }}">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label for="tempat_4">tempat_4</label>
+                            <label for="tempat_4">Tempat 4</label>
                             <input type="text" id="tempat_4" name="tempat_4" class="form-control square"
                                 placeholder="Input tempat_4" required
                                 value="{{ old('tempat_4', $tugaspeleton->tempat_4 ?? '') }}">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+
+                    <!-- Day 5 -->
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label for="hari_tgl_5">hari_tgl_5</label>
+                            <label for="hari_tgl_5">Hari Tanggal 5</label>
                             <input type="text" id="hari_tgl_5" name="hari_tgl_5"
                                 class="form-control square formatted-field" readonly placeholder="Input hari_tgl_5"
                                 required value="{{ old('hari_tgl_5', $tugaspeleton->hari_tgl_5 ?? '') }}">
@@ -205,17 +229,19 @@
                                 value="{{ old('picker_5', $tugaspeleton->picker_5 ?? '') }}">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label for="tempat_5">tempat_5</label>
+                            <label for="tempat_5">Tempat 5</label>
                             <input type="text" id="tempat_5" name="tempat_5" class="form-control square"
                                 placeholder="Input tempat_5" required
                                 value="{{ old('tempat_5', $tugaspeleton->tempat_5 ?? '') }}">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+
+                    <!-- Day 6 -->
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label for="hari_tgl_6">hari_tgl_6</label>
+                            <label for="hari_tgl_6">Hari Tanggal 6</label>
                             <input type="text" id="hari_tgl_6" name="hari_tgl_6"
                                 class="form-control square formatted-field" readonly placeholder="Input hari_tgl_6"
                                 required value="{{ old('hari_tgl_6', $tugaspeleton->hari_tgl_6 ?? '') }}">
@@ -224,17 +250,19 @@
                                 value="{{ old('picker_6', $tugaspeleton->picker_6 ?? '') }}">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label for="tempat_6">tempat_6</label>
+                            <label for="tempat_6">Tempat 6</label>
                             <input type="text" id="tempat_6" name="tempat_6" class="form-control square"
                                 placeholder="Input tempat_6" required
                                 value="{{ old('tempat_6', $tugaspeleton->tempat_6 ?? '') }}">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+
+                    <!-- Day 7 -->
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label for="hari_tgl_7">hari_tgl_7</label>
+                            <label for="hari_tgl_7">Hari Tanggal 7</label>
                             <input type="text" id="hari_tgl_7" name="hari_tgl_7"
                                 class="form-control square formatted-field" readonly placeholder="Input hari_tgl_7"
                                 required value="{{ old('hari_tgl_7', $tugaspeleton->hari_tgl_7 ?? '') }}">
@@ -243,17 +271,24 @@
                                 value="{{ old('picker_7', $tugaspeleton->picker_7 ?? '') }}">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label for="tempat_7">tempat_7</label>
+                            <label for="tempat_7">Tempat 7</label>
                             <input type="text" id="tempat_7" name="tempat_7" class="form-control square"
                                 placeholder="Input tempat_7" required
                                 value="{{ old('tempat_7', $tugaspeleton->tempat_7 ?? '') }}">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                </div>
+
+                <!-- Section 4: Keterangan -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h5 class="text-primary">Keterangan</h5>
+                    </div>
+                    <div class="col-md-12">
                         <div class="form-group">
-                            <label for="keterangan">keterangan</label>
+                            <label for="keterangan">Keterangan</label>
                             <input type="text" id="keterangan" name="keterangan" class="form-control square"
                                 placeholder="Input keterangan" required
                                 value="{{ old('keterangan', $tugaspeleton->keterangan ?? '') }}">
@@ -261,6 +296,7 @@
                     </div>
                 </div>
 
+                <!-- Submit Button -->
                 <div class="d-grid gap-2 col-2 mx-auto">
                     <button type="submit" class="btn btn-success">Update</button>
                 </div>
@@ -268,7 +304,6 @@
         </div>
     </div>
 </section>
-
 
 <script>
 const hariIndo = ['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];

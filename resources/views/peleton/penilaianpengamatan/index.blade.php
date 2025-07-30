@@ -41,7 +41,7 @@
                         <td>
                             <div class="btn-group btn-group-sm">
                                 <a href="{{ route('penilaianpengamatan.show', $tugaspeletons->id) }}"
-                                    class="btn btn-outline-primary"><i data-feather="edit"></i></a>
+                                    class="btn btn-outline-primary"><i data-feather="eye"></i></a>
                             </div>
                         </td>
                     </tr>
