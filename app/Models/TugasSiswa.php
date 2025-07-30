@@ -30,12 +30,12 @@ class TugasSiswa extends Model
 
     public function tugasPeleton()
     {
-        return $this->belongsTo(TugasPeleton::class);
+        return $this->belongsTo(\App\Models\TugasPeleton::class);
     }
 
     public function siswa()
     {
-        return $this->belongsTo(Siswa::class);
+        return $this->belongsTo(\App\Models\Siswa::class);
     }
 
 }

@@ -24,7 +24,7 @@ class PenilaianMingguan extends Model
 
     public function tugasSiswa()
     {
-        return $this->belongsTo(TugasSiswa::class);
+        return $this->belongsTo(\App\Models\TugasSiswa::class);
     }
 
 }

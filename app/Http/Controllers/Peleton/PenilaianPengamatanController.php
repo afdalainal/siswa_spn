@@ -26,11 +26,11 @@ class PenilaianPengamatanController extends Controller
      */
     public function index()
     {
-        $userId = Auth::id();
         $tugaspeleton = TugasPeleton::withTrashed()
             ->with(['pengasuhDanton', 'pengasuhDanki', 'pengasuhDanmen', 'peleton'])
-            ->where('user_id', $userId) 
+            ->where('user_id', auth()->id())
             ->get();
+    
         return view('peleton.penilaianpengamatan.index', compact('tugaspeleton'));
     }
 
@@ -55,48 +55,55 @@ class PenilaianPengamatanController extends Controller
      */
     public function show(string $id)
     {
-        $userId = Auth::id();
         $tugasPeleton = TugasPeleton::withTrashed()
+            ->with(['tugasSiswa.siswa', 'tugasSiswa.penilaianPengamatan'])
             ->where('id', $id)
-            ->where('user_id', $userId)
-            ->first();
-        if (!$tugasPeleton) {
-            abort(403, 'Anda tidak memiliki akses ke data ini.');
-        }
-        $tugasSiswas = TugasSiswa::with(['siswa']) 
-            ->where('tugas_peleton_id', $tugasPeleton->id)
-            ->get();
-        return view('peleton.penilaianpengamatan.listpenilaian', compact('tugasSiswas', 'tugasPeleton'));
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+    
+        $tugasSiswa = $tugasPeleton->tugasSiswa;
+    
+        return view('peleton.penilaianpengamatan.listpenilaian', compact('tugasSiswa', 'tugasPeleton'));
     }
+    
+    
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
-        //
+        $penilaianpengamatan = PenilaianPengamatan::with('tugasSiswa.tugasPeleton', 'tugasSiswa.siswa')
+            ->findOrFail($id);
+    
+        if (
+            !$penilaianpengamatan->tugasSiswa ||
+            !$penilaianpengamatan->tugasSiswa->tugasPeleton ||
+            $penilaianpengamatan->tugasSiswa->tugasPeleton->user_id !== auth()->id()
+        ) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit data ini.');
+        }
+    
+        return view('peleton.penilaianpengamatan.show', compact('penilaianpengamatan'));
     }
+    
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
     {
-        $userId = Auth::id();
-
-        $penilaian = PenilaianPengamatan::with('tugasSiswa.tugasPeleton', 'tugasSiswa.siswa')
-        ->findOrFail($id);
-
-        if (!$penilaian) {
-            abort(404, 'Data penilaian tidak ditemukan.');
-        }
+        $penilaian = PenilaianPengamatan::with(['tugasSiswa.tugasPeleton', 'tugasSiswa.siswa'])
+            ->findOrFail($id);
+    
         if (
             !$penilaian->tugasSiswa ||
             !$penilaian->tugasSiswa->tugasPeleton ||
-            $penilaian->tugasSiswa->tugasPeleton->user_id !== $userId
+            $penilaian->tugasSiswa->tugasPeleton->user_id !== auth()->id()
         ) {
             abort(403, 'Anda tidak memiliki akses untuk mengubah data ini.');
         }
+    
         $penilaian->update($request->only([
             'mental_spiritual_1',
             'mental_spiritual_2',
@@ -128,9 +135,10 @@ class PenilaianPengamatanController extends Controller
             'nilai_akhir',
             'rank_harian',
         ]));
-        return response()->json([
-            'message' => 'Data penilaian berhasil diperbarui.',
-            'data' => $penilaian
+    
+        return redirect()->route('penilaianpengamatan.index')->with([
+            'message' => 'Data penilaian berhasil disimpan!',
+            'alert-type' => 'success'
         ]);
     }
 

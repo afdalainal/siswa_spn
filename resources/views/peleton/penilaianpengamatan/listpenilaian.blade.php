@@ -27,7 +27,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($tugasSiswas as $tugasSiswas)
+                    @foreach ($tugasSiswa as $tugasSiswas)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ $tugasSiswas->siswa->nama ?? '-' }}</td>
@@ -35,7 +35,7 @@
                         <td>
                             <div class="btn-group btn-group-sm">
                                 @if($tugasSiswas->penilaianPengamatan)
-                                <a href="{{ route('penilaianpengamatan.update', $tugasSiswas->penilaianPengamatan->id) }}"
+                                <a href="{{ route('penilaianpengamatan.edit', $tugasSiswas->penilaianPengamatan->id) }}"
                                     class="btn btn-outline-primary"><i data-feather="edit"></i></a>
                                 @endif
                             </div>

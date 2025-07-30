@@ -48,7 +48,7 @@ class User extends Authenticatable
 
     public function tugasPeletons()
     {
-        return $this->hasMany(TugasPeleton::class);
+        return $this->hasMany(\App\Models\TugasPeleton::class);
     }
 
 }

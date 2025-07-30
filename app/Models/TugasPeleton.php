@@ -37,31 +37,31 @@ class TugasPeleton extends Model
 
     public function pengasuhDanton()
     {
-        return $this->belongsTo(Pengasuh::class, 'pengasuh_danton_id');
+        return $this->belongsTo(\App\Models\Pengasuh::class, 'pengasuh_danton_id');
     }
 
     public function pengasuhDanki()
     {
-        return $this->belongsTo(Pengasuh::class, 'pengasuh_danki_id');
+        return $this->belongsTo(\App\Models\Pengasuh::class, 'pengasuh_danki_id');
     }
 
     public function pengasuhDanmen()
     {
-        return $this->belongsTo(Pengasuh::class, 'pengasuh_danmen_id');
+        return $this->belongsTo(\App\Models\Pengasuh::class, 'pengasuh_danmen_id');
     }
 
     public function peleton()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 
     public function tugasSiswa(){
-        return $this->hasMany(TugasSiswa::class);
+        return $this->hasMany(\App\Models\TugasSiswa::class);
     }
     
     public function siswa()
     {
-        return $this->hasManyThrough(Siswa::class, TugasSiswa::class, 'tugas_peleton_id', 'id', 'id', 'siswa_id');
+        return $this->hasManyThrough(\App\Models\Siswa::class, \App\Models\TugasSiswa::class, 'tugas_peleton_id', 'id', 'id', 'siswa_id');
     }
     
 }

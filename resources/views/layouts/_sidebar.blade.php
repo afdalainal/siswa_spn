@@ -54,7 +54,7 @@
                     </a>
                 </li>
                 <li
-                    class="sidebar-item {{ request()->routeIs('penilaianpengamatan.index') || request()->routeIs('penilaianpengamatan.show') ? 'active' : '' }}">
+                    class="sidebar-item {{ request()->routeIs('penilaianpengamatan.index') || request()->routeIs('penilaianpengamatan.show') || request()->routeIs('penilaianpengamatan.edit') ? 'active' : '' }}">
                     <a href="{{route('penilaianpengamatan.index')}}" class='sidebar-link'>
                         <i data-feather="home" width="20"></i>
                         <span>Penilaian Pengamatan</span>

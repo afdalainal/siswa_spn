@@ -12,7 +12,7 @@ class Siswa extends Model
     
     public function tugasSiswas()
     {
-        return $this->hasMany(TugasSiswa::class);
+        return $this->hasMany(\App\Models\TugasSiswa::class);
     }
 
 }
