@@ -60,6 +60,20 @@
                         <span>Penilaian Pengamatan</span>
                     </a>
                 </li>
+                <li
+                    class="sidebar-item {{ request()->routeIs('penilaianharian.index') || request()->routeIs('penilaianharian.show') || request()->routeIs('penilaianharian.edit') ? 'active' : '' }}">
+                    <a href="{{route('penilaianharian.index')}}" class='sidebar-link'>
+                        <i data-feather="home" width="20"></i>
+                        <span>Penilaian Harian</span>
+                    </a>
+                </li>
+                <li
+                    class="sidebar-item {{ request()->routeIs('penilaianmingguan.index') || request()->routeIs('penilaianmingguan.show') || request()->routeIs('penilaianmingguan.edit') ? 'active' : '' }}">
+                    <a href="{{route('penilaianmingguan.index')}}" class='sidebar-link'>
+                        <i data-feather="home" width="20"></i>
+                        <span>Penilaian Mingguan</span>
+                    </a>
+                </li>
                 @endif
 
             </ul>

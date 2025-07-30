@@ -34,6 +34,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:peleton'])->group(function () {
         Route::get('/dashboard/peleton', [\App\Http\Controllers\Peleton\DashboardController::class, 'index'])->name('dashboard.peleton');
         Route::resource('penilaianpengamatan', \App\Http\Controllers\Peleton\PenilaianPengamatanController::class);
+        Route::resource('penilaianharian', \App\Http\Controllers\Peleton\PenilaianHarianController::class);
+        Route::resource('penilaianmingguan', \App\Http\Controllers\Peleton\PenilaianMingguanController::class);
     });
 
     // Profile
