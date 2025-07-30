@@ -54,21 +54,21 @@
                     </a>
                 </li>
                 <li
-                    class="sidebar-item {{ request()->routeIs('penilaianpengamatan.index') || request()->routeIs('penilaianpengamatan.show') || request()->routeIs('penilaianpengamatan.edit') ? 'active' : '' }}">
+                    class="sidebar-item {{ request()->routeIs('penilaianpengamatan.index') || request()->routeIs('penilaianpengamatan.show') || request()->routeIs('penilaianpengamatan.edit')  || request()->routeIs('penilaianpengamatan.grafik') ? 'active' : '' }}">
                     <a href="{{route('penilaianpengamatan.index')}}" class='sidebar-link'>
                         <i data-feather="home" width="20"></i>
                         <span>Penilaian Pengamatan</span>
                     </a>
                 </li>
                 <li
-                    class="sidebar-item {{ request()->routeIs('penilaianharian.index') || request()->routeIs('penilaianharian.show') || request()->routeIs('penilaianharian.edit') ? 'active' : '' }}">
+                    class="sidebar-item {{ request()->routeIs('penilaianharian.index') || request()->routeIs('penilaianharian.show') || request()->routeIs('penilaianharian.edit') || request()->routeIs('penilaianharian.grafik') ? 'active' : '' }}">
                     <a href="{{route('penilaianharian.index')}}" class='sidebar-link'>
                         <i data-feather="home" width="20"></i>
                         <span>Penilaian Harian</span>
                     </a>
                 </li>
                 <li
-                    class="sidebar-item {{ request()->routeIs('penilaianmingguan.index') || request()->routeIs('penilaianmingguan.show') || request()->routeIs('penilaianmingguan.edit') ? 'active' : '' }}">
+                    class="sidebar-item {{ request()->routeIs('penilaianmingguan.index') || request()->routeIs('penilaianmingguan.show') || request()->routeIs('penilaianmingguan.edit') || request()->routeIs('penilaianmingguan.grafik') ? 'active' : '' }}">
                     <a href="{{route('penilaianmingguan.index')}}" class='sidebar-link'>
                         <i data-feather="home" width="20"></i>
                         <span>Penilaian Mingguan</span>

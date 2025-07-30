@@ -42,6 +42,8 @@
                             <div class="btn-group btn-group-sm">
                                 <a href="{{ route('penilaianmingguan.show', $tugaspeletons->id) }}"
                                     class="btn btn-outline-primary"><i data-feather="eye"></i></a>
+                                <a href="{{ route('penilaianmingguan.grafik', $tugaspeletons->id) }}"
+                                    class="btn btn-outline-primary"> <i class="bi bi-bar-chart-line"></i></a>
                             </div>
                         </td>
                     </tr>

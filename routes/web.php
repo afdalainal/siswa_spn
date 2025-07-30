@@ -36,6 +36,9 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('penilaianpengamatan', \App\Http\Controllers\Peleton\PenilaianPengamatanController::class);
         Route::resource('penilaianharian', \App\Http\Controllers\Peleton\PenilaianHarianController::class);
         Route::resource('penilaianmingguan', \App\Http\Controllers\Peleton\PenilaianMingguanController::class);
+        Route::get('/penilaianpengamatan/grafik/{id}', [\App\Http\Controllers\Peleton\PenilaianPengamatanController::class, 'grafik'])->name('penilaianpengamatan.grafik');
+        Route::get('/penilaianharian/grafik/{id}', [\App\Http\Controllers\Peleton\PenilaianHarianController::class, 'grafik'])->name('penilaianharian.grafik');
+        Route::get('/penilaianmingguan/grafik/{id}', [\App\Http\Controllers\Peleton\PenilaianMingguanController::class, 'grafik'])->name('penilaianmingguan.grafik');
     });
 
     // Profile

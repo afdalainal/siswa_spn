@@ -1,7 +1,7 @@
 @extends('layouts._index')
 
 @section('content')
-<div class="page-title">
+<!-- <div class="page-title">
     <h5>Dashboard</h5>
 </div>
 <section class="section">
@@ -37,5 +37,5 @@
             </div>
         </div>
     </div>
-</section>
+</section> -->
 @endsection

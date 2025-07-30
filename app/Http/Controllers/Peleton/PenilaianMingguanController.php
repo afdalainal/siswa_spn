@@ -143,4 +143,36 @@ class PenilaianMingguanController extends Controller
     {
         //
     }
+
+    public function grafik(string $id)
+    {
+        $tugasPeleton = TugasPeleton::withTrashed()
+            ->with(['tugasSiswa.siswa', 'tugasSiswa.penilaianMingguan'])
+            ->where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $tugasSiswa = $tugasPeleton->tugasSiswa;
+
+        $grafikData = [];
+        foreach ($tugasSiswa as $siswa) {
+            if ($siswa->penilaianMingguan) {
+                $grafikData[] = [
+                    'nama_siswa' => $siswa->siswa->nama,
+                    'nilai_hari_1' => $siswa->penilaianMingguan->nilai_mingguan_hari_1,
+                    'nilai_hari_2' => $siswa->penilaianMingguan->nilai_mingguan_hari_2,
+                    'nilai_hari_3' => $siswa->penilaianMingguan->nilai_mingguan_hari_3,
+                    'nilai_hari_4' => $siswa->penilaianMingguan->nilai_mingguan_hari_4,
+                    'nilai_hari_5' => $siswa->penilaianMingguan->nilai_mingguan_hari_5,
+                    'nilai_hari_6' => $siswa->penilaianMingguan->nilai_mingguan_hari_6,
+                    'nilai_hari_7' => $siswa->penilaianMingguan->nilai_mingguan_hari_7,
+                    'nilai_mingguan' => $siswa->penilaianMingguan->nilai_mingguan,
+                    'rank_mingguan' => $siswa->penilaianMingguan->rank_mingguan
+                ];
+            }
+        }
+
+        return view('peleton.penilaianmingguan.grafik', compact('tugasPeleton', 'grafikData'));
+    }
+
 }

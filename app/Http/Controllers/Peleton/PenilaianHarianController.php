@@ -139,4 +139,43 @@ class PenilaianHarianController extends Controller
     {
         //
     }
+
+    public function grafik(string $id)
+    {
+        $tugasPeleton = TugasPeleton::withTrashed()
+            ->with(['tugasSiswa.siswa', 'tugasSiswa.penilaianHarian'])
+            ->where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $tugasSiswa = $tugasPeleton->tugasSiswa;
+
+        $grafikData = [];
+        foreach ($tugasSiswa as $siswa) {
+            if ($siswa->penilaianHarian) {
+                $grafikData[] = [
+                    'nama_siswa' => $siswa->siswa->nama,
+                    'nilai_harian_1' => $siswa->penilaianHarian->nilai_harian_1,
+                    'nilai_harian_2' => $siswa->penilaianHarian->nilai_harian_2,
+                    'nilai_harian_3' => $siswa->penilaianHarian->nilai_harian_3,
+                    'nilai_harian_4' => $siswa->penilaianHarian->nilai_harian_4,
+                    'nilai_harian_5' => $siswa->penilaianHarian->nilai_harian_5,
+                    'nilai_harian_6' => $siswa->penilaianHarian->nilai_harian_6,
+                    'nilai_harian_7' => $siswa->penilaianHarian->nilai_harian_7,
+                    'rata_rata' => (
+                        $siswa->penilaianHarian->nilai_harian_1 +
+                        $siswa->penilaianHarian->nilai_harian_2 +
+                        $siswa->penilaianHarian->nilai_harian_3 +
+                        $siswa->penilaianHarian->nilai_harian_4 +
+                        $siswa->penilaianHarian->nilai_harian_5 +
+                        $siswa->penilaianHarian->nilai_harian_6 +
+                        $siswa->penilaianHarian->nilai_harian_7
+                    ) / 7
+                ];
+            }
+        }
+
+        return view('peleton.penilaianharian.grafik', compact('tugasPeleton', 'grafikData'));
+    }
+    
 }
