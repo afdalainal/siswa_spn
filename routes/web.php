@@ -4,8 +4,11 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ProfileController;
 
+// Route::get('/', fn() => view('welcome'));
 
-Route::get('/', fn() => view('welcome'));
+Route::get('/', function () {
+    return Auth::check() ? redirect('/dashboard') : redirect('/login');
+});
 
 Route::middleware(['auth'])->group(function () {
     // Redirect otomatis berdasarkan role
@@ -39,6 +42,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/penilaianpengamatan/grafik/{id}', [\App\Http\Controllers\Peleton\PenilaianPengamatanController::class, 'grafik'])->name('penilaianpengamatan.grafik');
         Route::get('/penilaianharian/grafik/{id}', [\App\Http\Controllers\Peleton\PenilaianHarianController::class, 'grafik'])->name('penilaianharian.grafik');
         Route::get('/penilaianmingguan/grafik/{id}', [\App\Http\Controllers\Peleton\PenilaianMingguanController::class, 'grafik'])->name('penilaianmingguan.grafik');
+        Route::get('/penilaianpengamatan/laporan/{id}', [\App\Http\Controllers\Peleton\PenilaianPengamatanController::class, 'laporan'])->name('penilaianpengamatan.laporan');
+        Route::get('/penilaianharian/laporan/{id}', [\App\Http\Controllers\Peleton\PenilaianHarianController::class, 'laporan'])->name('penilaianharian.laporan');
+        Route::get('/penilaianmingguan/laporan/{id}', [\App\Http\Controllers\Peleton\PenilaianMingguanController::class, 'laporan'])->name('penilaianmingguan.laporan');
     });
 
     // Profile

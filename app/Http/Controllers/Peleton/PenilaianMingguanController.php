@@ -19,6 +19,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
+use Barryvdh\DomPDF\Facade\Pdf;
+
+
 class PenilaianMingguanController extends Controller
 {
     /**
@@ -173,6 +176,32 @@ class PenilaianMingguanController extends Controller
         }
 
         return view('peleton.penilaianmingguan.grafik', compact('tugasPeleton', 'grafikData'));
+    }
+
+    public function laporan(string $id)
+    {
+        $tugasPeleton = TugasPeleton::withTrashed()
+            ->with([
+                'tugasSiswa.siswa', 
+                'tugasSiswa.penilaianMingguan',
+                'pengasuhDanton',
+                'pengasuhDanki',
+                'pengasuhDanmen'
+            ])
+            ->where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+    
+        $tugasSiswa = $tugasPeleton->tugasSiswa;
+    
+        if (request()->has('download')) {
+            $pdf = Pdf::loadView('peleton.penilaianmingguan.laporan', compact('tugasSiswa', 'tugasPeleton'))
+                      ->setPaper('a4', 'landscape');
+            
+            return $pdf->stream('laporan-penilaian-mingguan.pdf');
+        }
+
+        return view('peleton.penilaianmingguan.laporan', compact('tugasSiswa', 'tugasPeleton'));
     }
 
 }

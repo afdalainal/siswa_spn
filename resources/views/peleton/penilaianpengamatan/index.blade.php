@@ -43,7 +43,11 @@
                                 <a href="{{ route('penilaianpengamatan.show', $tugaspeletons->id) }}"
                                     class="btn btn-outline-primary"><i data-feather="eye"></i></a>
                                 <a href="{{ route('penilaianpengamatan.grafik', $tugaspeletons->id) }}"
-                                    class="btn btn-outline-primary"> <i class="bi bi-bar-chart-line"></i></a>
+                                    class="btn btn-outline-warning"> <i class="bi bi-bar-chart-line"></i></a>
+                                <a href="{{ route('penilaianpengamatan.laporan', ['id' => $tugaspeletons->id, 'download' => true]) }}"
+                                    target="_blank" class="btn btn-outline-secondary">
+                                    <i class="bi bi-printer"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>
