@@ -4,7 +4,7 @@
             <p>Sekolah Polisi Negara &copy; 2025 </p>
         </div>
         <div class="float-end">
-            <p>SPN</p>
+            <p>Sumatera Barat</p>
         </div>
     </div>
 </footer>
