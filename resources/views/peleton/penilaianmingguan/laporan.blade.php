@@ -287,20 +287,13 @@
                     <th class="keterangan-col" rowspan="2">KETERANGAN</th>
                 </tr>
                 <tr>
-                    <th class="hari-col header-col">HARI
-                        1<br>{{ $tugasPeleton->hari_tgl_1 ?? '' }}</th>
-                    <th class="hari-col header-col">HARI
-                        2<br>{{ $tugasPeleton->hari_tgl_2 ?? '' }}</th>
-                    <th class="hari-col header-col">HARI
-                        3<br>{{ $tugasPeleton->hari_tgl_3 ?? '' }}</th>
-                    <th class="hari-col header-col">HARI
-                        4<br>{{ $tugasPeleton->hari_tgl_4 ?? '' }}</th>
-                    <th class="hari-col header-col">HARI
-                        5<br>{{ $tugasPeleton->hari_tgl_5 ?? '' }}</th>
-                    <th class="hari-col header-col">HARI
-                        6<br>{{ $tugasPeleton->hari_tgl_6 ?? '' }}</th>
-                    <th class="hari-col header-col">HARI
-                        7<br>{{ $tugasPeleton->hari_tgl_7 ?? '' }}</th>
+                    <th class="hari-col header-col">{{ $tugasPeleton->hari_tgl_1 ?? '' }}</th>
+                    <th class="hari-col header-col">{{ $tugasPeleton->hari_tgl_2 ?? '' }}</th>
+                    <th class="hari-col header-col">{{ $tugasPeleton->hari_tgl_3 ?? '' }}</th>
+                    <th class="hari-col header-col">{{ $tugasPeleton->hari_tgl_4 ?? '' }}</th>
+                    <th class="hari-col header-col">{{ $tugasPeleton->hari_tgl_5 ?? '' }}</th>
+                    <th class="hari-col header-col">{{ $tugasPeleton->hari_tgl_6 ?? '' }}</th>
+                    <th class="hari-col header-col">{{ $tugasPeleton->hari_tgl_7 ?? '' }}</th>
                 </tr>
             </thead>
             <tbody>

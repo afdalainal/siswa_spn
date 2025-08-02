@@ -186,6 +186,10 @@
         background-color: #ffff99;
     }
 
+    .empty-value {
+        color: #999;
+    }
+
     @media print {
         body {
             padding: 0;
@@ -237,20 +241,21 @@
             <p class="header-title">SEKOLAH POLISI NEGARA</p>
 
             <p class="header-subtitle">REKAPITULASI HASIL PENILAIAN MENTAL ( HARIAN )</p>
-            <p>DARI {{ $tugasPeleton->hari_tgl_1 ?? '' }} s/d {{ $tugasPeleton->hari_tgl_7 ?? '' }}</p>
+            <p>DARI {{ $tugasPeleton->hari_tgl_1 ?? '-' }} s/d {{ $tugasPeleton->hari_tgl_7 ?? '-' }}</p>
 
             <table class="header-info">
                 <tr>
                     <td class="header-info-left">
-                        TON / KI / YON : {{ strtoupper($tugasPeleton->ton_ki_yon ?? '') }}
+                        TON / KI / YON : {{ strtoupper($tugasPeleton->ton_ki_yon ?? '-') }}
                     </td>
                     <td class="header-info-center">
-                        MINGGU KE : {{ $tugasPeleton->minggu_ke ?? '' }}
+                        MINGGU KE : {{ $tugasPeleton->minggu_ke ?? '-' }}
                     </td>
                     <td class="header-info-right">
                         HARI/TGL :
                         @php
                         if(isset($tugasPeleton->created_at)) {
+                        try {
                         $days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
                         $months = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
                         'September', 'Oktober', 'November', 'Desember'];
@@ -262,6 +267,9 @@
                         $year = $date->format('Y');
 
                         echo $dayName . ', ' . $day . ' ' . $monthName . ' ' . $year;
+                        } catch (Exception $e) {
+                        echo '-';
+                        }
                         } else {
                         echo '-';
                         }
@@ -276,25 +284,18 @@
                 <tr>
                     <th class="no-col" rowspan="2">NO</th>
                     <th class="nama-col" rowspan="2">NAMA</th>
-                    <th class="nama-col" rowspan="2">NOSIS</th>
+                    <th class="nosis-col" rowspan="2">NOSIS</th>
                     <th colspan="7">HARI</th>
                     <th class="keterangan-col" rowspan="2">KETERANGAN</th>
                 </tr>
                 <tr>
-                    <th class="hari-col header-col">HARI
-                        1<br>{{ $tugasPeleton->hari_tgl_1 ?? '' }}</th>
-                    <th class="hari-col header-col">HARI
-                        2<br>{{ $tugasPeleton->hari_tgl_2 ?? '' }}</th>
-                    <th class="hari-col header-col">HARI
-                        3<br>{{ $tugasPeleton->hari_tgl_3 ?? '' }}</th>
-                    <th class="hari-col header-col">HARI
-                        4<br>{{ $tugasPeleton->hari_tgl_4 ?? '' }}</th>
-                    <th class="hari-col header-col">HARI
-                        5<br>{{ $tugasPeleton->hari_tgl_5 ?? '' }}</th>
-                    <th class="hari-col header-col">HARI
-                        6<br>{{ $tugasPeleton->hari_tgl_6 ?? '' }}</th>
-                    <th class="hari-col header-col">HARI
-                        7<br>{{ $tugasPeleton->hari_tgl_7 ?? '' }}</th>
+                    <th class="hari-col header-col">{{ $tugasPeleton->hari_tgl_1 ?? '-' }}</th>
+                    <th class="hari-col header-col">{{ $tugasPeleton->hari_tgl_2 ?? '-' }}</th>
+                    <th class="hari-col header-col">{{ $tugasPeleton->hari_tgl_3 ?? '-' }}</th>
+                    <th class="hari-col header-col">{{ $tugasPeleton->hari_tgl_4 ?? '-' }}</th>
+                    <th class="hari-col header-col">{{ $tugasPeleton->hari_tgl_5 ?? '-' }}</th>
+                    <th class="hari-col header-col">{{ $tugasPeleton->hari_tgl_6 ?? '-' }}</th>
+                    <th class="hari-col header-col">{{ $tugasPeleton->hari_tgl_7 ?? '-' }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -302,30 +303,49 @@
                 @if($siswa->penilaianHarian)
                 @php
                 $nilaiArray = [
-                $siswa->penilaianHarian->nilai_harian_1,
-                $siswa->penilaianHarian->nilai_harian_2,
-                $siswa->penilaianHarian->nilai_harian_3,
-                $siswa->penilaianHarian->nilai_harian_4,
-                $siswa->penilaianHarian->nilai_harian_5,
-                $siswa->penilaianHarian->nilai_harian_6,
-                $siswa->penilaianHarian->nilai_harian_7
+                $siswa->penilaianHarian->nilai_harian_1 ?? null,
+                $siswa->penilaianHarian->nilai_harian_2 ?? null,
+                $siswa->penilaianHarian->nilai_harian_3 ?? null,
+                $siswa->penilaianHarian->nilai_harian_4 ?? null,
+                $siswa->penilaianHarian->nilai_harian_5 ?? null,
+                $siswa->penilaianHarian->nilai_harian_6 ?? null,
+                $siswa->penilaianHarian->nilai_harian_7 ?? null
                 ];
-                $rataRata = array_sum($nilaiArray) / count(array_filter($nilaiArray, function($value) {
+
+                // Filter out null values and calculate average
+                $filteredNilai = array_filter($nilaiArray, function($value) {
                 return $value !== null;
-                }));
+                });
+
+                $rataRata = count($filteredNilai) > 0 ? round(array_sum($filteredNilai) / count($filteredNilai), 2) :
+                null;
                 @endphp
                 <tr>
                     <td class="no-col">{{ $index + 1 }}</td>
-                    <td class="text-left nama-col nowrap">{{ $siswa->siswa->nama }}</td>
-                    <td class="text-left nama-col nowrap">{{ $siswa->siswa->nosis }}</td>
-                    <td class="hari-col">{{ $siswa->penilaianHarian->nilai_harian_1 }}</td>
-                    <td class="hari-col">{{ $siswa->penilaianHarian->nilai_harian_2 }}</td>
-                    <td class="hari-col">{{ $siswa->penilaianHarian->nilai_harian_3 }}</td>
-                    <td class="hari-col">{{ $siswa->penilaianHarian->nilai_harian_4 }}</td>
-                    <td class="hari-col">{{ $siswa->penilaianHarian->nilai_harian_5 }}</td>
-                    <td class="hari-col">{{ $siswa->penilaianHarian->nilai_harian_6 }}</td>
-                    <td class="hari-col">{{ $siswa->penilaianHarian->nilai_harian_7 }}</td>
-                    <td class="text-left keterangan-col">{{ $siswa->penilaianHarian->keterangan }}</td>
+                    <td class="text-left nama-col nowrap">{{ $siswa->siswa->nama ?? '-' }}</td>
+                    <td class="text-left nosis-col nowrap">{{ $siswa->siswa->nosis ?? '-' }}</td>
+                    <td class="hari-col">{{ $siswa->penilaianHarian->nilai_harian_1 ?? '-' }}</td>
+                    <td class="hari-col">{{ $siswa->penilaianHarian->nilai_harian_2 ?? '-' }}</td>
+                    <td class="hari-col">{{ $siswa->penilaianHarian->nilai_harian_3 ?? '-' }}</td>
+                    <td class="hari-col">{{ $siswa->penilaianHarian->nilai_harian_4 ?? '-' }}</td>
+                    <td class="hari-col">{{ $siswa->penilaianHarian->nilai_harian_5 ?? '-' }}</td>
+                    <td class="hari-col">{{ $siswa->penilaianHarian->nilai_harian_6 ?? '-' }}</td>
+                    <td class="hari-col">{{ $siswa->penilaianHarian->nilai_harian_7 ?? '-' }}</td>
+                    <td class="text-left keterangan-col">{{ $siswa->penilaianHarian->keterangan ?? '-' }}</td>
+                </tr>
+                @else
+                <tr>
+                    <td class="no-col">{{ $index + 1 }}</td>
+                    <td class="text-left nama-col nowrap">{{ $siswa->siswa->nama ?? '-' }}</td>
+                    <td class="text-left nosis-col nowrap">{{ $siswa->siswa->nosis ?? '-' }}</td>
+                    <td class="hari-col empty-value">-</td>
+                    <td class="hari-col empty-value">-</td>
+                    <td class="hari-col empty-value">-</td>
+                    <td class="hari-col empty-value">-</td>
+                    <td class="hari-col empty-value">-</td>
+                    <td class="hari-col empty-value">-</td>
+                    <td class="hari-col empty-value">-</td>
+                    <td class="text-left keterangan-col empty-value">-</td>
                 </tr>
                 @endif
                 @endforeach
@@ -338,6 +358,7 @@
                 PADANG,
                 @php
                 if(isset($tugasPeleton->created_at)) {
+                try {
                 $days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
                 $months = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
                 'September', 'Oktober', 'November', 'Desember'];
@@ -349,6 +370,9 @@
                 $year = $date->format('Y');
 
                 echo $dayName . ', ' . $day . ' ' . $monthName . ' ' . $year;
+                } catch (Exception $e) {
+                echo '-';
+                }
                 } else {
                 echo '-';
                 }
@@ -360,20 +384,20 @@
                     <td style="width: 25%;">
                         <div class="signature-title">DANKI PENGASUH</div>
                         <div style="height: 30px;"></div>
-                        <div class="signature-name">{{ $tugasPeleton->pengasuhDanki->nama ?? '' }}</div>
-                        <div class="signature-rank">{{ $tugasPeleton->pengasuhDanki->pangkat_nrp ?? '' }}</div>
+                        <div class="signature-name">{{ $tugasPeleton->pengasuhDanki->nama ?? '-' }}</div>
+                        <div class="signature-rank">{{ $tugasPeleton->pengasuhDanki->pangkat_nrp ?? '-' }}</div>
                     </td>
                     <td style="width: 35%;">
                         <div class="signature-title">DANMEN PENGASUH SISWA DIKTUKBA POLRI GEL II TA 2024</div>
                         <div style="height: 30px;"></div>
-                        <div class="signature-name">{{ $tugasPeleton->pengasuhDanmen->nama ?? '' }}</div>
-                        <div class="signature-rank">{{ $tugasPeleton->pengasuhDanmen->pangkat_nrp ?? '' }}</div>
+                        <div class="signature-name">{{ $tugasPeleton->pengasuhDanmen->nama ?? '-' }}</div>
+                        <div class="signature-rank">{{ $tugasPeleton->pengasuhDanmen->pangkat_nrp ?? '-' }}</div>
                     </td>
                     <td style="width: 40%;">
                         <div class="signature-title">DANTON PENGASUH</div>
                         <div style="height: 30px;"></div>
-                        <div class="signature-name">{{ $tugasPeleton->pengasuhDanton->nama ?? '' }}</div>
-                        <div class="signature-rank">{{ $tugasPeleton->pengasuhDanton->pangkat_nrp ?? '' }}</div>
+                        <div class="signature-name">{{ $tugasPeleton->pengasuhDanton->nama ?? '-' }}</div>
+                        <div class="signature-rank">{{ $tugasPeleton->pengasuhDanton->pangkat_nrp ?? '-' }}</div>
                     </td>
                 </tr>
             </table>
