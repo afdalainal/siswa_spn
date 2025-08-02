@@ -34,7 +34,7 @@
                         <td>{{ $tugasSiswas->status ?? '-' }}</td>
                         <td>
                             <div class="btn-group btn-group-sm">
-                                @if($tugasSiswas->penilaianharian)
+                                @if($tugasSiswas->penilaianharian && $tugasSiswas->status == 'aktif')
                                 <a href="{{ route('penilaianharian.edit', $tugasSiswas->penilaianharian->id) }}"
                                     class="btn btn-outline-primary"><i data-feather="edit"></i></a>
                                 @endif
