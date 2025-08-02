@@ -52,6 +52,9 @@
 
     <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 
+    <!-- Pastikan script Chart.js dimuat sebelum kode JavaScript Anda -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </body>
 
 </html>
