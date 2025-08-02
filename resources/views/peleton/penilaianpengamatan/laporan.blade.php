@@ -66,15 +66,63 @@
         border: none;
     }
 
-    .signature {
-        margin-top: 20px;
-        display: flex;
-        justify-content: space-between;
+    /* Improved Footer Styling */
+    .footer-section {
+        margin-top: 30px;
+        width: 100%;
     }
 
-    .signature-box {
+    .signature-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 11px;
+    }
+
+    .signature-table td {
+        border: none;
+        padding: 8px;
+        vertical-align: top;
         text-align: center;
-        width: 200px;
+    }
+
+    .date-location {
+        text-align: right;
+        margin-bottom: 20px;
+        font-size: 11px;
+        font-weight: normal;
+    }
+
+    .signature-title {
+        font-weight: bold;
+        margin-bottom: 50px;
+        font-size: 11px;
+    }
+
+    .signature-name {
+        text-decoration: underline;
+        font-weight: bold;
+        margin-bottom: 2px;
+        font-size: 11px;
+    }
+
+    .signature-rank {
+        font-size: 10px;
+        margin: 0;
+    }
+
+    .left-signature {
+        width: 30%;
+        text-align: center;
+    }
+
+    .center-signature {
+        width: 40%;
+        text-align: center;
+    }
+
+    .right-signature {
+        width: 30%;
+        text-align: center;
     }
 
     .page-break {
@@ -100,6 +148,14 @@
 
         .header p {
             font-size: 10px;
+        }
+
+        .signature-table {
+            font-size: 9px;
+        }
+
+        .date-location {
+            font-size: 9px;
         }
     }
 
@@ -151,7 +207,8 @@
             <thead>
                 <tr>
                     <th rowspan="3">NO</th>
-                    <th rowspan="3">NAMA/NOSIS</th>
+                    <th rowspan="3">NAMA</th>
+                    <th rowspan="3">NOSIS</th>
                     <th colspan="3">ASPEK MENTAL SPIRITUAL</th>
                     <th colspan="3">ASPEK MENTAL IDEOLOGI</th>
                     <th colspan="4">ASPEK MENTAL KEJUANGAN</th>
@@ -199,7 +256,8 @@
                 @if($siswa->penilaianPengamatan)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td class="text-left">{{ $siswa->siswa->nama }}<br>{{ $siswa->siswa->nosis }}</td>
+                    <td class="text-left">{{ $siswa->siswa->nama }}</td>
+                    <td class="text-left">{{ $siswa->siswa->nosis }}</td>
                     <td>{{ $siswa->penilaianPengamatan->mental_spiritual_1 }}</td>
                     <td>{{ $siswa->penilaianPengamatan->mental_spiritual_2 }}</td>
                     <td>{{ $siswa->penilaianPengamatan->mental_spiritual_3 }}</td>
@@ -235,25 +293,34 @@
             </tbody>
         </table>
 
-        <div class="signature">
-            <div class="signature-box">
-                <p>DAN TON {{ $tugasPeleton->ton_ki_yon ?? '' }}</p>
-                <br><br><br>
-                <p>(_______________________)</p>
-                <p>Nrp. {{ $tugasPeleton->pengasuhDanton->pangkat_nrp ?? '' }}</p>
+        <!-- Improved Footer Section -->
+        <div class="footer-section">
+            <div class="date-location">
+                PADANG, 16 DESEMBER 2024
             </div>
-            <div class="signature-box">
-                <p>DAN KI {{ $tugasPeleton->ton_ki_yon ?? '' }}</p>
-                <br><br><br>
-                <p>(_______________________)</p>
-                <p>Nrp. {{ $tugasPeleton->pengasuhDanki->pangkat_nrp ?? '' }}</p>
-            </div>
-            <div class="signature-box">
-                <p>DANMEN {{ $tugasPeleton->ton_ki_yon ?? '' }}</p>
-                <br><br><br>
-                <p>(_______________________)</p>
-                <p>Nrp. {{ $tugasPeleton->pengasuhDanmen->pangkat_nrp ?? '' }}</p>
-            </div>
+
+            <table class="signature-table">
+                <tr>
+                    <td class="left-signature">
+                        <div class="signature-title">DANUS PENGASUH</div>
+                        <div style="height: 60px;"></div>
+                        <div class="signature-name">WIDODO S.</div>
+                        <div class="signature-rank">IPTU NRP 85040033</div>
+                    </td>
+                    <td class="center-signature">
+                        <div class="signature-title">DANMEN PENGASUH SISWA DIKTUKBA POLRI GEL II TA 2024</div>
+                        <div style="height: 60px;"></div>
+                        <div class="signature-name">FIRDAUS, S.H., M.H.</div>
+                        <div class="signature-rank">KOMPOL NRP 74070897</div>
+                    </td>
+                    <td class="right-signature">
+                        <div class="signature-title">TAMTIKI EDI PUTRA</div>
+                        <div style="height: 60px;"></div>
+                        <div class="signature-name">(_______________________)</div>
+                        <div class="signature-rank">IPDA NRP 77040304</div>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
 
