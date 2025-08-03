@@ -208,10 +208,6 @@ class TugasPeletonController extends Controller
             // Students to be added
             $addedSiswaIds = array_diff($newSiswaIds, $currentSiswaIds);
             foreach ($addedSiswaIds as $siswaId) {
-                // Set any existing active tugas to nonaktif
-                TugasSiswa::where('siswa_id', $siswaId)
-                    ->update(['status' => 'nonaktif']);
-
                 // Create new tugas
                 $tugasSiswa = TugasSiswa::create([
                     'tugas_peleton_id' => $tugasPeleton->id,
