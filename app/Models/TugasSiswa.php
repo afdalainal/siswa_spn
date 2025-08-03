@@ -38,4 +38,8 @@ class TugasSiswa extends Model
         return $this->belongsTo(\App\Models\Siswa::class);
     }
 
+    public function penilaianSiswaHarian()
+    {
+        return $this->hasMany(\App\Models\PenilaianSiswaHarian::class);
+    }
 }

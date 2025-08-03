@@ -9,7 +9,7 @@ class PenilaianHarian extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'tugas_siswa_id',
+        'penilaian_siswa_harian_id',
         'nilai_harian_1',
         'nilai_harian_2',
         'nilai_harian_3',

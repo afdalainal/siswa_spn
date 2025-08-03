@@ -10,6 +10,7 @@ use App\Models\TugasSiswa;
 use App\Models\PenilaianPengamatan;
 use App\Models\PenilaianHarian;
 use App\Models\PenilaianMingguan;
+use App\Models\PenilaianSiswaHarian;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -41,34 +42,36 @@ class TugasPeletonController extends Controller
     
     public function store(Request $request)
     {
+        // dd($request->all());
         $validated = $request->validate([
             'pengasuh_danton_id' => 'required|exists:pengasuhs,id',
             'pengasuh_danki_id' => 'required|exists:pengasuhs,id',
             'pengasuh_danmen_id' => 'required|exists:pengasuhs,id',
             'user_id' => 'required|exists:users,id',
-            'siswa_id' => 'required|array',
+            'siswa_id' => 'required|array|min:1',
             'siswa_id.*' => 'exists:siswas,id',
-            'ton_ki_yon' => 'required|string',
-            'minggu_ke' => 'required|string',
-            'hari_tgl_1' => 'required|string',
-            'tempat_1' => 'required|string',
-            'hari_tgl_2' => 'required|string',
-            'tempat_2' => 'required|string',
-            'hari_tgl_3' => 'required|string',
-            'tempat_3' => 'required|string',
-            'hari_tgl_4' => 'required|string',
-            'tempat_4' => 'required|string',
-            'hari_tgl_5' => 'required|string',
-            'tempat_5' => 'required|string',
-            'hari_tgl_6' => 'required|string',
-            'tempat_6' => 'required|string',
-            'hari_tgl_7' => 'required|string',
-            'tempat_7' => 'required|string',
+            'ton_ki_yon' => 'required|string|max:255',
+            'minggu_ke' => 'required|string|max:255',
+            'hari_tgl_1' => 'required|string|max:255',
+            'tempat_1' => 'required|string|max:255',
+            'hari_tgl_2' => 'required|string|max:255',
+            'tempat_2' => 'required|string|max:255',
+            'hari_tgl_3' => 'required|string|max:255',
+            'tempat_3' => 'required|string|max:255',
+            'hari_tgl_4' => 'required|string|max:255',
+            'tempat_4' => 'required|string|max:255',
+            'hari_tgl_5' => 'required|string|max:255',
+            'tempat_5' => 'required|string|max:255',
+            'hari_tgl_6' => 'required|string|max:255',
+            'tempat_6' => 'required|string|max:255',
+            'hari_tgl_7' => 'required|string|max:255',
+            'tempat_7' => 'required|string|max:255',
             'keterangan' => 'nullable|string',
         ]);
 
         DB::beginTransaction();
         try {
+            // 1. Simpan data tugas peleton
             $tugasPeleton = TugasPeleton::create([
                 'pengasuh_danton_id' => $validated['pengasuh_danton_id'],
                 'pengasuh_danki_id' => $validated['pengasuh_danki_id'],
@@ -93,29 +96,42 @@ class TugasPeletonController extends Controller
                 'keterangan' => $validated['keterangan'] ?? null,
             ]);
 
+            // 2. Simpan siswa yang terlibat
             foreach ($validated['siswa_id'] as $siswaId) {
-                // Create new tugas for the peleton
+                // Simpan tugas siswa
                 $tugasSiswa = TugasSiswa::create([
                     'tugas_peleton_id' => $tugasPeleton->id,
                     'siswa_id' => $siswaId,
                     'status' => 'aktif',
                 ]);
 
-                // Create related records
-                PenilaianPengamatan::create(['tugas_siswa_id' => $tugasSiswa->id]);
-                PenilaianHarian::create(['tugas_siswa_id' => $tugasSiswa->id]);
-                PenilaianMingguan::create(['tugas_siswa_id' => $tugasSiswa->id]);
+                // 3. Buat 7 penilaian harian untuk setiap siswa
+                for ($hariKe = 1; $hariKe <= 7; $hariKe++) {
+                    $penilaianHarian = PenilaianSiswaHarian::create([
+                        'tugas_siswa_id' => $tugasSiswa->id,
+                        'hari_ke' => $hariKe,
+                    ]);
+
+                    // 4. Buat record penilaian untuk setiap hari
+                    PenilaianPengamatan::create(['penilaian_siswa_harian_id' => $penilaianHarian->id]);
+                    PenilaianHarian::create(['penilaian_siswa_harian_id' => $penilaianHarian->id]);
+                    PenilaianMingguan::create(['penilaian_siswa_harian_id' => $penilaianHarian->id]);
+                }
             }
 
             DB::commit();
 
-            return redirect()->route('tugaspeleton.index')->with([
-                'message' => 'Tugas Peleton berhasil disimpan!',
-                'alert-type' => 'success'
-            ]);
+            return redirect()->route('tugaspeleton.index')
+                ->with([
+                    'message' => 'Tugas Peleton berhasil dibuat!',
+                    'alert-type' => 'success'
+                ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors('Gagal menyimpan data: ' . $e->getMessage());
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Gagal menyimpan data: ' . $e->getMessage()]);
         }
     }
 
@@ -144,31 +160,32 @@ class TugasPeletonController extends Controller
             'pengasuh_danki_id' => 'required|exists:pengasuhs,id',
             'pengasuh_danmen_id' => 'required|exists:pengasuhs,id',
             'user_id' => 'required|exists:users,id',
-            'siswa_id' => 'required|array',
+            'siswa_id' => 'required|array|min:1',
             'siswa_id.*' => 'exists:siswas,id',
-            'ton_ki_yon' => 'required|string',
-            'minggu_ke' => 'required|string',
-            'hari_tgl_1' => 'required|string',
-            'tempat_1' => 'required|string',
-            'hari_tgl_2' => 'required|string',
-            'tempat_2' => 'required|string',
-            'hari_tgl_3' => 'required|string',
-            'tempat_3' => 'required|string',
-            'hari_tgl_4' => 'required|string',
-            'tempat_4' => 'required|string',
-            'hari_tgl_5' => 'required|string',
-            'tempat_5' => 'required|string',
-            'hari_tgl_6' => 'required|string',
-            'tempat_6' => 'required|string',
-            'hari_tgl_7' => 'required|string',
-            'tempat_7' => 'required|string',
+            'ton_ki_yon' => 'required|string|max:255',
+            'minggu_ke' => 'required|string|max:255',
+            'hari_tgl_1' => 'required|string|max:255',
+            'tempat_1' => 'required|string|max:255',
+            'hari_tgl_2' => 'required|string|max:255',
+            'tempat_2' => 'required|string|max:255',
+            'hari_tgl_3' => 'required|string|max:255',
+            'tempat_3' => 'required|string|max:255',
+            'hari_tgl_4' => 'required|string|max:255',
+            'tempat_4' => 'required|string|max:255',
+            'hari_tgl_5' => 'required|string|max:255',
+            'tempat_5' => 'required|string|max:255',
+            'hari_tgl_6' => 'required|string|max:255',
+            'tempat_6' => 'required|string|max:255',
+            'hari_tgl_7' => 'required|string|max:255',
+            'tempat_7' => 'required|string|max:255',
             'keterangan' => 'nullable|string',
         ]);
-
+    
         DB::beginTransaction();
         try {
             $tugasPeleton = TugasPeleton::findOrFail($id);
             
+            // 1. Update data tugas peleton
             $tugasPeleton->update([
                 'pengasuh_danton_id' => $validated['pengasuh_danton_id'],
                 'pengasuh_danki_id' => $validated['pengasuh_danki_id'],
@@ -192,52 +209,64 @@ class TugasPeletonController extends Controller
                 'tempat_7' => $validated['tempat_7'],
                 'keterangan' => $validated['keterangan'] ?? null,
             ]);
-
-            // Get current students in this peleton
+    
+            // 2. Get current and new student assignments
             $currentSiswaIds = $tugasPeleton->tugasSiswa->pluck('siswa_id')->toArray();
             $newSiswaIds = $validated['siswa_id'];
-
-            // Students to be removed
+    
+            // 3. Handle removed students (set to nonaktif)
             $removedSiswaIds = array_diff($currentSiswaIds, $newSiswaIds);
             if (!empty($removedSiswaIds)) {
                 TugasSiswa::where('tugas_peleton_id', $tugasPeleton->id)
                     ->whereIn('siswa_id', $removedSiswaIds)
                     ->update(['status' => 'nonaktif']);
             }
-
-            // Students to be added
+    
+            // 4. Handle added students
             $addedSiswaIds = array_diff($newSiswaIds, $currentSiswaIds);
             foreach ($addedSiswaIds as $siswaId) {
-                // Create new tugas
+                // Create new assignment
                 $tugasSiswa = TugasSiswa::create([
                     'tugas_peleton_id' => $tugasPeleton->id,
                     'siswa_id' => $siswaId,
                     'status' => 'aktif',
                 ]);
-
-                // Create related records
-                PenilaianPengamatan::create(['tugas_siswa_id' => $tugasSiswa->id]);
-                PenilaianHarian::create(['tugas_siswa_id' => $tugasSiswa->id]);
-                PenilaianMingguan::create(['tugas_siswa_id' => $tugasSiswa->id]);
+    
+                // Create 7 daily assessments for new student
+                for ($hariKe = 1; $hariKe <= 7; $hariKe++) {
+                    $penilaianHarian = PenilaianSiswaHarian::create([
+                        'tugas_siswa_id' => $tugasSiswa->id,
+                        'hari_ke' => $hariKe,
+                    ]);
+    
+                    // Create assessment records
+                    PenilaianPengamatan::create(['penilaian_siswa_harian_id' => $penilaianHarian->id]);
+                    PenilaianHarian::create(['penilaian_siswa_harian_id' => $penilaianHarian->id]);
+                    PenilaianMingguan::create(['penilaian_siswa_harian_id' => $penilaianHarian->id]);
+                }
             }
-
-            // Students that remain (update if needed)
+    
+            // 5. Handle remaining students (keep active)
             $remainingSiswaIds = array_intersect($currentSiswaIds, $newSiswaIds);
             if (!empty($remainingSiswaIds)) {
                 TugasSiswa::where('tugas_peleton_id', $tugasPeleton->id)
                     ->whereIn('siswa_id', $remainingSiswaIds)
                     ->update(['status' => 'aktif']);
             }
-
+    
             DB::commit();
-
+    
             return redirect()->route('tugaspeleton.index')->with([
                 'message' => 'Tugas Peleton berhasil diperbarui!',
-                'alert-type' => 'warning'
+                'alert-type' => 'success'
             ]);
+    
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors('Gagal memperbarui data: ' . $e->getMessage());
+            \Log::error('Error updating tugas peleton: ' . $e->getMessage());
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Gagal memperbarui data: ' . $e->getMessage()]);
         }
     }
 
