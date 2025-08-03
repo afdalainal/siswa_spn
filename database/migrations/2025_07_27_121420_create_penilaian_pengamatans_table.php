@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('penilaian_pengamatans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tugas_siswa_id')->constrained('tugas_siswas')->cascadeOnDelete();
+            $table->foreignId('penilaian_siswa_harian_id')->constrained('penilaian_siswa_harians')->cascadeOnDelete();
             $table->double('mental_spiritual_1', 10, 2)->nullable();
             $table->double('mental_spiritual_2', 10, 2)->nullable();
             $table->double('mental_spiritual_3', 10, 2)->nullable();
