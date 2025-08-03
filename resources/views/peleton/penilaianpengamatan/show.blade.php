@@ -273,7 +273,7 @@
                             <label for="nilai_akhir">Nilai Akhir</label>
                             <input type="number" id="nilai_akhir" name="nilai_akhir" class="form-control square"
                                 placeholder="Input nilai" step="0.01"
-                                value="{{ old('nilai_akhir', $penilaianpengamatan->nilai_akhir) }}">
+                                value="{{ old('nilai_akhir', $penilaianpengamatan->nilai_akhir) }}" readonly>
                         </div>
                     </div>
 
@@ -421,6 +421,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             nilaiKonversiInput.value = nilaiKonversi.toFixed(1);
+            calculateNilaiAkhir(); // Panggil calculateNilaiAkhir setelah update nilai_konversi
+        }
+    }
+
+    // Fungsi untuk menghitung nilai akhir (AB13-AC13+AD13)
+    function calculateNilaiAkhir() {
+        const nilaiKonversiInput = document.getElementById('nilai_konversi');
+        const pelanggaranMinusInput = document.getElementById('pelanggaran_prestasi_minus');
+        const pelanggaranPlusInput = document.getElementById('pelanggaran_prestasi_plus');
+        const nilaiAkhirInput = document.getElementById('nilai_akhir');
+
+        if (nilaiKonversiInput && pelanggaranMinusInput && pelanggaranPlusInput && nilaiAkhirInput) {
+            const nilaiKonversi = parseFloat(nilaiKonversiInput.value) || 0;
+            const pelanggaranMinus = parseFloat(pelanggaranMinusInput.value) || 0;
+            const pelanggaranPlus = parseFloat(pelanggaranPlusInput.value) || 0;
+
+            // Rumus: nilai_konversi - pelanggaran_minus + pelanggaran_plus
+            const nilaiAkhir = nilaiKonversi - pelanggaranMinus + pelanggaranPlus;
+
+            nilaiAkhirInput.value = nilaiAkhir.toFixed(1);
         }
     }
 
@@ -431,6 +451,18 @@ document.addEventListener('DOMContentLoaded', function() {
             input.addEventListener('input', calculateTotal);
         }
     });
+
+    // Tambahkan event listener untuk input pelanggaran prestasi
+    const pelanggaranMinusInput = document.getElementById('pelanggaran_prestasi_minus');
+    const pelanggaranPlusInput = document.getElementById('pelanggaran_prestasi_plus');
+
+    if (pelanggaranMinusInput) {
+        pelanggaranMinusInput.addEventListener('input', calculateNilaiAkhir);
+    }
+
+    if (pelanggaranPlusInput) {
+        pelanggaranPlusInput.addEventListener('input', calculateNilaiAkhir);
+    }
 
     // Hitung awal saat halaman dimuat
     calculateTotal();
