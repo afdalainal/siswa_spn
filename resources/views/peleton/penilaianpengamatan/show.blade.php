@@ -227,8 +227,8 @@
                         <div class="form-group">
                             <label for="jumlah_indikator">Jumlah Indikator</label>
                             <input type="number" id="jumlah_indikator" name="jumlah_indikator"
-                                class="form-control square" placeholder="Input nilai" step="0.01"
-                                value="{{ old('jumlah_indikator', $penilaianpengamatan->jumlah_indikator) }}">
+                                class="form-control square" placeholder="Input nilai"
+                                value="{{ old('jumlah_indikator', $penilaianpengamatan->jumlah_indikator) }}" readonly>
                         </div>
                     </div>
 
@@ -237,7 +237,7 @@
                             <label for="skor">Skor</label>
                             <input type="number" id="skor" name="skor" class="form-control square"
                                 placeholder="Input nilai" step="0.01"
-                                value="{{ old('skor', $penilaianpengamatan->skor) }}">
+                                value="{{ old('skor', $penilaianpengamatan->skor) }}" readonly>
                         </div>
                     </div>
 
@@ -246,7 +246,7 @@
                             <label for="nilai_konversi">Nilai Konversi</label>
                             <input type="number" id="nilai_konversi" name="nilai_konversi" class="form-control square"
                                 placeholder="Input nilai" step="0.01"
-                                value="{{ old('nilai_konversi', $penilaianpengamatan->nilai_konversi) }}">
+                                value="{{ old('nilai_konversi', $penilaianpengamatan->nilai_konversi) }}" readonly>
                         </div>
                     </div>
 
@@ -295,4 +295,145 @@
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Daftar semua input yang akan dihitung
+    const inputFields = [
+        'mental_spiritual_1', 'mental_spiritual_2', 'mental_spiritual_3',
+        'mental_ideologi_1', 'mental_ideologi_2', 'mental_ideologi_3',
+        'mental_kejuangan_1', 'mental_kejuangan_2', 'mental_kejuangan_3', 'mental_kejuangan_4',
+        'watak_pribadi_1', 'watak_pribadi_2', 'watak_pribadi_3', 'watak_pribadi_4',
+        'mental_kepemimpinan_1', 'mental_kepemimpinan_2', 'mental_kepemimpinan_3', 'mental_kepemimpinan_4',
+        'mental_kepemimpinan_5', 'mental_kepemimpinan_6', 'mental_kepemimpinan_7', 'mental_kepemimpinan_8'
+    ];
+
+    // Tabel konversi (VLOOKUP table)
+    const konversiTable = {
+        1.0: 60,
+        1.1: 60.5,
+        1.2: 61,
+        1.3: 61.5,
+        1.4: 62,
+        1.5: 62.5,
+        1.6: 63,
+        1.7: 63.5,
+        1.8: 64,
+        1.9: 64.5,
+        2.0: 65,
+        2.1: 65.5,
+        2.2: 66,
+        2.3: 66.5,
+        2.4: 67,
+        2.5: 67.5,
+        2.6: 68,
+        2.7: 68.5,
+        2.8: 69,
+        2.9: 69.5,
+        3.0: 70,
+        3.1: 70.5,
+        3.2: 71,
+        3.3: 71.5,
+        3.4: 72,
+        3.5: 72.5,
+        3.6: 73,
+        3.7: 73.5,
+        3.8: 74,
+        3.9: 74.5,
+        4.0: 75,
+        4.1: 75.5,
+        4.2: 76,
+        4.3: 76.5,
+        4.4: 77,
+        4.5: 77.5,
+        4.6: 78,
+        4.7: 78.5,
+        4.8: 79,
+        4.9: 79.5,
+        5.0: 80
+    };
+
+    // Fungsi untuk menghitung total jumlah indikator
+    function calculateTotal() {
+        let total = 0;
+
+        inputFields.forEach(fieldId => {
+            const input = document.getElementById(fieldId);
+            if (input && input.value) {
+                total += parseFloat(input.value) || 0;
+            }
+        });
+
+        // Update nilai jumlah indikator
+        const jumlahIndikatorInput = document.getElementById('jumlah_indikator');
+        if (jumlahIndikatorInput) {
+            jumlahIndikatorInput.value = Math.round(total);
+            calculateSkor(); // Panggil calculateSkor setelah update jumlah_indikator
+        }
+    }
+
+    // Fungsi untuk menghitung skor
+    function calculateSkor() {
+        const jumlahIndikatorInput = document.getElementById('jumlah_indikator');
+        const skorInput = document.getElementById('skor');
+
+        if (jumlahIndikatorInput && skorInput) {
+            const jumlahIndikator = parseFloat(jumlahIndikatorInput.value) || 0;
+            const skor = Math.round((jumlahIndikator / 22) * 10) / 10; // Dibulatkan 1 desimal
+            skorInput.value = skor.toFixed(1);
+            calculateNilaiKonversi(); // Panggil calculateNilaiKonversi setelah update skor
+        }
+    }
+
+    // Fungsi untuk menghitung nilai konversi (VLOOKUP)
+    function calculateNilaiKonversi() {
+        const skorInput = document.getElementById('skor');
+        const nilaiKonversiInput = document.getElementById('nilai_konversi');
+
+        if (skorInput && nilaiKonversiInput) {
+            const skorValue = parseFloat(skorInput.value) || 0;
+
+            // Cari nilai konversi berdasarkan skor
+            let nilaiKonversi = 0;
+
+            // Jika skor ada dalam tabel konversi
+            if (konversiTable.hasOwnProperty(skorValue)) {
+                nilaiKonversi = konversiTable[skorValue];
+            } else {
+                // Jika skor tidak ada dalam tabel, cari nilai terdekat (interpolasi sederhana)
+                const keys = Object.keys(konversiTable).map(key => parseFloat(key)).sort((a, b) => a - b);
+
+                if (skorValue < keys[0]) {
+                    // Jika skor lebih kecil dari nilai minimum, gunakan nilai minimum
+                    nilaiKonversi = konversiTable[keys[0]];
+                } else if (skorValue > keys[keys.length - 1]) {
+                    // Jika skor lebih besar dari nilai maksimum, gunakan nilai maksimum
+                    nilaiKonversi = konversiTable[keys[keys.length - 1]];
+                } else {
+                    // Cari nilai terdekat yang lebih kecil atau sama dengan skor
+                    for (let i = keys.length - 1; i >= 0; i--) {
+                        if (skorValue >= keys[i]) {
+                            nilaiKonversi = konversiTable[keys[i]];
+                            break;
+                        }
+                    }
+                }
+            }
+
+            nilaiKonversiInput.value = nilaiKonversi.toFixed(1);
+        }
+    }
+
+    // Tambahkan event listener ke semua input field
+    inputFields.forEach(fieldId => {
+        const input = document.getElementById(fieldId);
+        if (input) {
+            input.addEventListener('input', calculateTotal);
+        }
+    });
+
+    // Hitung awal saat halaman dimuat
+    calculateTotal();
+});
+</script>
 @endsection
