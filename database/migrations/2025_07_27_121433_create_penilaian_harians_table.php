@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('penilaian_harians', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tugas_siswa_id')->constrained('tugas_siswas')->cascadeOnDelete();
-            $table->decimal('nilai_harian_1', 10, 2)->nullable();
-            $table->decimal('nilai_harian_2', 10, 2)->nullable();
-            $table->decimal('nilai_harian_3', 10, 2)->nullable();
-            $table->decimal('nilai_harian_4', 10, 2)->nullable();
-            $table->decimal('nilai_harian_5', 10, 2)->nullable();
-            $table->decimal('nilai_harian_6', 10, 2)->nullable();
-            $table->decimal('nilai_harian_7', 10, 2)->nullable();
+            $table->double('nilai_harian_1', 10, 2)->nullable();
+            $table->double('nilai_harian_2', 10, 2)->nullable();
+            $table->double('nilai_harian_3', 10, 2)->nullable();
+            $table->double('nilai_harian_4', 10, 2)->nullable();
+            $table->double('nilai_harian_5', 10, 2)->nullable();
+            $table->double('nilai_harian_6', 10, 2)->nullable();
+            $table->double('nilai_harian_7', 10, 2)->nullable();
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });
