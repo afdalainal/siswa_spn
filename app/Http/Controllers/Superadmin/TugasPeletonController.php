@@ -42,7 +42,6 @@ class TugasPeletonController extends Controller
     
     public function store(Request $request)
     {
-        // dd($request->all());
         $validated = $request->validate([
             'pengasuh_danton_id' => 'required|exists:pengasuhs,id',
             'pengasuh_danki_id' => 'required|exists:pengasuhs,id',
@@ -68,7 +67,7 @@ class TugasPeletonController extends Controller
             'tempat_7' => 'required|string|max:255',
             'keterangan' => 'nullable|string',
         ]);
-
+    
         DB::beginTransaction();
         try {
             // 1. Simpan data tugas peleton
@@ -95,7 +94,7 @@ class TugasPeletonController extends Controller
                 'tempat_7' => $validated['tempat_7'],
                 'keterangan' => $validated['keterangan'] ?? null,
             ]);
-
+    
             // 2. Simpan siswa yang terlibat
             foreach ($validated['siswa_id'] as $siswaId) {
                 // Simpan tugas siswa
@@ -104,29 +103,60 @@ class TugasPeletonController extends Controller
                     'siswa_id' => $siswaId,
                     'status' => 'aktif',
                 ]);
-
+    
                 // 3. Buat 7 penilaian harian untuk setiap siswa
+                $penilaianHarians = [];
                 for ($hariKe = 1; $hariKe <= 7; $hariKe++) {
                     $penilaianHarian = PenilaianSiswaHarian::create([
                         'tugas_siswa_id' => $tugasSiswa->id,
                         'hari_ke' => $hariKe,
                     ]);
-
-                    // 4. Buat record penilaian untuk setiap hari
-                    PenilaianPengamatan::create(['penilaian_siswa_harian_id' => $penilaianHarian->id]);
-                    PenilaianHarian::create(['penilaian_siswa_harian_id' => $penilaianHarian->id]);
-                    PenilaianMingguan::create(['penilaian_siswa_harian_id' => $penilaianHarian->id]);
+    
+                    // 4. Buat record penilaian pengamatan untuk setiap hari
+                    PenilaianPengamatan::create([
+                        'penilaian_siswa_harian_id' => $penilaianHarian->id
+                    ]);
+    
+                    $penilaianHarians[] = $penilaianHarian;
                 }
+    
+                // 5. Buat penilaian harian (1 record per siswa)
+                PenilaianHarian::create([
+                    'tugas_siswa_id' => $tugasSiswa->id,
+                    'nilai_harian_1' => null,
+                    'nilai_harian_2' => null,
+                    'nilai_harian_3' => null,
+                    'nilai_harian_4' => null,
+                    'nilai_harian_5' => null,
+                    'nilai_harian_6' => null,
+                    'nilai_harian_7' => null,
+                    'keterangan' => null,
+                ]);
+    
+                // 6. Buat penilaian mingguan (1 record per siswa)
+                PenilaianMingguan::create([
+                    'tugas_siswa_id' => $tugasSiswa->id,
+                    'nilai_mingguan_hari_1' => null,
+                    'nilai_mingguan_hari_2' => null,
+                    'nilai_mingguan_hari_3' => null,
+                    'nilai_mingguan_hari_4' => null,
+                    'nilai_mingguan_hari_5' => null,
+                    'nilai_mingguan_hari_6' => null,
+                    'nilai_mingguan_hari_7' => null,
+                    'nilai_mingguan' => null,
+                    'rank_mingguan' => null,
+                    'keterangan' => null,
+                ]);
             }
-
+    
             DB::commit();
-
+    
             return redirect()->route('tugaspeleton.index')
                 ->with([
                     'message' => 'Tugas Peleton berhasil dibuat!',
                     'alert-type' => 'success'
                 ]);
-
+    
         } catch (\Exception $e) {
             DB::rollBack();
             return back()
@@ -180,10 +210,11 @@ class TugasPeletonController extends Controller
             'tempat_7' => 'required|string|max:255',
             'keterangan' => 'nullable|string',
         ]);
-    
+
         DB::beginTransaction();
         try {
-            $tugasPeleton = TugasPeleton::findOrFail($id);
+            // Load tugas peleton dengan relasi tugasSiswa (sesuai nama method di model)
+            $tugasPeleton = TugasPeleton::with('tugasSiswa')->findOrFail($id);
             
             // 1. Update data tugas peleton
             $tugasPeleton->update([
@@ -209,11 +240,11 @@ class TugasPeletonController extends Controller
                 'tempat_7' => $validated['tempat_7'],
                 'keterangan' => $validated['keterangan'] ?? null,
             ]);
-    
+
             // 2. Get current and new student assignments
             $currentSiswaIds = $tugasPeleton->tugasSiswa->pluck('siswa_id')->toArray();
             $newSiswaIds = $validated['siswa_id'];
-    
+
             // 3. Handle removed students (set to nonaktif)
             $removedSiswaIds = array_diff($currentSiswaIds, $newSiswaIds);
             if (!empty($removedSiswaIds)) {
@@ -221,7 +252,7 @@ class TugasPeletonController extends Controller
                     ->whereIn('siswa_id', $removedSiswaIds)
                     ->update(['status' => 'nonaktif']);
             }
-    
+
             // 4. Handle added students
             $addedSiswaIds = array_diff($newSiswaIds, $currentSiswaIds);
             foreach ($addedSiswaIds as $siswaId) {
@@ -231,21 +262,48 @@ class TugasPeletonController extends Controller
                     'siswa_id' => $siswaId,
                     'status' => 'aktif',
                 ]);
-    
+
                 // Create 7 daily assessments for new student
                 for ($hariKe = 1; $hariKe <= 7; $hariKe++) {
                     $penilaianHarian = PenilaianSiswaHarian::create([
                         'tugas_siswa_id' => $tugasSiswa->id,
                         'hari_ke' => $hariKe,
                     ]);
-    
-                    // Create assessment records
-                    PenilaianPengamatan::create(['penilaian_siswa_harian_id' => $penilaianHarian->id]);
-                    PenilaianHarian::create(['penilaian_siswa_harian_id' => $penilaianHarian->id]);
-                    PenilaianMingguan::create(['penilaian_siswa_harian_id' => $penilaianHarian->id]);
+
+                    // Create pengamatan record for each day
+                    PenilaianPengamatan::create([
+                        'penilaian_siswa_harian_id' => $penilaianHarian->id
+                    ]);
                 }
+
+                // Create single harian and mingguan record per student
+                PenilaianHarian::create([
+                    'tugas_siswa_id' => $tugasSiswa->id,
+                    'nilai_harian_1' => null,
+                    'nilai_harian_2' => null,
+                    'nilai_harian_3' => null,
+                    'nilai_harian_4' => null,
+                    'nilai_harian_5' => null,
+                    'nilai_harian_6' => null,
+                    'nilai_harian_7' => null,
+                    'keterangan' => null,
+                ]);
+
+                PenilaianMingguan::create([
+                    'tugas_siswa_id' => $tugasSiswa->id,
+                    'nilai_mingguan_hari_1' => null,
+                    'nilai_mingguan_hari_2' => null,
+                    'nilai_mingguan_hari_3' => null,
+                    'nilai_mingguan_hari_4' => null,
+                    'nilai_mingguan_hari_5' => null,
+                    'nilai_mingguan_hari_6' => null,
+                    'nilai_mingguan_hari_7' => null,
+                    'nilai_mingguan' => null,
+                    'rank_mingguan' => null,
+                    'keterangan' => null,
+                ]);
             }
-    
+
             // 5. Handle remaining students (keep active)
             $remainingSiswaIds = array_intersect($currentSiswaIds, $newSiswaIds);
             if (!empty($remainingSiswaIds)) {
@@ -253,17 +311,17 @@ class TugasPeletonController extends Controller
                     ->whereIn('siswa_id', $remainingSiswaIds)
                     ->update(['status' => 'aktif']);
             }
-    
+
             DB::commit();
-    
+
             return redirect()->route('tugaspeleton.index')->with([
                 'message' => 'Tugas Peleton berhasil diperbarui!',
                 'alert-type' => 'success'
             ]);
-    
+
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Error updating tugas peleton: ' . $e->getMessage());
+            Log::error('Error updating tugas peleton: ' . $e->getMessage());
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Gagal memperbarui data: ' . $e->getMessage()]);
@@ -274,61 +332,46 @@ class TugasPeletonController extends Controller
     {
         $tugasPeleton = TugasPeleton::with([
             'tugasSiswa.penilaianSiswaHarian.penilaianPengamatan',
-            'tugasSiswa.penilaianSiswaHarian.penilaianHarian',
-            'tugasSiswa.penilaianSiswaHarian.penilaianMingguan'
+            'tugasSiswa.penilaianHarian',
+            'tugasSiswa.penilaianMingguan'
         ])->withTrashed()->findOrFail($id);
     
         DB::beginTransaction();
         try {
             foreach ($tugasPeleton->tugasSiswa as $tugasSiswa) {
-                // Hapus semua penilaian harian beserta relasinya
                 foreach ($tugasSiswa->penilaianSiswaHarian as $penilaianHarian) {
-                    // Hapus penilaian terkait
-                    $penilaianHarian->penilaianPengamatan()->delete();
-                    $penilaianHarian->penilaianHarian()->delete();
-                    $penilaianHarian->penilaianMingguan()->delete();
-                    
-                    // Hapus penilaian harian itu sendiri
-                    $penilaianHarian->delete();
+                    $penilaianHarian->penilaianPengamatan()->forceDelete();
+                    $penilaianHarian->forceDelete();
                 }
-                
-                // Hapus tugas siswa
+                $tugasSiswa->penilaianHarian()->forceDelete();
+                $tugasSiswa->penilaianMingguan()->forceDelete();
                 $tugasSiswa->forceDelete();
             }
-    
-            // Hapus permanen tugas peleton
             $tugasPeleton->forceDelete();
-    
             DB::commit();
-    
             return redirect()->route('tugaspeleton.index')->with([
                 'message' => 'Data berhasil dihapus permanen!',
                 'alert-type' => 'success'
             ]);
-    
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Error deleting tugas peleton: ' . $e->getMessage());
             return back()->withErrors('Gagal menghapus data: ' . $e->getMessage());
         }
     }
-
-    public function softdelete($id)
+    
+    public function softDelete($id)
     {
         $tugasPeleton = TugasPeleton::with(['tugasSiswa'])->findOrFail($id);
     
         DB::beginTransaction();
         try {
-            // Soft delete tugas peleton
             $tugasPeleton->delete();
-    
             DB::commit();
-    
             return redirect()->route('tugaspeleton.index')->with([
                 'message' => 'Data berhasil dinonaktifkan',
                 'alert-type' => 'warning'
             ]);
-    
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Error soft deleting tugas peleton: ' . $e->getMessage());
