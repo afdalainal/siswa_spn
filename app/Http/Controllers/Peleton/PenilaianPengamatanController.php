@@ -58,36 +58,77 @@ class PenilaianPengamatanController extends Controller
      */
     public function show(string $id)
     {
-        $tugasPeleton = TugasPeleton::withTrashed()
-            ->with(['tugasSiswa.siswa', 'tugasSiswa.penilaianPengamatan'])
+        $tugasPeleton = TugasPeleton::with([
+                'tugasSiswa' => function($query) {
+                    $query->with([
+                        'siswa:id,nama,nosis',
+                        'penilaianSiswaHarian' => function($q) {
+                            $q->with('penilaianPengamatan');
+                        }
+                    ]);
+                },
+                'pengasuhDanton:id,nama',
+                'pengasuhDanki:id,nama',
+                'peleton:id,name'
+            ])
+            ->withTrashed()
             ->where('id', $id)
             ->where('user_id', auth()->id())
             ->firstOrFail();
-    
-        $tugasSiswa = $tugasPeleton->tugasSiswa;
-    
-        return view('peleton.penilaianpengamatan.listpenilaian', compact('tugasSiswa', 'tugasPeleton'));
+        
+        return view('peleton.penilaianpengamatan.listpenilaian', [
+            'tugasPeleton' => $tugasPeleton,
+            'tugasSiswa' => $tugasPeleton->tugasSiswa
+        ]);
     }
     
-    
+    public function showHarian($tugasPeletonId, $tugasSiswaId)
+    {
+        $tugasPeleton = TugasPeleton::withTrashed()
+            ->where('id', $tugasPeletonId)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $tugasSiswa = TugasSiswa::with([
+                'siswa:id,nama,nosis',
+                'penilaianSiswaHarian.penilaianPengamatan'
+            ])
+            ->where('id', $tugasSiswaId)
+            ->where('tugas_peleton_id', $tugasPeletonId)
+            ->firstOrFail();
+
+        return view('peleton.penilaianpengamatan.listhari', [
+            'tugasPeleton' => $tugasPeleton,
+            'tugasSiswa' => $tugasSiswa
+        ]);
+    }
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
-        $penilaianpengamatan = PenilaianPengamatan::with('tugasSiswa.tugasPeleton', 'tugasSiswa.siswa')
+        $penilaianpengamatan = PenilaianPengamatan::with([
+                'penilaianSiswaHarian.tugasSiswa.siswa',
+                'penilaianSiswaHarian.tugasSiswa.tugasPeleton'
+            ])
             ->findOrFail($id);
-    
+
         if (
-            !$penilaianpengamatan->tugasSiswa ||
-            !$penilaianpengamatan->tugasSiswa->tugasPeleton ||
-            $penilaianpengamatan->tugasSiswa->tugasPeleton->user_id !== auth()->id()
+            !$penilaianpengamatan->penilaianSiswaHarian ||
+            !$penilaianpengamatan->penilaianSiswaHarian->tugasSiswa ||
+            !$penilaianpengamatan->penilaianSiswaHarian->tugasSiswa->tugasPeleton ||
+            $penilaianpengamatan->penilaianSiswaHarian->tugasSiswa->tugasPeleton->user_id !== auth()->id()
         ) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit data ini.');
         }
-    
-        return view('peleton.penilaianpengamatan.show', compact('penilaianpengamatan'));
+
+        return view('peleton.penilaianpengamatan.show', [
+            'penilaianpengamatan' => $penilaianpengamatan,
+            'tugasPeleton' => $penilaianpengamatan->penilaianSiswaHarian->tugasSiswa->tugasPeleton,
+            'siswa' => $penilaianpengamatan->penilaianSiswaHarian->tugasSiswa->siswa,
+            'penilaianHarian' => $penilaianpengamatan->penilaianSiswaHarian
+        ]);
     }
     
 
@@ -128,16 +169,17 @@ class PenilaianPengamatanController extends Controller
             'rank_harian' => 'nullable|numeric|between:-99999999.99,99999999.99',
         ]);
 
-        $penilaian = PenilaianPengamatan::with(['tugasSiswa.tugasPeleton', 'tugasSiswa.siswa'])
+        $penilaian = PenilaianPengamatan::with(['penilaianSiswaHarian.tugasSiswa.tugasPeleton'])
             ->findOrFail($id);
     
-        if (
-            !$penilaian->tugasSiswa ||
-            !$penilaian->tugasSiswa->tugasPeleton ||
-            $penilaian->tugasSiswa->tugasPeleton->user_id !== auth()->id()
-        ) {
-            abort(403, 'Anda tidak memiliki akses untuk mengubah data ini.');
-        }
+            if (
+                !$penilaian->penilaianSiswaHarian ||
+                !$penilaian->penilaianSiswaHarian->tugasSiswa ||
+                !$penilaian->penilaianSiswaHarian->tugasSiswa->tugasPeleton ||
+                $penilaian->penilaianSiswaHarian->tugasSiswa->tugasPeleton->user_id !== auth()->id()
+            ) {
+                abort(403, 'Anda tidak memiliki akses untuk mengubah data ini.');
+            }
     
         $penilaian->update($request->only([
             'mental_spiritual_1',

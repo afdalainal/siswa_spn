@@ -4,8 +4,7 @@
 <section class="section">
     <div class="card">
         <div class="card-header">
-            <h4>Penilaian Pengamatan - {{ $penilaianpengamatan->tugasSiswa->siswa->nama }}
-                ( {{ $penilaianpengamatan->tugasSiswa->siswa->nosis }} )</h4>
+            <h4>Penilaian Pengamatan - {{ $siswa->nama }} ({{ $siswa->nosis }})</h4>
         </div>
         <div class="card-body">
             <form action="{{ route('penilaianpengamatan.update', $penilaianpengamatan->id) }}" method="POST">

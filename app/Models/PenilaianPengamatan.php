@@ -46,4 +46,9 @@ class PenilaianPengamatan extends Model
         return $this->belongsTo(\App\Models\TugasSiswa::class);
     }
 
+    public function penilaianSiswaHarian()
+    {
+        return $this->belongsTo(PenilaianSiswaHarian::class, 'penilaian_siswa_harian_id');
+    }
+    
 }

@@ -45,6 +45,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/penilaianpengamatan/laporan/{id}', [\App\Http\Controllers\Peleton\PenilaianPengamatanController::class, 'laporan'])->name('penilaianpengamatan.laporan');
         Route::get('/penilaianharian/laporan/{id}', [\App\Http\Controllers\Peleton\PenilaianHarianController::class, 'laporan'])->name('penilaianharian.laporan');
         Route::get('/penilaianmingguan/laporan/{id}', [\App\Http\Controllers\Peleton\PenilaianMingguanController::class, 'laporan'])->name('penilaianmingguan.laporan');
+   
+        Route::get('penilaianpengamatan/{tugasPeletonId}/siswa/{tugasSiswaId}', [\App\Http\Controllers\Peleton\PenilaianPengamatanController::class, 'showHarian'])->name('penilaianpengamatan.harian');
     });
 
     // Profile
