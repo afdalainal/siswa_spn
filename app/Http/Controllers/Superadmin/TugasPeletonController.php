@@ -319,9 +319,6 @@ class TugasPeletonController extends Controller
     
         DB::beginTransaction();
         try {
-            // Nonaktifkan semua tugas siswa terkait
-            $tugasPeleton->tugasSiswa()->update(['status' => 'nonaktif']);
-            
             // Soft delete tugas peleton
             $tugasPeleton->delete();
     
