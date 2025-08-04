@@ -239,16 +239,61 @@ class PenilaianPengamatanController extends Controller
         $fieldMingguan = 'nilai_mingguan_hari_' . $hariKe;
     
         // Update atau create data di tabel penilaian_harians
-        \App\Models\PenilaianHarian::updateOrCreate(
+        PenilaianHarian::updateOrCreate(
             ['tugas_siswa_id' => $tugasSiswaId],
             [$fieldHarian => $nilaiAkhir]
         );
     
         // Update atau create data di tabel penilaian_mingguans
-        \App\Models\PenilaianMingguan::updateOrCreate(
+        $penilaianMingguan = PenilaianMingguan::updateOrCreate(
             ['tugas_siswa_id' => $tugasSiswaId],
             [$fieldMingguan => $nilaiAkhir]
         );
+
+        // **FUNGSI BARU: Hitung ulang nilai_mingguan secara otomatis**
+        $this->recalculateNilaiMingguan($penilaianMingguan);
+    }
+
+    /**
+     * Hitung ulang nilai_mingguan berdasarkan rata-rata nilai harian yang ada
+     * Rumus: SUM(nilai_mingguan_hari_1 sampai nilai_mingguan_hari_7) / jumlah_nilai_yang_ada
+     */
+    private function recalculateNilaiMingguan($penilaianMingguan)
+    {
+        // Array field nilai harian
+        $nilaiHarianFields = [
+            'nilai_mingguan_hari_1',
+            'nilai_mingguan_hari_2',
+            'nilai_mingguan_hari_3',
+            'nilai_mingguan_hari_4',
+            'nilai_mingguan_hari_5',
+            'nilai_mingguan_hari_6',
+            'nilai_mingguan_hari_7'
+        ];
+
+        $totalNilai = 0;
+        $jumlahNilaiAda = 0;
+
+        foreach ($nilaiHarianFields as $field) {
+            $nilai = $penilaianMingguan->$field;
+            
+            // Hanya hitung jika nilai tidak null dan tidak kosong
+            if (!is_null($nilai) && $nilai !== '') {
+                $totalNilai += (float) $nilai;
+                $jumlahNilaiAda++;
+            }
+        }
+
+        // Jika ada nilai yang dihitung, update nilai_mingguan dengan rata-rata
+        // Jika tidak ada nilai sama sekali, set nilai_mingguan menjadi null
+        if ($jumlahNilaiAda > 0) {
+            $nilaiMingguan = round($totalNilai / $jumlahNilaiAda, 2);
+        } else {
+            $nilaiMingguan = null;
+        }
+
+        // Update nilai_mingguan
+        $penilaianMingguan->update(['nilai_mingguan' => $nilaiMingguan]);
     }
 
     /**
