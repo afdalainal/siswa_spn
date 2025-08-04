@@ -24,6 +24,10 @@
         overflow: hidden;
     }
 
+    .page-break {
+        page-break-before: always;
+    }
+
     .header {
         text-align: center;
         margin-bottom: 5px;
@@ -236,185 +240,188 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="header">
-            <p class="header-title">KEPOLISIAN NEGARA REPUBLIK INDONESIA</p>
-            <p class="header-title">DAERAH SUMATERA BARAT</p>
-            <p class="header-title">SEKOLAH POLISI NEGARA</p>
+    @for ($hari = 1; $hari <= 7; $hari++) @if ($hari> 1)
+        <div class="page-break"></div>
+        @endif
 
-            <p class="header-subtitle">DAFTAR NILAI MENTAL HASIL PENGAMATAN HARIAN</p>
-            <p>SISWA DIKTUK BINTARA POLRI ANGKATAN. LI GEL II T.A 2024 SPN POLDA SUMBAR</p>
+        <div class="container">
+            <div class="header">
+                <p class="header-title">KEPOLISIAN NEGARA REPUBLIK INDONESIA</p>
+                <p class="header-title">DAERAH SUMATERA BARAT</p>
+                <p class="header-title">SEKOLAH POLISI NEGARA</p>
 
-            <table class="header-info">
-                <tr>
-                    <td class="header-info-left">
-                        TON / KI / YON : {{ strtoupper($tugasPeleton->ton_ki_yon ?? '') }}
-                    </td>
-                    <td class="header-info-center">
-                        MINGGU KE : {{ $tugasPeleton->minggu_ke ?? '' }}
-                    </td>
-                    <td class="header-info-right">
-                        HARI/TGL :
-                        @php
-                        if(isset($tugasPeleton->created_at)) {
-                        $days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-                        $months = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
-                        'September', 'Oktober', 'November', 'Desember'];
+                <p class="header-subtitle">DAFTAR NILAI MENTAL HASIL PENGAMATAN HARIAN</p>
+                <p>SISWA DIKTUK BINTARA POLRI ANGKATAN. LI GEL II T.A 2024 SPN POLDA SUMBAR</p>
 
-                        $date = new DateTime($tugasPeleton->created_at);
-                        $dayName = strtoupper($days[$date->format('w')]);
-                        $day = $date->format('d');
-                        $monthName = strtoupper($months[$date->format('n')]);
-                        $year = $date->format('Y');
-
-                        echo $dayName . ', ' . $day . ' ' . $monthName . ' ' . $year;
-                        } else {
-                        echo '-';
-                        }
-                        @endphp
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <table class="data-table">
-            <!-- Isi tabel tetap sama seperti sebelumnya -->
-            <thead>
-                <tr>
-                    <th class="no-col" rowspan="3">NO</th>
-                    <th class="nama-col" rowspan="3">NAMA</th>
-                    <th class="nosis-col" rowspan="3">NOSIS</th>
-                    <th colspan="3">MENTAL<br>SPIRITUAL</th>
-                    <th colspan="3">MENTAL<br>IDEOLOGI</th>
-                    <th colspan="4">MENTAL<br>KEJUANGAN</th>
-                    <th colspan="4">WATAK<br>PRIBADI</th>
-                    <th colspan="8">MENTAL<br>KEPEMIMPINAN</th>
-                    <th class="score-col" rowspan="3">JUMLAH<br>INDIKATOR</th>
-                    <th class="score-col" rowspan="3">SKOR</th>
-                    <th class="score-col" rowspan="3">NILAI<br>KONVERSI</th>
-                    <th colspan="2">PELANGGARAN/<br>PRESTASI</th>
-                    <th class="score-col" rowspan="3">NILAI<br>AKHIR</th>
-                    <th class="rank-col" rowspan="3">RANK<br>HARIAN</th>
-                </tr>
-                <tr>
-                    <th class="header-col" rowspan="2">1</th>
-                    <th class="header-col" rowspan="2">2</th>
-                    <th class="header-col" rowspan="2">3</th>
-                    <th class="header-col" rowspan="2">1</th>
-                    <th class="header-col" rowspan="2">2</th>
-                    <th class="header-col" rowspan="2">3</th>
-                    <th class="header-col" rowspan="2">1</th>
-                    <th class="header-col" rowspan="2">2</th>
-                    <th class="header-col" rowspan="2">3</th>
-                    <th class="header-col" rowspan="2">4</th>
-                    <th class="header-col" rowspan="2">1</th>
-                    <th class="header-col" rowspan="2">2</th>
-                    <th class="header-col" rowspan="2">3</th>
-                    <th class="header-col" rowspan="2">4</th>
-                    <th class="header-col" rowspan="2">1</th>
-                    <th class="header-col" rowspan="2">2</th>
-                    <th class="header-col" rowspan="2">3</th>
-                    <th class="header-col" rowspan="2">4</th>
-                    <th class="header-col" rowspan="2">5</th>
-                    <th class="header-col" rowspan="2">6</th>
-                    <th class="header-col" rowspan="2">7</th>
-                    <th class="header-col" rowspan="2">8</th>
-                    <th class="pelanggaran-col header-col" rowspan="2">-</th>
-                    <th class="pelanggaran-col header-col" rowspan="2">+</th>
-                </tr>
-                <tr>
-                    <!-- Empty row for numbering -->
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($tugasSiswa as $index => $siswa)
-                @if($siswa->penilaianPengamatan)
-                <tr>
-                    <td class="no-col">{{ $index + 1 }}</td>
-                    <td class="text-left nama-col nowrap">{{ $siswa->siswa->nama }}</td>
-                    <td class="text-left nosis-col nowrap">{{ $siswa->siswa->nosis }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_spiritual_1 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_spiritual_2 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_spiritual_3 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_ideologi_1 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_ideologi_2 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_ideologi_3 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_kejuangan_1 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_kejuangan_2 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_kejuangan_3 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_kejuangan_4 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->watak_pribadi_1 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->watak_pribadi_2 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->watak_pribadi_3 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->watak_pribadi_4 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_kepemimpinan_1 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_kepemimpinan_2 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_kepemimpinan_3 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_kepemimpinan_4 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_kepemimpinan_5 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_kepemimpinan_6 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_kepemimpinan_7 }}</td>
-                    <td class="indikator-col">{{ $siswa->penilaianPengamatan->mental_kepemimpinan_8 }}</td>
-                    <td class="score-col">{{ $siswa->penilaianPengamatan->jumlah_indikator }}</td>
-                    <td class="score-col">{{ $siswa->penilaianPengamatan->skor }}</td>
-                    <td class="score-col">{{ $siswa->penilaianPengamatan->nilai_konversi }}</td>
-                    <td class="pelanggaran-col">{{ $siswa->penilaianPengamatan->pelanggaran_prestasi_minus }}</td>
-                    <td class="pelanggaran-col">{{ $siswa->penilaianPengamatan->pelanggaran_prestasi_plus }}</td>
-                    <td class="score-col">{{ $siswa->penilaianPengamatan->nilai_akhir }}</td>
-                    <td class="rank-col">{{ $siswa->penilaianPengamatan->rank_harian }}</td>
-                </tr>
-                @endif
-                @endforeach
-            </tbody>
-        </table>
-
-        <!-- Footer Section -->
-        <div class="footer-section">
-            <div class="date-location">
-                PADANG,
-                @php
-                if(isset($tugasPeleton->created_at)) {
-                $days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-                $months = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
-                'September', 'Oktober', 'November', 'Desember'];
-
-                $date = new DateTime($tugasPeleton->created_at);
-                $dayName = strtoupper($days[$date->format('w')]);
-                $day = $date->format('d');
-                $monthName = strtoupper($months[$date->format('n')]);
-                $year = $date->format('Y');
-
-                echo $dayName . ', ' . $day . ' ' . $monthName . ' ' . $year;
-                } else {
-                echo '-';
-                }
-                @endphp
+                <table class="header-info">
+                    <tr>
+                        <td class="header-info-left">
+                            TON / KI / YON : {{ strtoupper($tugasPeleton->ton_ki_yon ?? '') }}
+                        </td>
+                        <td class="header-info-center">
+                            MINGGU KE : {{ $tugasPeleton->minggu_ke ?? '' }}
+                        </td>
+                        <td class="header-info-right">
+                            HARI/TGL :
+                            @php
+                            $hariTglField = 'hari_tgl_' . $hari;
+                            $hariTglValue = $tugasPeleton->{$hariTglField} ?? '';
+                            echo strtoupper($hariTglValue);
+                            @endphp
+                        </td>
+                    </tr>
+                </table>
             </div>
 
-            <table class="signature-table">
-                <tr>
-                    <td style="width: 25%;">
-                        <div class="signature-title">DANKI PENGASUH</div>
-                        <div style="height: 30px;"></div>
-                        <div class="signature-name">{{ $tugasPeleton->pengasuhDanki->nama ?? '' }}</div>
-                        <div class="signature-rank">{{ $tugasPeleton->pengasuhDanki->pangkat_nrp ?? '' }}</div>
-                    </td>
-                    <td style="width: 35%;">
-                        <div class="signature-title">DANMEN PENGASUH SISWA DIKTUKBA POLRI GEL II TA 2024</div>
-                        <div style="height: 30px;"></div>
-                        <div class="signature-name">{{ $tugasPeleton->pengasuhDanmen->nama ?? '' }}</div>
-                        <div class="signature-rank">{{ $tugasPeleton->pengasuhDanmen->pangkat_nrp ?? '' }}</div>
-                    </td>
-                    <td style="width: 40%;">
-                        <div class="signature-title">DANTON PENGASUH</div>
-                        <div style="height: 30px;"></div>
-                        <div class="signature-name">{{ $tugasPeleton->pengasuhDanton->nama ?? '' }}</div>
-                        <div class="signature-rank">{{ $tugasPeleton->pengasuhDanton->pangkat_nrp ?? '' }}</div>
-                    </td>
-                </tr>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th class="no-col" rowspan="3">NO</th>
+                        <th class="nama-col" rowspan="3">NAMA</th>
+                        <th class="nosis-col" rowspan="3">NOSIS</th>
+                        <th colspan="3">MENTAL<br>SPIRITUAL</th>
+                        <th colspan="3">MENTAL<br>IDEOLOGI</th>
+                        <th colspan="4">MENTAL<br>KEJUANGAN</th>
+                        <th colspan="4">WATAK<br>PRIBADI</th>
+                        <th colspan="8">MENTAL<br>KEPEMIMPINAN</th>
+                        <th class="score-col" rowspan="3">JUMLAH<br>INDIKATOR</th>
+                        <th class="score-col" rowspan="3">SKOR</th>
+                        <th class="score-col" rowspan="3">NILAI<br>KONVERSI</th>
+                        <th colspan="2">PELANGGARAN/<br>PRESTASI</th>
+                        <th class="score-col" rowspan="3">NILAI<br>AKHIR</th>
+                        <th class="rank-col" rowspan="3">RANK<br>HARIAN</th>
+                    </tr>
+                    <tr>
+                        <th class="header-col" rowspan="2">1</th>
+                        <th class="header-col" rowspan="2">2</th>
+                        <th class="header-col" rowspan="2">3</th>
+                        <th class="header-col" rowspan="2">1</th>
+                        <th class="header-col" rowspan="2">2</th>
+                        <th class="header-col" rowspan="2">3</th>
+                        <th class="header-col" rowspan="2">1</th>
+                        <th class="header-col" rowspan="2">2</th>
+                        <th class="header-col" rowspan="2">3</th>
+                        <th class="header-col" rowspan="2">4</th>
+                        <th class="header-col" rowspan="2">1</th>
+                        <th class="header-col" rowspan="2">2</th>
+                        <th class="header-col" rowspan="2">3</th>
+                        <th class="header-col" rowspan="2">4</th>
+                        <th class="header-col" rowspan="2">1</th>
+                        <th class="header-col" rowspan="2">2</th>
+                        <th class="header-col" rowspan="2">3</th>
+                        <th class="header-col" rowspan="2">4</th>
+                        <th class="header-col" rowspan="2">5</th>
+                        <th class="header-col" rowspan="2">6</th>
+                        <th class="header-col" rowspan="2">7</th>
+                        <th class="header-col" rowspan="2">8</th>
+                        <th class="pelanggaran-col header-col" rowspan="2">-</th>
+                        <th class="pelanggaran-col header-col" rowspan="2">+</th>
+                    </tr>
+                    <tr>
+                        <!-- Empty row for numbering -->
+                    </tr>
+                </thead>
+                <tbody>
+                    @if(isset($dataHarian[$hari]) && count($dataHarian[$hari]) > 0)
+                    @foreach($dataHarian[$hari] as $index => $siswaData)
+                    <tr>
+                        <td class="no-col">{{ $index + 1 }}</td>
+                        <td class="text-left nama-col nowrap">{{ $siswaData['siswa']->nama }}</td>
+                        <td class="text-left nosis-col nowrap">{{ $siswaData['siswa']->nosis }}</td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_spiritual_1 ?? '-' }}
+                        </td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_spiritual_2 ?? '-' }}
+                        </td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_spiritual_3 ?? '-' }}
+                        </td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_ideologi_1 ?? '-' }}</td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_ideologi_2 ?? '-' }}</td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_ideologi_3 ?? '-' }}</td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_kejuangan_1 ?? '-' }}
+                        </td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_kejuangan_2 ?? '-' }}
+                        </td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_kejuangan_3 ?? '-' }}
+                        </td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_kejuangan_4 ?? '-' }}
+                        </td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->watak_pribadi_1 ?? '-' }}</td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->watak_pribadi_2 ?? '-' }}</td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->watak_pribadi_3 ?? '-' }}</td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->watak_pribadi_4 ?? '-' }}</td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_kepemimpinan_1 ?? '-' }}
+                        </td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_kepemimpinan_2 ?? '-' }}
+                        </td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_kepemimpinan_3 ?? '-' }}
+                        </td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_kepemimpinan_4 ?? '-' }}
+                        </td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_kepemimpinan_5 ?? '-' }}
+                        </td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_kepemimpinan_6 ?? '-' }}
+                        </td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_kepemimpinan_7 ?? '-' }}
+                        </td>
+                        <td class="indikator-col">{{ $siswaData['penilaianPengamatan']->mental_kepemimpinan_8 ?? '-' }}
+                        </td>
+                        <td class="score-col">{{ $siswaData['penilaianPengamatan']->jumlah_indikator ?? '-' }}</td>
+                        <td class="score-col">{{ $siswaData['penilaianPengamatan']->skor ?? '-' }}</td>
+                        <td class="score-col">{{ $siswaData['penilaianPengamatan']->nilai_konversi ?? '-' }}</td>
+                        <td class="pelanggaran-col">
+                            {{ $siswaData['penilaianPengamatan']->pelanggaran_prestasi_minus ?? '-' }}</td>
+                        <td class="pelanggaran-col">
+                            {{ $siswaData['penilaianPengamatan']->pelanggaran_prestasi_plus ?? '-' }}</td>
+                        <td class="score-col">{{ $siswaData['penilaianPengamatan']->nilai_akhir ?? '-' }}</td>
+                        <td class="rank-col">{{ $siswaData['penilaianPengamatan']->rank_harian ?? '-' }}</td>
+                    </tr>
+                    @endforeach
+                    @else
+                    <tr>
+                        <td colspan="31" style="text-align: center; padding: 20px;">
+                            Tidak ada data penilaian untuk hari ke-{{ $hari }}
+                        </td>
+                    </tr>
+                    @endif
+                </tbody>
             </table>
+
+            <!-- Footer Section -->
+            <div class="footer-section">
+                <div class="date-location">
+                    PADANG,
+                    @php
+                    $hariTglField = 'hari_tgl_' . $hari;
+                    $hariTglValue = $tugasPeleton->{$hariTglField} ?? '';
+                    echo strtoupper($hariTglValue);
+                    @endphp
+                </div>
+
+                <table class="signature-table">
+                    <tr>
+                        <td style="width: 25%;">
+                            <div class="signature-title">DANKI PENGASUH</div>
+                            <div style="height: 30px;"></div>
+                            <div class="signature-name">{{ $tugasPeleton->pengasuhDanki->nama ?? '' }}</div>
+                            <div class="signature-rank">{{ $tugasPeleton->pengasuhDanki->pangkat_nrp ?? '' }}</div>
+                        </td>
+                        <td style="width: 35%;">
+                            <div class="signature-title">DANMEN PENGASUH SISWA DIKTUKBA POLRI GEL II TA 2024</div>
+                            <div style="height: 30px;"></div>
+                            <div class="signature-name">{{ $tugasPeleton->pengasuhDanmen->nama ?? '' }}</div>
+                            <div class="signature-rank">{{ $tugasPeleton->pengasuhDanmen->pangkat_nrp ?? '' }}</div>
+                        </td>
+                        <td style="width: 40%;">
+                            <div class="signature-title">DANTON PENGASUH</div>
+                            <div style="height: 30px;"></div>
+                            <div class="signature-name">{{ $tugasPeleton->pengasuhDanton->nama ?? '' }}</div>
+                            <div class="signature-rank">{{ $tugasPeleton->pengasuhDanton->pangkat_nrp ?? '' }}</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
-    </div>
+        @endfor
 </body>
 
 </html>

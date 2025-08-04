@@ -262,8 +262,8 @@ class PenilaianPengamatanController extends Controller
     {
         $tugasPeleton = TugasPeleton::withTrashed()
             ->with([
-                'tugasSiswa.siswa', 
-                'tugasSiswa.penilaianPengamatan',
+                'tugasSiswa.siswa',
+                'tugasSiswa.penilaianSiswaHarian.penilaianPengamatan',
                 'pengasuhDanton',
                 'pengasuhDanki',
                 'pengasuhDanmen'
@@ -272,17 +272,35 @@ class PenilaianPengamatanController extends Controller
             ->where('user_id', auth()->id())
             ->firstOrFail();
     
-        $tugasSiswa = $tugasPeleton->tugasSiswa;
+        $dataHarian = [];
+        for ($hari = 1; $hari <= 7; $hari++) {
+            $siswaHarian = [];
+            
+            foreach ($tugasPeleton->tugasSiswa as $tugasSiswa) {
+                $penilaianHarian = $tugasSiswa->penilaianSiswaHarian()
+                    ->where('hari_ke', $hari)
+                    ->with('penilaianPengamatan')
+                    ->first();
+                    
+                if ($penilaianHarian && $penilaianHarian->penilaianPengamatan) {
+                    $siswaHarian[] = [
+                        'siswa' => $tugasSiswa->siswa,
+                        'penilaianPengamatan' => $penilaianHarian->penilaianPengamatan
+                    ];
+                }
+            }
+            
+            $dataHarian[$hari] = $siswaHarian;
+        }
     
-        // Jika request ingin mendapatkan PDF
         if (request()->has('download')) {
-            $pdf = Pdf::loadView('peleton.penilaianpengamatan.laporan', compact('tugasSiswa', 'tugasPeleton'))
+            $pdf = Pdf::loadView('peleton.penilaianpengamatan.laporan', compact('dataHarian', 'tugasPeleton'))
                       ->setPaper('a4', 'landscape');
             
             return $pdf->stream('laporan-penilaian-pengamatan.pdf');
         }
     
-        return view('peleton.penilaianpengamatan.laporan', compact('tugasSiswa', 'tugasPeleton'));
+        return view('peleton.penilaianpengamatan.laporan', compact('dataHarian', 'tugasPeleton'));
     }
 
 }

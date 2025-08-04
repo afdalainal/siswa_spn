@@ -24,4 +24,9 @@ class PenilaianHarian extends Model
         return $this->belongsTo(\App\Models\TugasSiswa::class);
     }
 
+    public function penilaianSiswaHarian()
+    {
+        return $this->belongsTo(\App\Models\PenilaianSiswaHarian::class);
+    }
+
 }
