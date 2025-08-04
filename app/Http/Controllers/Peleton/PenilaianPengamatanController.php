@@ -168,19 +168,20 @@ class PenilaianPengamatanController extends Controller
             'nilai_akhir' => 'nullable|numeric|between:-99999999.99,99999999.99',
             'rank_harian' => 'nullable|numeric|between:-99999999.99,99999999.99',
         ]);
-
+    
         $penilaian = PenilaianPengamatan::with(['penilaianSiswaHarian.tugasSiswa.tugasPeleton'])
             ->findOrFail($id);
     
-            if (
-                !$penilaian->penilaianSiswaHarian ||
-                !$penilaian->penilaianSiswaHarian->tugasSiswa ||
-                !$penilaian->penilaianSiswaHarian->tugasSiswa->tugasPeleton ||
-                $penilaian->penilaianSiswaHarian->tugasSiswa->tugasPeleton->user_id !== auth()->id()
-            ) {
-                abort(403, 'Anda tidak memiliki akses untuk mengubah data ini.');
-            }
+        if (
+            !$penilaian->penilaianSiswaHarian ||
+            !$penilaian->penilaianSiswaHarian->tugasSiswa ||
+            !$penilaian->penilaianSiswaHarian->tugasSiswa->tugasPeleton ||
+            $penilaian->penilaianSiswaHarian->tugasSiswa->tugasPeleton->user_id !== auth()->id()
+        ) {
+            abort(403, 'Anda tidak memiliki akses untuk mengubah data ini.');
+        }
     
+        // Update data penilaian pengamatan
         $penilaian->update($request->only([
             'mental_spiritual_1',
             'mental_spiritual_2',
@@ -213,10 +214,41 @@ class PenilaianPengamatanController extends Controller
             'rank_harian',
         ]));
     
+        // **FUNGSI BARU: Auto save nilai_akhir ke penilaian_harians dan penilaian_mingguans**
+        $this->updatePenilaianHarianAndMingguan($penilaian, $request->nilai_akhir);
+    
         return redirect()->route('penilaianpengamatan.index')->with([
             'message' => 'Data penilaian berhasil disimpan!',
             'alert-type' => 'success'
         ]);
+    }
+    
+    /**
+     * Update nilai_akhir ke tabel penilaian_harians dan penilaian_mingguans
+     * berdasarkan hari_ke dari penilaian_siswa_harian
+     */
+    private function updatePenilaianHarianAndMingguan($penilaian, $nilaiAkhir)
+    {
+        // Ambil data yang diperlukan
+        $penilaianSiswaHarian = $penilaian->penilaianSiswaHarian;
+        $tugasSiswaId = $penilaianSiswaHarian->tugas_siswa_id;
+        $hariKe = $penilaianSiswaHarian->hari_ke;
+    
+        // Tentukan field yang akan diupdate berdasarkan hari_ke
+        $fieldHarian = 'nilai_harian_' . $hariKe;
+        $fieldMingguan = 'nilai_mingguan_hari_' . $hariKe;
+    
+        // Update atau create data di tabel penilaian_harians
+        \App\Models\PenilaianHarian::updateOrCreate(
+            ['tugas_siswa_id' => $tugasSiswaId],
+            [$fieldHarian => $nilaiAkhir]
+        );
+    
+        // Update atau create data di tabel penilaian_mingguans
+        \App\Models\PenilaianMingguan::updateOrCreate(
+            ['tugas_siswa_id' => $tugasSiswaId],
+            [$fieldMingguan => $nilaiAkhir]
+        );
     }
 
     /**
