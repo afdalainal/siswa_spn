@@ -4,7 +4,7 @@
 <section class="section">
     <div class="card">
         <div class='px-3 py-3 d-flex justify-content-between'>
-            <h6 class='card-title'>Daftar Siswa - {{ $tugasPeleton->peleton->name ?? 'Peleton' }} - Minggu
+            <h6 class='card-title'>Daftar Siswa Pengamatan - {{ $tugasPeleton->peleton->name ?? 'Peleton' }} - Minggu
                 ke - {{ $tugasPeleton->minggu_ke }}</h6>
         </div>
         <div class="card-body">
