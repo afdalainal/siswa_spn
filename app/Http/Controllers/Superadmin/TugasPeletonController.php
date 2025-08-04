@@ -272,39 +272,71 @@ class TugasPeletonController extends Controller
 
     public function destroy($id)
     {
-        $tugasPeleton = TugasPeleton::with(['tugasSiswa.penilaianHarian', 'tugasSiswa.penilaianMingguan', 'tugasSiswa.penilaianPengamatan'])
-            ->withTrashed()
-            ->findOrFail($id);
-
+        $tugasPeleton = TugasPeleton::with([
+            'tugasSiswa.penilaianSiswaHarian.penilaianPengamatan',
+            'tugasSiswa.penilaianSiswaHarian.penilaianHarian',
+            'tugasSiswa.penilaianSiswaHarian.penilaianMingguan'
+        ])->withTrashed()->findOrFail($id);
+    
         DB::beginTransaction();
         try {
-            foreach ($tugasPeleton->tugasSiswa as $siswa) {
-                $siswa->penilaianHarian()->delete();
-                $siswa->penilaianMingguan()->delete();
-                $siswa->penilaianPengamatan()->delete();
-                $siswa->forceDelete();
+            foreach ($tugasPeleton->tugasSiswa as $tugasSiswa) {
+                // Hapus semua penilaian harian beserta relasinya
+                foreach ($tugasSiswa->penilaianSiswaHarian as $penilaianHarian) {
+                    // Hapus penilaian terkait
+                    $penilaianHarian->penilaianPengamatan()->delete();
+                    $penilaianHarian->penilaianHarian()->delete();
+                    $penilaianHarian->penilaianMingguan()->delete();
+                    
+                    // Hapus penilaian harian itu sendiri
+                    $penilaianHarian->delete();
+                }
+                
+                // Hapus tugas siswa
+                $tugasSiswa->forceDelete();
             }
-
+    
+            // Hapus permanen tugas peleton
             $tugasPeleton->forceDelete();
+    
             DB::commit();
-
+    
             return redirect()->route('tugaspeleton.index')->with([
                 'message' => 'Data berhasil dihapus permanen!',
-                'alert-type' => 'danger'
+                'alert-type' => 'success'
             ]);
+    
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors('Gagal hapus data: ' . $e->getMessage());
+            \Log::error('Error deleting tugas peleton: ' . $e->getMessage());
+            return back()->withErrors('Gagal menghapus data: ' . $e->getMessage());
         }
     }
 
     public function softdelete($id)
     {
-        $tugasPeleton = TugasPeleton::findOrFail($id);
-        $tugasPeleton->delete(); 
-
-        return redirect()->route('tugaspeleton.index')
-            ->with(['message' => 'Data berhasil dinonaktifkan', 'alert-type' => 'danger']);
+        $tugasPeleton = TugasPeleton::with(['tugasSiswa'])->findOrFail($id);
+    
+        DB::beginTransaction();
+        try {
+            // Nonaktifkan semua tugas siswa terkait
+            $tugasPeleton->tugasSiswa()->update(['status' => 'nonaktif']);
+            
+            // Soft delete tugas peleton
+            $tugasPeleton->delete();
+    
+            DB::commit();
+    
+            return redirect()->route('tugaspeleton.index')->with([
+                'message' => 'Data berhasil dinonaktifkan',
+                'alert-type' => 'warning'
+            ]);
+    
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error soft deleting tugas peleton: ' . $e->getMessage());
+            return back()->withErrors('Gagal menonaktifkan data: ' . $e->getMessage());
+        }
     }
 
     public function restore($id)

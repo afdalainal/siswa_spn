@@ -11,6 +11,7 @@ use App\Models\TugasSiswa;
 use App\Models\PenilaianPengamatan;
 use App\Models\PenilaianHarian;
 use App\Models\PenilaianMingguan;
+use App\Models\PenilaianSiswaHarian;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
