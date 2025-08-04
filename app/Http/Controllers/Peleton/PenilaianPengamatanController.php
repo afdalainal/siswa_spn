@@ -230,25 +230,30 @@ class PenilaianPengamatanController extends Controller
     public function grafik(string $id)
     {
         $tugasPeleton = TugasPeleton::withTrashed()
-            ->with(['tugasSiswa.siswa', 'tugasSiswa.penilaianPengamatan'])
+            ->with([
+                'tugasSiswa.siswa',
+                'tugasSiswa.penilaianSiswaHarian.penilaianPengamatan' 
+            ])
             ->where('id', $id)
             ->where('user_id', auth()->id())
             ->firstOrFail();
-
-        $tugasSiswa = $tugasPeleton->tugasSiswa;
-
+    
         $grafikData = [];
-        foreach ($tugasSiswa as $siswa) {
-            if ($siswa->penilaianPengamatan) {
-                $grafikData[] = [
-                    'nama_siswa' => $siswa->siswa->nama,
-                    'nilai_akhir' => $siswa->penilaianPengamatan->nilai_akhir,
-                    'nilai_konversi' => $siswa->penilaianPengamatan->nilai_konversi,
-                    'skor' => $siswa->penilaianPengamatan->skor,
-                    'rank_harian' => $siswa->penilaianPengamatan->rank_harian
-                ];
+        
+        foreach ($tugasPeleton->tugasSiswa as $tugasSiswa) {
+            foreach ($tugasSiswa->penilaianSiswaHarian as $harian) {
+                if ($harian->penilaianPengamatan) {
+                    $grafikData[] = [
+                        'nama_siswa' => $tugasSiswa->siswa->nama,
+                        'nilai_akhir' => $harian->penilaianPengamatan->nilai_akhir,
+                        'nilai_konversi' => $harian->penilaianPengamatan->nilai_konversi,
+                        'skor' => $harian->penilaianPengamatan->skor,
+                        'rank_harian' => $harian->penilaianPengamatan->rank_harian
+                    ];
+                }
             }
         }
+    
         return view('peleton.penilaianpengamatan.grafik', compact('tugasPeleton', 'grafikData'));
     }
 
