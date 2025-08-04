@@ -21,7 +21,8 @@
                             <label for="nilai_mingguan_hari_1">Nilai Mingguan Hari 1</label>
                             <input type="number" id="nilai_mingguan_hari_1" name="nilai_mingguan_hari_1"
                                 class="form-control square" placeholder="Input nilai" step="0.01"
-                                value="{{ old('nilai_mingguan_hari_1', $penilaianmingguan->nilai_mingguan_hari_1) }}">
+                                value="{{ old('nilai_mingguan_hari_1', $penilaianmingguan->nilai_mingguan_hari_1) }}"
+                                readonly>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -29,7 +30,8 @@
                             <label for="nilai_mingguan_hari_2">Nilai Mingguan Hari 2</label>
                             <input type="number" id="nilai_mingguan_hari_2" name="nilai_mingguan_hari_2"
                                 class="form-control square" placeholder="Input nilai" step="0.01"
-                                value="{{ old('nilai_mingguan_hari_2', $penilaianmingguan->nilai_mingguan_hari_2) }}">
+                                value="{{ old('nilai_mingguan_hari_2', $penilaianmingguan->nilai_mingguan_hari_2) }}"
+                                readonly>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -37,7 +39,8 @@
                             <label for="nilai_mingguan_hari_3">Nilai Mingguan Hari 3</label>
                             <input type="number" id="nilai_mingguan_hari_3" name="nilai_mingguan_hari_3"
                                 class="form-control square" placeholder="Input nilai" step="0.01"
-                                value="{{ old('nilai_mingguan_hari_3', $penilaianmingguan->nilai_mingguan_hari_3) }}">
+                                value="{{ old('nilai_mingguan_hari_3', $penilaianmingguan->nilai_mingguan_hari_3) }}"
+                                readonly>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -45,7 +48,8 @@
                             <label for="nilai_mingguan_hari_4">Nilai Mingguan Hari 4</label>
                             <input type="number" id="nilai_mingguan_hari_4" name="nilai_mingguan_hari_4"
                                 class="form-control square" placeholder="Input nilai" step="0.01"
-                                value="{{ old('nilai_mingguan_hari_4', $penilaianmingguan->nilai_mingguan_hari_4) }}">
+                                value="{{ old('nilai_mingguan_hari_4', $penilaianmingguan->nilai_mingguan_hari_4) }}"
+                                readonly>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -53,7 +57,8 @@
                             <label for="nilai_mingguan_hari_5">Nilai Mingguan Hari 5</label>
                             <input type="number" id="nilai_mingguan_hari_5" name="nilai_mingguan_hari_5"
                                 class="form-control square" placeholder="Input nilai" step="0.01"
-                                value="{{ old('nilai_mingguan_hari_5', $penilaianmingguan->nilai_mingguan_hari_5) }}">
+                                value="{{ old('nilai_mingguan_hari_5', $penilaianmingguan->nilai_mingguan_hari_5) }}"
+                                readonly>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -61,7 +66,8 @@
                             <label for="nilai_mingguan_hari_6">Nilai Mingguan Hari 6</label>
                             <input type="number" id="nilai_mingguan_hari_6" name="nilai_mingguan_hari_6"
                                 class="form-control square" placeholder="Input nilai" step="0.01"
-                                value="{{ old('nilai_mingguan_hari_6', $penilaianmingguan->nilai_mingguan_hari_6) }}">
+                                value="{{ old('nilai_mingguan_hari_6', $penilaianmingguan->nilai_mingguan_hari_6) }}"
+                                readonly>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -69,7 +75,8 @@
                             <label for="nilai_mingguan_hari_7">Nilai Mingguan Hari 7</label>
                             <input type="number" id="nilai_mingguan_hari_7" name="nilai_mingguan_hari_7"
                                 class="form-control square" placeholder="Input nilai" step="0.01"
-                                value="{{ old('nilai_mingguan_hari_7', $penilaianmingguan->nilai_mingguan_hari_7) }}">
+                                value="{{ old('nilai_mingguan_hari_7', $penilaianmingguan->nilai_mingguan_hari_7) }}"
+                                readonly>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -77,7 +84,7 @@
                             <label for="nilai_mingguan">Nilai Mingguan Total</label>
                             <input type="number" id="nilai_mingguan" name="nilai_mingguan" class="form-control square"
                                 placeholder="Input nilai total" step="0.01"
-                                value="{{ old('nilai_mingguan', $penilaianmingguan->nilai_mingguan) }}">
+                                value="{{ old('nilai_mingguan', $penilaianmingguan->nilai_mingguan) }}" readonly>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -85,7 +92,7 @@
                             <label for="rank_mingguan">Rank Mingguan</label>
                             <input type="number" id="rank_mingguan" name="rank_mingguan" class="form-control square"
                                 placeholder="Input rank"
-                                value="{{ old('rank_mingguan', $penilaianmingguan->rank_mingguan) }}">
+                                value="{{ old('rank_mingguan', $penilaianmingguan->rank_mingguan) }}" readonly>
                         </div>
                     </div>
                 </div>

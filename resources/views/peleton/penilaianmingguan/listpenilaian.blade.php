@@ -22,7 +22,7 @@
                     <tr>
                         <th>No</th>
                         <th>Siswa</th>
-                        <th>Status Siswa</th>
+                        <th>No. Siswa</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -31,14 +31,15 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ $tugasSiswas->siswa->nama ?? '-' }}</td>
-                        <td>{{ $tugasSiswas->status ?? '-' }}</td>
+                        <td>{{ $tugasSiswas->siswa->nosis ?? '-' }}</td>
                         <td>
-                            <div class="btn-group btn-group-sm">
-                                @if($tugasSiswas->penilaianmingguan && $tugasSiswas->status == 'aktif')
-                                <a href="{{ route('penilaianmingguan.edit', $tugasSiswas->penilaianmingguan->id) }}"
-                                    class="btn btn-outline-primary"><i data-feather="edit"></i></a>
-                                @endif
-                            </div>
+                            @if($tugasSiswas->penilaianmingguan && $tugasSiswas->status == 'aktif')
+                            <a href="{{ route('penilaianmingguan.edit', $tugasSiswas->penilaianmingguan->id) }}"
+                                class="btn btn-outline-primary"><i data-feather="edit"></i></a>
+                            </a>
+                            @else
+                            <span class="btn btn-outline-danger disabled" title="Siswa nonaktif">Nonaktif</span>
+                            @endif
                         </td>
                     </tr>
                     @endforeach
