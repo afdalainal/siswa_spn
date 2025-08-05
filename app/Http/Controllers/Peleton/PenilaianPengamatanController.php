@@ -334,7 +334,6 @@ class PenilaianPengamatanController extends Controller
         return view('peleton.penilaianpengamatan.grafik', compact('tugasPeleton', 'grafikData'));
     }
 
-
     public function laporan(string $id)
     {
         $tugasPeleton = TugasPeleton::withTrashed()
@@ -350,9 +349,12 @@ class PenilaianPengamatanController extends Controller
             ->firstOrFail();
     
         $dataHarian = [];
+        
+        // Loop untuk setiap hari (1-7)
         for ($hari = 1; $hari <= 7; $hari++) {
             $siswaHarian = [];
             
+            // Kumpulkan data siswa untuk hari ini
             foreach ($tugasPeleton->tugasSiswa as $tugasSiswa) {
                 $penilaianHarian = $tugasSiswa->penilaianSiswaHarian()
                     ->where('hari_ke', $hari)
@@ -362,9 +364,27 @@ class PenilaianPengamatanController extends Controller
                 if ($penilaianHarian && $penilaianHarian->penilaianPengamatan) {
                     $siswaHarian[] = [
                         'siswa' => $tugasSiswa->siswa,
-                        'penilaianPengamatan' => $penilaianHarian->penilaianPengamatan
+                        'penilaianPengamatan' => $penilaianHarian->penilaianPengamatan,
+                        'penilaian_id' => $penilaianHarian->penilaianPengamatan->id
                     ];
                 }
+            }
+            
+            // **FUNGSI BARU: Hitung dan update rank_harian untuk hari ini**
+            if (!empty($siswaHarian)) {
+                $this->calculateAndUpdateRankHarian($siswaHarian, $hari);
+                
+                // Refresh data setelah update ranking
+                foreach ($siswaHarian as &$siswaData) {
+                    $siswaData['penilaianPengamatan']->refresh();
+                }
+                
+                // **URUTKAN DATA BERDASARKAN RANK_HARIAN (ASC)**
+                usort($siswaHarian, function($a, $b) {
+                    $rankA = $a['penilaianPengamatan']->rank_harian ?? 999999;
+                    $rankB = $b['penilaianPengamatan']->rank_harian ?? 999999;
+                    return $rankA <=> $rankB; // Ascending order (1, 2, 3, ...)
+                });
             }
             
             $dataHarian[$hari] = $siswaHarian;
@@ -378,6 +398,96 @@ class PenilaianPengamatanController extends Controller
         }
     
         return view('peleton.penilaianpengamatan.laporan', compact('dataHarian', 'tugasPeleton'));
+    }
+    
+    /**
+     * Hitung dan update rank_harian berdasarkan nilai_akhir
+     * Menggunakan rumus Excel: =RANK(nilai,$range)+COUNTIF($range,nilai)-1
+     * 
+     * @param array $siswaHarian Array data siswa untuk hari tertentu
+     * @param int $hari Hari ke berapa (1-7)
+     */
+    private function calculateAndUpdateRankHarian($siswaHarian, $hari)
+    {
+        // Ambil semua nilai_akhir dan urutkan dari tertinggi ke terendah
+        $nilaiAkhirData = [];
+        foreach ($siswaHarian as $siswaData) {
+            $nilaiAkhir = $siswaData['penilaianPengamatan']->nilai_akhir;
+            if (!is_null($nilaiAkhir)) {
+                $nilaiAkhirData[] = [
+                    'penilaian_id' => $siswaData['penilaian_id'],
+                    'nilai_akhir' => (float) $nilaiAkhir
+                ];
+            }
+        }
+        
+        // Jika tidak ada data nilai, skip
+        if (empty($nilaiAkhirData)) {
+            return;
+        }
+        
+        // Urutkan berdasarkan nilai_akhir dari tertinggi ke terendah
+        usort($nilaiAkhirData, function($a, $b) {
+            return $b['nilai_akhir'] <=> $a['nilai_akhir']; // Descending order
+        });
+        
+        // Buat array untuk menyimpan semua nilai (untuk COUNTIF)
+        $allNilai = array_column($nilaiAkhirData, 'nilai_akhir');
+        
+        // Hitung rank untuk setiap siswa
+        $rankUpdates = [];
+        
+        foreach ($nilaiAkhirData as $index => $data) {
+            $nilaiAkhir = $data['nilai_akhir'];
+            $penilaianId = $data['penilaian_id'];
+            
+            // Implementasi rumus Excel: =RANK(nilai,$range)+COUNTIF($range,nilai)-1
+            
+            // 1. RANK(nilai, $range) - hitung berapa banyak nilai yang lebih tinggi + 1
+            $rank = 1;
+            foreach ($allNilai as $nilai) {
+                if ($nilai > $nilaiAkhir) {
+                    $rank++;
+                }
+            }
+            
+            // 2. COUNTIF($range, nilai) - hitung berapa banyak nilai yang sama
+            $countSame = 0;
+            foreach ($allNilai as $nilai) {
+                if ($nilai == $nilaiAkhir) {
+                    $countSame++;
+                }
+            }
+            
+            // 3. Aplikasikan rumus: RANK + COUNTIF - 1
+            // Tapi kita perlu menyesuaikan untuk urutan kemunculan
+            $countBefore = 0;
+            foreach ($nilaiAkhirData as $beforeIndex => $beforeData) {
+                if ($beforeIndex >= $index) break;
+                if ($beforeData['nilai_akhir'] == $nilaiAkhir) {
+                    $countBefore++;
+                }
+            }
+            
+            $finalRank = $rank + $countBefore;
+            
+            $rankUpdates[] = [
+                'penilaian_id' => $penilaianId,
+                'rank_harian' => $finalRank
+            ];
+        }
+        
+        // Update rank_harian di database
+        foreach ($rankUpdates as $update) {
+            try {
+                PenilaianPengamatan::where('id', $update['penilaian_id'])
+                    ->update(['rank_harian' => $update['rank_harian']]);
+                    
+                Log::info("Updated rank_harian for penilaian_id {$update['penilaian_id']} to {$update['rank_harian']} (Hari: {$hari})");
+            } catch (\Exception $e) {
+                Log::error("Failed to update rank_harian for penilaian_id {$update['penilaian_id']}: " . $e->getMessage());
+            }
+        }
     }
 
 }
