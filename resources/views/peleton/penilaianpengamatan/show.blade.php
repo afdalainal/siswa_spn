@@ -281,7 +281,7 @@
                             <label for="rank_harian">Rank Harian</label>
                             <input type="number" id="rank_harian" name="rank_harian" class="form-control square"
                                 placeholder="Input nilai" step="0.01"
-                                value="{{ old('rank_harian', $penilaianpengamatan->rank_harian) }}">
+                                value="{{ old('rank_harian', $penilaianpengamatan->rank_harian) }}" readonly>
                         </div>
                     </div>
                 </div>
