@@ -194,14 +194,112 @@ class PenilaianMingguanController extends Controller
     
         $tugasSiswa = $tugasPeleton->tugasSiswa;
     
+        // **FUNGSI BARU: Hitung dan update rank_mingguan berdasarkan nilai_mingguan**
+        $this->calculateAndUpdateRankMingguan($tugasSiswa);
+    
+        // **URUTKAN DATA BERDASARKAN RANK_MINGGUAN (ASC)**
+        $tugasSiswa = $tugasSiswa->sortBy(function($siswa) {
+            return $siswa->penilaianMingguan->rank_mingguan ?? 999999;
+        })->values(); // Reset array keys
+    
         if (request()->has('download')) {
             $pdf = Pdf::loadView('peleton.penilaianmingguan.laporan', compact('tugasSiswa', 'tugasPeleton'))
                       ->setPaper('a4', 'landscape');
             
             return $pdf->stream('laporan-penilaian-mingguan.pdf');
         }
-
+    
         return view('peleton.penilaianmingguan.laporan', compact('tugasSiswa', 'tugasPeleton'));
+    }
+    
+    /**
+     * Hitung dan update rank_mingguan berdasarkan nilai_mingguan
+     * Menggunakan rumus Excel: =RANK(nilai,$range)+COUNTIF($range,nilai)-1
+     * 
+     * @param \Illuminate\Database\Eloquent\Collection $tugasSiswa
+     */
+    private function calculateAndUpdateRankMingguan($tugasSiswa)
+    {
+        // Kumpulkan data nilai_mingguan dari semua siswa yang memiliki penilaian mingguan
+        $nilaiMingguanData = [];
+        
+        foreach ($tugasSiswa as $siswa) {
+            if ($siswa->penilaianMingguan && !is_null($siswa->penilaianMingguan->nilai_mingguan)) {
+                $nilaiMingguanData[] = [
+                    'penilaian_id' => $siswa->penilaianMingguan->id,
+                    'nilai_mingguan' => (float) $siswa->penilaianMingguan->nilai_mingguan
+                ];
+            }
+        }
+        
+        // Jika tidak ada data nilai, skip
+        if (empty($nilaiMingguanData)) {
+            Log::info("No nilai_mingguan data found for ranking calculation");
+            return;
+        }
+        
+        // Urutkan berdasarkan nilai_mingguan dari tertinggi ke terendah untuk ranking
+        usort($nilaiMingguanData, function($a, $b) {
+            return $b['nilai_mingguan'] <=> $a['nilai_mingguan']; // Descending order
+        });
+        
+        // Buat array untuk menyimpan semua nilai (untuk COUNTIF)
+        $allNilai = array_column($nilaiMingguanData, 'nilai_mingguan');
+        
+        // Hitung rank untuk setiap siswa
+        $rankUpdates = [];
+        
+        foreach ($nilaiMingguanData as $index => $data) {
+            $nilaiMingguan = $data['nilai_mingguan'];
+            $penilaianId = $data['penilaian_id'];
+            
+            // Implementasi rumus Excel: =RANK(nilai,$range)+COUNTIF($range,nilai)-1
+            
+            // 1. RANK(nilai, $range) - hitung berapa banyak nilai yang lebih tinggi + 1
+            $rank = 1;
+            foreach ($allNilai as $nilai) {
+                if ($nilai > $nilaiMingguan) {
+                    $rank++;
+                }
+            }
+            
+            // 2. COUNTIF untuk nilai yang sama - hitung urutan kemunculan
+            $countBefore = 0;
+            foreach ($nilaiMingguanData as $beforeIndex => $beforeData) {
+                if ($beforeIndex >= $index) break;
+                if ($beforeData['nilai_mingguan'] == $nilaiMingguan) {
+                    $countBefore++;
+                }
+            }
+            
+            // 3. Aplikasikan rumus: RANK + COUNTIF_BEFORE
+            $finalRank = $rank + $countBefore;
+            
+            $rankUpdates[] = [
+                'penilaian_id' => $penilaianId,
+                'rank_mingguan' => $finalRank,
+                'nilai_mingguan' => $nilaiMingguan
+            ];
+        }
+        
+        // Update rank_mingguan di database
+        foreach ($rankUpdates as $update) {
+            try {
+                PenilaianMingguan::where('id', $update['penilaian_id'])
+                    ->update(['rank_mingguan' => $update['rank_mingguan']]);
+                    
+                Log::info("Updated rank_mingguan for penilaian_id {$update['penilaian_id']} to {$update['rank_mingguan']} (Nilai: {$update['nilai_mingguan']})");
+            } catch (\Exception $e) {
+                Log::error("Failed to update rank_mingguan for penilaian_id {$update['penilaian_id']}: " . $e->getMessage());
+            }
+        }
+        
+        // Refresh data setelah update
+        foreach ($tugasSiswa as $siswa) {
+            if ($siswa->penilaianMingguan) {
+                $siswa->penilaianMingguan->refresh();
+            }
+        }
     }
 
 }
