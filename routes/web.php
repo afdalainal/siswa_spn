@@ -36,17 +36,23 @@ Route::middleware(['auth'])->group(function () {
     // peleton
     Route::middleware(['role:peleton'])->group(function () {
         Route::get('/dashboard/peleton', [\App\Http\Controllers\Peleton\DashboardController::class, 'index'])->name('dashboard.peleton');
+        
         Route::resource('penilaianpengamatan', \App\Http\Controllers\Peleton\PenilaianPengamatanController::class);
-        Route::resource('penilaianharian', \App\Http\Controllers\Peleton\PenilaianHarianController::class);
-        Route::resource('penilaianmingguan', \App\Http\Controllers\Peleton\PenilaianMingguanController::class);
         Route::get('/penilaianpengamatan/grafik/{id}', [\App\Http\Controllers\Peleton\PenilaianPengamatanController::class, 'grafik'])->name('penilaianpengamatan.grafik');
-        Route::get('/penilaianharian/grafik/{id}', [\App\Http\Controllers\Peleton\PenilaianHarianController::class, 'grafik'])->name('penilaianharian.grafik');
-        Route::get('/penilaianmingguan/grafik/{id}', [\App\Http\Controllers\Peleton\PenilaianMingguanController::class, 'grafik'])->name('penilaianmingguan.grafik');
         Route::get('/penilaianpengamatan/laporan/{id}', [\App\Http\Controllers\Peleton\PenilaianPengamatanController::class, 'laporan'])->name('penilaianpengamatan.laporan');
-        Route::get('/penilaianharian/laporan/{id}', [\App\Http\Controllers\Peleton\PenilaianHarianController::class, 'laporan'])->name('penilaianharian.laporan');
-        Route::get('/penilaianmingguan/laporan/{id}', [\App\Http\Controllers\Peleton\PenilaianMingguanController::class, 'laporan'])->name('penilaianmingguan.laporan');
-   
         Route::get('penilaianpengamatan/{tugasPeletonId}/siswa/{tugasSiswaId}', [\App\Http\Controllers\Peleton\PenilaianPengamatanController::class, 'showHarian'])->name('penilaianpengamatan.harian');
+        
+        
+        Route::resource('penilaianharian', \App\Http\Controllers\Peleton\PenilaianHarianController::class);
+        Route::get('/penilaianharian/grafik/{id}', [\App\Http\Controllers\Peleton\PenilaianHarianController::class, 'grafik'])->name('penilaianharian.grafik');
+        Route::get('/penilaianharian/laporan/{id}', [\App\Http\Controllers\Peleton\PenilaianHarianController::class, 'laporan'])->name('penilaianharian.laporan');
+        
+        
+        Route::resource('penilaianmingguan', \App\Http\Controllers\Peleton\PenilaianMingguanController::class);
+        Route::get('/penilaianmingguan/grafik/{id}', [\App\Http\Controllers\Peleton\PenilaianMingguanController::class, 'grafik'])->name('penilaianmingguan.grafik');
+        Route::get('/penilaianmingguan/laporan/{id}', [\App\Http\Controllers\Peleton\PenilaianMingguanController::class, 'laporan'])->name('penilaianmingguan.laporan');
+        
+        
     });
 
     // Profile
