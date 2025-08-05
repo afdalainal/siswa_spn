@@ -462,14 +462,13 @@ class PenilaianPengamatanController extends Controller
 
     public function grafik(string $id)
     {
-        // Get the tugas peleton with all necessary relationships
         $tugasPeleton = TugasPeleton::with([
                 'tugasSiswa' => function($query) {
                     $query->with([
                         'siswa:id,nama,nosis',
                         'penilaianSiswaHarian' => function($q) {
                             $q->with('penilaianPengamatan')
-                              ->orderBy('hari_ke', 'asc');
+                              ->orderBy('hari_ke');
                         }
                     ]);
                 },
@@ -482,119 +481,85 @@ class PenilaianPengamatanController extends Controller
             ->where('user_id', auth()->id())
             ->firstOrFail();
     
-        // Prepare data structure for charts
+        // Prepare chart data
         $chartData = [
-            'mental' => [],
-            'watak' => [],
-            'kepemimpinan' => [],
-            'nilai_akhir' => [],
-            'ranking' => []
+            'days' => [],
+            'mentalData' => [],
+            'watakData' => [],
+            'kepemimpinanData' => [],
+            'spiritualData' => [],
+            'ideologiData' => [],
+            'kejuanganData' => [],
+            'pribadiData' => [],
+            'nilaiAkhirData' => [],
+            'rankData' => []
         ];
     
-        $siswaData = [];
-        $hariLabels = ['Hari 1', 'Hari 2', 'Hari 3', 'Hari 4', 'Hari 5', 'Hari 6', 'Hari 7'];
-    
-        // Process each student's data
-        foreach ($tugasPeleton->tugasSiswa as $tugasSiswa) {
-            $siswaId = $tugasSiswa->siswa_id;
-            $siswaName = $tugasSiswa->siswa->nama;
-            
-            $siswaData[$siswaId] = [
-                'id' => $siswaId,
-                'name' => $siswaName,
-                'nosis' => $tugasSiswa->siswa->nosis
-            ];
-    
-            // Initialize arrays for each day
-            for ($i = 1; $i <= 7; $i++) {
-                $chartData['mental'][$siswaId][$i] = null;
-                $chartData['watak'][$siswaId][$i] = null;
-                $chartData['kepemimpinan'][$siswaId][$i] = null;
-                $chartData['nilai_akhir'][$siswaId][$i] = null;
-                $chartData['ranking'][$siswaId][$i] = null;
-            }
-    
-            // Fill with actual data if available
+        // Assuming we're showing data for the first student (you can modify this to show specific student)
+        $tugasSiswa = $tugasPeleton->tugasSiswa->first();
+        
+        if ($tugasSiswa) {
             foreach ($tugasSiswa->penilaianSiswaHarian as $harian) {
-                $hariKe = $harian->hari_ke;
-                $pengamatan = $harian->penilaianPengamatan;
-    
-                if ($pengamatan) {
-                    // Calculate averages for each category
-                    $mentalSpiritual = ($pengamatan->mental_spiritual_1 + $pengamatan->mental_spiritual_2 + $pengamatan->mental_spiritual_3) / 3;
-                    $mentalIdeologi = ($pengamatan->mental_ideologi_1 + $pengamatan->mental_ideologi_2 + $pengamatan->mental_ideologi_3) / 3;
-                    $mentalKejuangan = ($pengamatan->mental_kejuangan_1 + $pengamatan->mental_kejuangan_2 + $pengamatan->mental_kejuangan_3 + $pengamatan->mental_kejuangan_4) / 4;
+                $penilaian = $harian->penilaianPengamatan;
+                if ($penilaian) {
+                    $chartData['days'][] = 'Hari ' . $harian->hari_ke;
                     
-                    $watakPribadi = ($pengamatan->watak_pribadi_1 + $pengamatan->watak_pribadi_2 + $pengamatan->watak_pribadi_3 + $pengamatan->watak_pribadi_4) / 4;
+                    // Calculate mental score (average of spiritual, ideologi, kejuangan)
+                    $mentalScore = (
+                        ($penilaian->mental_spiritual_1 + $penilaian->mental_spiritual_2 + $penilaian->mental_spiritual_3) / 3 +
+                        ($penilaian->mental_ideologi_1 + $penilaian->mental_ideologi_2 + $penilaian->mental_ideologi_3) / 3 +
+                        ($penilaian->mental_kejuangan_1 + $penilaian->mental_kejuangan_2 + $penilaian->mental_kejuangan_3 + $penilaian->mental_kejuangan_4) / 4
+                    ) / 3;
                     
-                    $kepemimpinan = ($pengamatan->mental_kepemimpinan_1 + $pengamatan->mental_kepemimpinan_2 + $pengamatan->mental_kepemimpinan_3 + 
-                                     $pengamatan->mental_kepemimpinan_4 + $pengamatan->mental_kepemimpinan_5 + $pengamatan->mental_kepemimpinan_6 + 
-                                     $pengamatan->mental_kepemimpinan_7 + $pengamatan->mental_kepemimpinan_8) / 8;
-    
-                    // Store the calculated values
-                    $chartData['mental'][$siswaId][$hariKe] = ($mentalSpiritual + $mentalIdeologi + $mentalKejuangan) / 3;
-                    $chartData['watak'][$siswaId][$hariKe] = $watakPribadi;
-                    $chartData['kepemimpinan'][$siswaId][$hariKe] = $kepemimpinan;
-                    $chartData['nilai_akhir'][$siswaId][$hariKe] = $pengamatan->nilai_akhir;
-                    $chartData['ranking'][$siswaId][$hariKe] = $pengamatan->rank_harian;
+                    // Calculate watak score (average of pribadi)
+                    $watakScore = (
+                        $penilaian->watak_pribadi_1 + $penilaian->watak_pribadi_2 + 
+                        $penilaian->watak_pribadi_3 + $penilaian->watak_pribadi_4
+                    ) / 4;
+                    
+                    // Calculate kepemimpinan score (average of kepemimpinan)
+                    $kepemimpinanScore = (
+                        $penilaian->mental_kepemimpinan_1 + $penilaian->mental_kepemimpinan_2 + 
+                        $penilaian->mental_kepemimpinan_3 + $penilaian->mental_kepemimpinan_4 +
+                        $penilaian->mental_kepemimpinan_5 + $penilaian->mental_kepemimpinan_6 + 
+                        $penilaian->mental_kepemimpinan_7 + $penilaian->mental_kepemimpinan_8
+                    ) / 8;
+                    
+                    $chartData['mentalData'][] = round($mentalScore, 2);
+                    $chartData['watakData'][] = round($watakScore, 2);
+                    $chartData['kepemimpinanData'][] = round($kepemimpinanScore, 2);
+                    
+                    // Individual character scores
+                    $chartData['spiritualData'][] = round((
+                        $penilaian->mental_spiritual_1 + $penilaian->mental_spiritual_2 + $penilaian->mental_spiritual_3
+                    ) / 3, 2);
+                    
+                    $chartData['ideologiData'][] = round((
+                        $penilaian->mental_ideologi_1 + $penilaian->mental_ideologi_2 + $penilaian->mental_ideologi_3
+                    ) / 3, 2);
+                    
+                    $chartData['kejuanganData'][] = round((
+                        $penilaian->mental_kejuangan_1 + $penilaian->mental_kejuangan_2 + 
+                        $penilaian->mental_kejuangan_3 + $penilaian->mental_kejuangan_4
+                    ) / 4, 2);
+                    
+                    $chartData['pribadiData'][] = round((
+                        $penilaian->watak_pribadi_1 + $penilaian->watak_pribadi_2 + 
+                        $penilaian->watak_pribadi_3 + $penilaian->watak_pribadi_4
+                    ) / 4, 2);
+                    
+                    // Final scores
+                    $chartData['nilaiAkhirData'][] = round($penilaian->nilai_akhir, 2);
+                    $chartData['rankData'][] = $penilaian->rank_harian ?? null;
                 }
             }
         }
     
-        // Prepare data for each chart type
-        $preparedData = [
-            'mental' => [
-                'series' => $this->prepareSeriesData($chartData['mental'], $siswaData),
-                'categories' => $hariLabels
-            ],
-            'watak' => [
-                'series' => $this->prepareSeriesData($chartData['watak'], $siswaData),
-                'categories' => $hariLabels
-            ],
-            'kepemimpinan' => [
-                'series' => $this->prepareSeriesData($chartData['kepemimpinan'], $siswaData),
-                'categories' => $hariLabels
-            ],
-            'nilai_akhir' => [
-                'series' => $this->prepareSeriesData($chartData['nilai_akhir'], $siswaData),
-                'categories' => $hariLabels
-            ],
-            'ranking' => [
-                'series' => $this->prepareSeriesData($chartData['ranking'], $siswaData),
-                'categories' => $hariLabels
-            ],
-            'siswa' => array_values($siswaData),
-            'tugas_peleton' => [
-                'id' => $tugasPeleton->id,
-                'ton_ki_yon' => $tugasPeleton->ton_ki_yon,
-                'minggu_ke' => $tugasPeleton->minggu_ke,
-                'peleton' => $tugasPeleton->peleton->name ?? null,
-                'danton' => $tugasPeleton->pengasuhDanton->nama ?? null,
-                'danki' => $tugasPeleton->pengasuhDanki->nama ?? null
-            ]
-        ];
-    
         return view('peleton.penilaianpengamatan.grafik', [
-            'chartData' => $preparedData,
-            'tugasPeleton' => $tugasPeleton
+            'chartData' => $chartData,
+            'tugasPeleton' => $tugasPeleton,
+            'siswa' => $tugasSiswa->siswa ?? null
         ]);
-    }
-    
-    /**
-     * Helper method to prepare series data for charts
-     */
-    private function prepareSeriesData(array $data, array $siswaData): array
-    {
-        $series = [];
-        
-        foreach ($siswaData as $siswaId => $siswa) {
-            $series[] = [
-                'name' => $siswa['name'],
-                'data' => array_values($data[$siswaId])
-            ];
-        }
-        
-        return $series;
     }
 
 }
