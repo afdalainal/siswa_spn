@@ -384,9 +384,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         xaxis: {
-            categories: ['Nilai Mingguan'],
+            categories: ['Penilaian'],
             title: {
-                text: 'Kategori Penilaian',
+                text: 'Nilai Mingguan',
                 style: {
                     fontSize: '12px',
                     fontWeight: 'bold'
@@ -476,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function() {
         xaxis: {
             categories: chartData.rankMingguanData.map(student => student.name),
             title: {
-                text: 'Nama Siswa',
+                text: 'Siswa',
                 style: {
                     fontSize: '12px',
                     fontWeight: 'bold'
