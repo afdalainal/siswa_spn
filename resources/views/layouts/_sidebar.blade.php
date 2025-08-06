@@ -1,7 +1,7 @@
 <div id="sidebar" class='active'>
     <div class="sidebar-wrapper active">
         <div class="sidebar-header">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Insignia_of_the_Indonesian_National_Police.svg/640px-Insignia_of_the_Indonesian_National_Police.svg.png"
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRT2W7IxcouGjzXwEKkrzOfTfaa97cz2g1qA&s"
                 alt="" srcset="">
         </div>
         <div class="sidebar-menu">

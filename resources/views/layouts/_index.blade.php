@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="{{asset('assets/vendors/perfect-scrollbar/perfect-scrollbar.css')}}">
     <link rel="stylesheet" href="{{asset('assets/css/app.css')}}">
     <link rel="shortcut icon"
-        href="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Insignia_of_the_Indonesian_National_Police.svg/640px-Insignia_of_the_Indonesian_National_Police.svg.png"
+        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRT2W7IxcouGjzXwEKkrzOfTfaa97cz2g1qA&s"
         type="image/x-icon">
 
     <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
