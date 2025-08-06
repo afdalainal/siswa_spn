@@ -14,7 +14,7 @@
 
             <!-- Second Graph: Progress/Perubahan Harian -->
             <div class="mb-5">
-                <h6 class="text-center mb-3">Progress Perubahan Nilai Harian Siswa</h6>
+                <h6 class="text-center mb-3">Perkembangan Nilai Harian Siswa (Hari 1-7)</h6>
                 <div id="progressHarianChart"></div>
             </div>
 
@@ -216,15 +216,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     nilaiHarianChart.render();
 
-    // 2. Progress Harian Chart (Area Chart)
+    // 2. Progress Harian Chart (Line Chart with markers and annotations)
     const progressHarianChart = new ApexCharts(document.querySelector("#progressHarianChart"), {
-        series: chartData.progressHarianData.map((student, index) => ({
+        series: chartData.nilaiHarianData.map((student, index) => ({
             name: student.name,
             data: student.data,
             color: colors[index % colors.length]
         })),
         chart: {
-            type: 'area',
+            type: 'line',
             height: 450,
             toolbar: {
                 show: true
@@ -239,15 +239,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         stroke: {
-            width: 2,
+            width: 3,
             curve: 'smooth'
         },
-        fill: {
-            opacity: 0.3,
-            type: 'gradient'
+        markers: {
+            size: 6,
+            strokeWidth: 2,
+            strokeColors: '#fff',
+            fillOpacity: 1,
+            hover: {
+                size: 8
+            }
         },
         xaxis: {
-            categories: chartData.days.slice(1), // Skip first day as no progress can be calculated
+            categories: chartData.days,
             title: {
                 text: 'Hari Ke-',
                 style: {
@@ -258,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         yaxis: {
             title: {
-                text: 'Perubahan Nilai',
+                text: 'Nilai Harian',
                 style: {
                     fontSize: '12px',
                     fontWeight: 'bold'
@@ -266,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             labels: {
                 formatter: function(val) {
-                    return val >= 0 ? '+' + val.toFixed(1) : val.toFixed(1);
+                    return val.toFixed(1);
                 }
             }
         },
@@ -284,9 +289,7 @@ document.addEventListener('DOMContentLoaded', function() {
             intersect: false,
             y: {
                 formatter: function(val, opts) {
-                    const sign = val >= 0 ? '+' : '';
-                    return opts.w.globals.seriesNames[opts.seriesIndex] + ': ' + sign + val.toFixed(
-                        2);
+                    return opts.w.globals.seriesNames[opts.seriesIndex] + ': ' + val.toFixed(2);
                 }
             }
         },
@@ -294,18 +297,71 @@ document.addEventListener('DOMContentLoaded', function() {
             borderColor: '#e7e7e7',
             strokeDashArray: 3
         },
-        colors: colors
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                return val > 0 ? val.toFixed(1) : '';
+            },
+            style: {
+                fontSize: '9px',
+                colors: ['#000'],
+                fontWeight: 'bold'
+            },
+            background: {
+                enabled: true,
+                foreColor: '#fff',
+                borderRadius: 3,
+                opacity: 0.8,
+                padding: 1
+            },
+            offsetY: -8
+        },
+        annotations: {
+            points: chartData.nilaiHarianData.flatMap((student, studentIndex) => {
+                const points = [];
+                for (let i = 1; i < student.data.length; i++) {
+                    if (student.data[i] !== null && student.data[i - 1] !== null) {
+                        const diff = student.data[i] - student.data[i - 1];
+                        if (diff !== 0) {
+                            points.push({
+                                x: chartData.days[i],
+                                y: student.data[i],
+                                marker: {
+                                    size: 6,
+                                    fillColor: diff > 0 ? '#10B981' : '#EF4444',
+                                    strokeColor: '#fff',
+                                    radius: 2
+                                },
+                                label: {
+                                    borderColor: diff > 0 ? '#10B981' : '#EF4444',
+                                    style: {
+                                        color: '#fff',
+                                        background: diff > 0 ? '#10B981' : '#EF4444',
+                                        fontSize: '10px'
+                                    },
+                                    text: diff > 0 ? `+${diff.toFixed(1)}` :
+                                        `${diff.toFixed(1)}`,
+                                    offsetY: -15
+                                }
+                            });
+                        }
+                    }
+                }
+                return points;
+            })
+        }
     });
     progressHarianChart.render();
 
     // 3. Nilai Mingguan Chart (Column Chart)
     const nilaiMingguanChart = new ApexCharts(document.querySelector("#nilaiMingguanChart"), {
-        series: [{
-            name: 'Nilai Mingguan',
-            data: chartData.nilaiMingguanData.map(student => student.score)
-        }],
+        series: chartData.nilaiMingguanData.map((student, index) => ({
+            name: student.name,
+            data: [student.score],
+            color: colors[index % colors.length]
+        })),
         chart: {
-            type: 'column',
+            type: 'bar',
             height: 450,
             toolbar: {
                 show: true
@@ -318,30 +374,28 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         plotOptions: {
             bar: {
+                horizontal: false,
                 borderRadius: 8,
                 columnWidth: '60%',
-                distributed: true
+                distributed: false,
+                dataLabels: {
+                    position: 'top'
+                }
             }
         },
         xaxis: {
-            categories: chartData.nilaiMingguanData.map(student => student.name),
+            categories: ['Nilai Mingguan'],
             title: {
-                text: 'Siswa',
+                text: 'Kategori Penilaian',
                 style: {
                     fontSize: '12px',
                     fontWeight: 'bold'
-                }
-            },
-            labels: {
-                rotate: -45,
-                style: {
-                    fontSize: '11px'
                 }
             }
         },
         yaxis: {
             title: {
-                text: 'Nilai Mingguan',
+                text: 'Nilai',
                 style: {
                     fontSize: '12px',
                     fontWeight: 'bold'
@@ -354,7 +408,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         legend: {
-            show: false
+            position: 'right',
+            fontSize: '12px',
+            itemMargin: {
+                horizontal: 8,
+                vertical: 2
+            }
         },
         tooltip: {
             y: {
@@ -378,22 +437,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 colors: ['#fff'],
                 fontWeight: 'bold'
             },
-            offsetY: -5
+            offsetY: -20
         }
     });
     nilaiMingguanChart.render();
 
-    // 4. Rank Mingguan Chart (Lollipop Chart)
+    // 4. Rank Mingguan Chart (Bar Chart - Horizontal with ranking)
     const rankMingguanChart = new ApexCharts(document.querySelector("#rankMingguanChart"), {
         series: [{
             name: 'Peringkat',
-            data: chartData.rankMingguanData.map(student => ({
-                x: student.name,
-                y: student.rank || 0
-            }))
+            data: chartData.rankMingguanData.map(student => student.rank)
         }],
         chart: {
-            type: 'scatter',
+            type: 'bar',
             height: 450,
             toolbar: {
                 show: true
@@ -404,14 +460,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 speed: 800
             }
         },
-        markers: {
-            size: 12,
-            strokeWidth: 3,
-            strokeColors: '#fff',
-            fillOpacity: 1
+        plotOptions: {
+            bar: {
+                horizontal: true,
+                borderRadius: 4,
+                barHeight: '80%',
+                distributed: false,
+                dataLabels: {
+                    position: 'bottom'
+                }
+            }
         },
+        colors: ['#3B82F6'],
         xaxis: {
-            type: 'category',
+            categories: chartData.rankMingguanData.map(student => student.name),
             title: {
                 text: 'Siswa',
                 style: {
@@ -420,9 +482,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             },
             labels: {
-                rotate: -45,
-                style: {
-                    fontSize: '11px'
+                formatter: function(val) {
+                    return val;
                 }
             }
         },
@@ -436,6 +497,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             reversed: true,
             min: 1,
+            forceNiceScale: true,
             labels: {
                 formatter: function(val) {
                     return Math.round(val);
@@ -446,43 +508,36 @@ document.addEventListener('DOMContentLoaded', function() {
             show: false
         },
         tooltip: {
-            custom: function({
-                series,
-                seriesIndex,
-                dataPointIndex,
-                w
-            }) {
-                const studentName = w.globals.categoryLabels[dataPointIndex];
-                const rank = series[seriesIndex][dataPointIndex];
-                return `<div class="arrow_box" style="padding: 8px;">
-                    <strong>${studentName}</strong><br>
-                    Peringkat: ${Math.round(rank)}
-                </div>`;
+            y: {
+                formatter: function(val) {
+                    return 'Peringkat: ' + val;
+                }
             }
         },
         grid: {
             borderColor: '#e7e7e7',
             strokeDashArray: 3
         },
-        colors: ['#3B82F6'],
         dataLabels: {
             enabled: true,
             formatter: function(val) {
-                return Math.round(val);
+                return 'Rank ' + Math.round(val);
             },
             style: {
                 fontSize: '10px',
-                colors: ['#000'],
+                colors: ['#fff'],
                 fontWeight: 'bold'
             },
+            offsetX: 0,
             background: {
                 enabled: true,
-                foreColor: '#fff',
-                borderRadius: 3,
+                foreColor: '#000',
+                borderRadius: 2,
+                padding: 4,
                 opacity: 0.9,
-                padding: 2
-            },
-            offsetY: -10
+                borderWidth: 1,
+                borderColor: '#fff'
+            }
         }
     });
     rankMingguanChart.render();
