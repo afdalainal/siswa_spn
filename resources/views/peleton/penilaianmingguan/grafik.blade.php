@@ -43,7 +43,7 @@
             </div>
 
             <!-- Information Panel -->
-            <div class="mb-5">
+            <!-- <div class="mb-5">
                 <div class="card">
                     <div class="card-header">
                         <h6 class="card-title mb-0">📊 Penjelasan Penilaian Mingguan</h6>
@@ -95,7 +95,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </section>
@@ -442,14 +442,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     nilaiMingguanChart.render();
 
-    // 4. Rank Mingguan Chart (Bar Chart - Horizontal with ranking)
+    // 4. Rank Mingguan Chart (Line Chart - Showing ranking of students)
     const rankMingguanChart = new ApexCharts(document.querySelector("#rankMingguanChart"), {
         series: [{
             name: 'Peringkat',
             data: chartData.rankMingguanData.map(student => student.rank)
         }],
         chart: {
-            type: 'bar',
+            type: 'line',
             height: 450,
             toolbar: {
                 show: true
@@ -460,30 +460,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 speed: 800
             }
         },
-        plotOptions: {
-            bar: {
-                horizontal: true,
-                borderRadius: 4,
-                barHeight: '80%',
-                distributed: false,
-                dataLabels: {
-                    position: 'bottom'
-                }
+        stroke: {
+            width: 3,
+            curve: 'straight'
+        },
+        markers: {
+            size: 6,
+            strokeWidth: 2,
+            strokeColors: '#fff',
+            fillOpacity: 1,
+            hover: {
+                size: 8
             }
         },
-        colors: ['#3B82F6'],
         xaxis: {
             categories: chartData.rankMingguanData.map(student => student.name),
             title: {
-                text: 'Siswa',
+                text: 'Nama Siswa',
                 style: {
                     fontSize: '12px',
                     fontWeight: 'bold'
                 }
             },
             labels: {
-                formatter: function(val) {
-                    return val;
+                rotate: -45,
+                style: {
+                    fontSize: '11px'
                 }
             }
         },
@@ -502,7 +504,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 formatter: function(val) {
                     return Math.round(val);
                 }
-            }
+            },
+            tickAmount: Math.max(...chartData.rankMingguanData.map(student => student.rank)) - 1
         },
         legend: {
             show: false
@@ -518,6 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
             borderColor: '#e7e7e7',
             strokeDashArray: 3
         },
+        colors: ['#3B82F6'],
         dataLabels: {
             enabled: true,
             formatter: function(val) {
@@ -528,7 +532,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 colors: ['#fff'],
                 fontWeight: 'bold'
             },
-            offsetX: 0,
             background: {
                 enabled: true,
                 foreColor: '#000',
@@ -537,7 +540,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 opacity: 0.9,
                 borderWidth: 1,
                 borderColor: '#fff'
-            }
+            },
+            offsetY: -10
         }
     });
     rankMingguanChart.render();
