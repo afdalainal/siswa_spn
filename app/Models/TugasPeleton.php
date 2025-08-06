@@ -64,4 +64,28 @@ class TugasPeleton extends Model
         return $this->hasManyThrough(\App\Models\Siswa::class, \App\Models\TugasSiswa::class, 'tugas_peleton_id', 'id', 'id', 'siswa_id');
     }
     
+    public function scopeActive($query)
+    {
+        return $query->whereNull('deleted_at');
+    }
+
+    public function scopeInactive($query)
+    {
+        return $query->onlyTrashed();
+    }
+
+    public function scopeGroupByWeek($query)
+    {
+        return $query->select('minggu_ke', \DB::raw('count(*) as total'))
+            ->groupBy('minggu_ke')
+            ->orderBy('minggu_ke', 'desc');
+    }
+
+    public static function activeStudentsCount()
+    {
+        return \DB::table('tugas_siswas')
+            ->where('status', 'aktif')
+            ->distinct('siswa_id')
+            ->count('siswa_id');
+    }
 }
