@@ -147,37 +147,6 @@ class PenilaianMingguanController extends Controller
         //
     }
 
-    public function grafik(string $id)
-    {
-        $tugasPeleton = TugasPeleton::withTrashed()
-            ->with(['tugasSiswa.siswa', 'tugasSiswa.penilaianMingguan'])
-            ->where('id', $id)
-            ->where('user_id', auth()->id())
-            ->firstOrFail();
-
-        $tugasSiswa = $tugasPeleton->tugasSiswa;
-
-        $grafikData = [];
-        foreach ($tugasSiswa as $siswa) {
-            if ($siswa->penilaianMingguan) {
-                $grafikData[] = [
-                    'nama_siswa' => $siswa->siswa->nama,
-                    'nilai_hari_1' => $siswa->penilaianMingguan->nilai_mingguan_hari_1,
-                    'nilai_hari_2' => $siswa->penilaianMingguan->nilai_mingguan_hari_2,
-                    'nilai_hari_3' => $siswa->penilaianMingguan->nilai_mingguan_hari_3,
-                    'nilai_hari_4' => $siswa->penilaianMingguan->nilai_mingguan_hari_4,
-                    'nilai_hari_5' => $siswa->penilaianMingguan->nilai_mingguan_hari_5,
-                    'nilai_hari_6' => $siswa->penilaianMingguan->nilai_mingguan_hari_6,
-                    'nilai_hari_7' => $siswa->penilaianMingguan->nilai_mingguan_hari_7,
-                    'nilai_mingguan' => $siswa->penilaianMingguan->nilai_mingguan,
-                    'rank_mingguan' => $siswa->penilaianMingguan->rank_mingguan
-                ];
-            }
-        }
-
-        return view('peleton.penilaianmingguan.grafik', compact('tugasPeleton', 'grafikData'));
-    }
-
     public function laporan(string $id)
     {
         $tugasPeleton = TugasPeleton::withTrashed()
@@ -302,4 +271,150 @@ class PenilaianMingguanController extends Controller
         }
     }
 
+    public function grafik(string $id)
+    {
+        $tugasPeleton = TugasPeleton::with([
+                'tugasSiswa' => function($query) {
+                    $query->with([
+                        'siswa:id,nama,nosis',
+                        'penilaianMingguan'
+                    ]);
+                },
+                'pengasuhDanton:id,nama',
+                'pengasuhDanki:id,nama',
+                'peleton:id,name'
+            ])
+            ->withTrashed()
+            ->where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+    
+        // Prepare chart data structure
+        $chartData = [
+            'days' => ['Hari 1', 'Hari 2', 'Hari 3', 'Hari 4', 'Hari 5', 'Hari 6', 'Hari 7'],
+            'students' => [],
+            'nilaiHarianData' => [],
+            'nilaiMingguanData' => [],
+            'rankMingguanData' => [],
+            'progressHarianData' => [],
+            'trendAnalysisData' => []
+        ];
+    
+        // Get all students with their weekly assessments
+        foreach ($tugasPeleton->tugasSiswa as $tugasSiswa) {
+            $studentName = $tugasSiswa->siswa->nama;
+            $chartData['students'][] = $studentName;
+            
+            // Get penilaian mingguan data
+            $penilaianMingguan = $tugasSiswa->penilaianMingguan;
+            
+            if ($penilaianMingguan) {
+                // Initialize arrays for this student
+                $studentNilaiHarian = [];
+                $studentProgressHarian = [];
+                $previousValue = null;
+                
+                // Loop through 7 days to get daily scores
+                for ($hari = 1; $hari <= 7; $hari++) {
+                    $nilaiField = 'nilai_mingguan_hari_' . $hari;
+                    $nilaiHarian = $penilaianMingguan->$nilaiField ?? 0;
+                    
+                    $studentNilaiHarian[] = round($nilaiHarian, 2);
+                    
+                    // Calculate progress (difference from previous day)
+                    if ($previousValue !== null && $nilaiHarian > 0) {
+                        $progress = $nilaiHarian - $previousValue;
+                        $studentProgressHarian[] = round($progress, 2);
+                    } else {
+                        $studentProgressHarian[] = 0;
+                    }
+                    
+                    if ($nilaiHarian > 0) {
+                        $previousValue = $nilaiHarian;
+                    }
+                }
+                
+                // Add student data to chart data
+                $chartData['nilaiHarianData'][] = [
+                    'name' => $studentName,
+                    'data' => $studentNilaiHarian
+                ];
+                
+                $chartData['progressHarianData'][] = [
+                    'name' => $studentName,
+                    'data' => $studentProgressHarian
+                ];
+                
+                // Weekly final score data (single value for each student)
+                $chartData['nilaiMingguanData'][] = [
+                    'name' => $studentName,
+                    'score' => round($penilaianMingguan->nilai_mingguan ?? 0, 2)
+                ];
+                
+                // Weekly rank data (single value for each student)
+                $chartData['rankMingguanData'][] = [
+                    'name' => $studentName,
+                    'rank' => $penilaianMingguan->rank_mingguan ?? 0
+                ];
+                
+                // Trend analysis data (average, min, max per student)
+                $validScores = array_filter($studentNilaiHarian, function($score) {
+                    return $score > 0;
+                });
+                
+                if (!empty($validScores)) {
+                    $chartData['trendAnalysisData'][] = [
+                        'name' => $studentName,
+                        'average' => round(array_sum($validScores) / count($validScores), 2),
+                        'min' => round(min($validScores), 2),
+                        'max' => round(max($validScores), 2),
+                        'consistency' => round((1 - (max($validScores) - min($validScores)) / max($validScores)) * 100, 1)
+                    ];
+                } else {
+                    $chartData['trendAnalysisData'][] = [
+                        'name' => $studentName,
+                        'average' => 0,
+                        'min' => 0,
+                        'max' => 0,
+                        'consistency' => 0
+                    ];
+                }
+                
+            } else {
+                // If no assessment data, add empty/zero values
+                $chartData['nilaiHarianData'][] = [
+                    'name' => $studentName,
+                    'data' => [0, 0, 0, 0, 0, 0, 0]
+                ];
+                
+                $chartData['progressHarianData'][] = [
+                    'name' => $studentName,
+                    'data' => [0, 0, 0, 0, 0, 0, 0]
+                ];
+                
+                $chartData['nilaiMingguanData'][] = [
+                    'name' => $studentName,
+                    'score' => 0
+                ];
+                
+                $chartData['rankMingguanData'][] = [
+                    'name' => $studentName,
+                    'rank' => 0
+                ];
+                
+                $chartData['trendAnalysisData'][] = [
+                    'name' => $studentName,
+                    'average' => 0,
+                    'min' => 0,
+                    'max' => 0,
+                    'consistency' => 0
+                ];
+            }
+        }
+    
+        return view('peleton.penilaianmingguan.grafik', [
+            'chartData' => $chartData,
+            'tugasPeleton' => $tugasPeleton
+        ]);
+    }
 }
