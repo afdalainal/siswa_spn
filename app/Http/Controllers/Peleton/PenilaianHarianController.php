@@ -142,44 +142,6 @@ class PenilaianHarianController extends Controller
         //
     }
 
-    public function grafik(string $id)
-    {
-        $tugasPeleton = TugasPeleton::withTrashed()
-            ->with(['tugasSiswa.siswa', 'tugasSiswa.penilaianHarian'])
-            ->where('id', $id)
-            ->where('user_id', auth()->id())
-            ->firstOrFail();
-
-        $tugasSiswa = $tugasPeleton->tugasSiswa;
-
-        $grafikData = [];
-        foreach ($tugasSiswa as $siswa) {
-            if ($siswa->penilaianHarian) {
-                $grafikData[] = [
-                    'nama_siswa' => $siswa->siswa->nama,
-                    'nilai_harian_1' => $siswa->penilaianHarian->nilai_harian_1,
-                    'nilai_harian_2' => $siswa->penilaianHarian->nilai_harian_2,
-                    'nilai_harian_3' => $siswa->penilaianHarian->nilai_harian_3,
-                    'nilai_harian_4' => $siswa->penilaianHarian->nilai_harian_4,
-                    'nilai_harian_5' => $siswa->penilaianHarian->nilai_harian_5,
-                    'nilai_harian_6' => $siswa->penilaianHarian->nilai_harian_6,
-                    'nilai_harian_7' => $siswa->penilaianHarian->nilai_harian_7,
-                    'rata_rata' => (
-                        $siswa->penilaianHarian->nilai_harian_1 +
-                        $siswa->penilaianHarian->nilai_harian_2 +
-                        $siswa->penilaianHarian->nilai_harian_3 +
-                        $siswa->penilaianHarian->nilai_harian_4 +
-                        $siswa->penilaianHarian->nilai_harian_5 +
-                        $siswa->penilaianHarian->nilai_harian_6 +
-                        $siswa->penilaianHarian->nilai_harian_7
-                    ) / 7
-                ];
-            }
-        }
-
-        return view('peleton.penilaianharian.grafik', compact('tugasPeleton', 'grafikData'));
-    }
-    
     public function laporan(string $id)
     {
         $tugasPeleton = TugasPeleton::withTrashed()
@@ -206,4 +168,141 @@ class PenilaianHarianController extends Controller
         return view('peleton.penilaianharian.laporan', compact('tugasSiswa', 'tugasPeleton'));
     }
 
+    public function grafik(string $id)
+    {
+        $tugasPeleton = TugasPeleton::with([
+                'tugasSiswa' => function($query) {
+                    $query->with([
+                        'siswa:id,nama,nosis',
+                        'penilaianHarian'
+                    ]);
+                },
+                'pengasuhDanton:id,nama',
+                'pengasuhDanki:id,nama',
+                'pengasuhDanmen:id,nama'
+            ])
+            ->withTrashed()
+            ->where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+    
+        // Prepare chart data structure
+        $chartData = [
+            'days' => ['Hari 1', 'Hari 2', 'Hari 3', 'Hari 4', 'Hari 5', 'Hari 6', 'Hari 7'],
+            'students' => [],
+            'nilaiHarianData' => [],
+            'nilaiRataRataData' => [],
+            'progressHarianData' => [],
+            'trendAnalysisData' => []
+        ];
+    
+        // Get all students with their daily assessments
+        foreach ($tugasPeleton->tugasSiswa as $tugasSiswa) {
+            $studentName = $tugasSiswa->siswa->nama;
+            $chartData['students'][] = $studentName;
+            
+            // Get penilaian harian data
+            $penilaianHarian = $tugasSiswa->penilaianHarian;
+            
+            if ($penilaianHarian) {
+                // Initialize arrays for this student
+                $studentNilaiHarian = [];
+                $studentProgressHarian = [];
+                $previousValue = null;
+                
+                // Loop through 7 days to get daily scores
+                for ($hari = 1; $hari <= 7; $hari++) {
+                    $nilaiField = 'nilai_harian_' . $hari;
+                    $nilaiHarian = $penilaianHarian->$nilaiField ?? 0;
+                    
+                    $studentNilaiHarian[] = round($nilaiHarian, 2);
+                    
+                    // Calculate progress (difference from previous day)
+                    if ($previousValue !== null && $nilaiHarian > 0) {
+                        $progress = $nilaiHarian - $previousValue;
+                        $studentProgressHarian[] = round($progress, 2);
+                    } else {
+                        $studentProgressHarian[] = 0;
+                    }
+                    
+                    if ($nilaiHarian > 0) {
+                        $previousValue = $nilaiHarian;
+                    }
+                }
+                
+                // Add student data to chart data
+                $chartData['nilaiHarianData'][] = [
+                    'name' => $studentName,
+                    'data' => $studentNilaiHarian
+                ];
+                
+                $chartData['progressHarianData'][] = [
+                    'name' => $studentName,
+                    'data' => $studentProgressHarian
+                ];
+                
+                // Calculate average score
+                $validScores = array_filter($studentNilaiHarian, function($score) {
+                    return $score > 0;
+                });
+                
+                $averageScore = !empty($validScores) ? round(array_sum($validScores) / count($validScores), 2) : 0;
+                
+                $chartData['nilaiRataRataData'][] = [
+                    'name' => $studentName,
+                    'score' => $averageScore
+                ];
+                
+                // Trend analysis data (average, min, max per student)
+                if (!empty($validScores)) {
+                    $chartData['trendAnalysisData'][] = [
+                        'name' => $studentName,
+                        'average' => round(array_sum($validScores) / count($validScores), 2),
+                        'min' => round(min($validScores), 2),
+                        'max' => round(max($validScores), 2),
+                        'consistency' => round((1 - (max($validScores) - min($validScores)) / max($validScores)) * 100, 1)
+                    ];
+                } else {
+                    $chartData['trendAnalysisData'][] = [
+                        'name' => $studentName,
+                        'average' => 0,
+                        'min' => 0,
+                        'max' => 0,
+                        'consistency' => 0
+                    ];
+                }
+                
+            } else {
+                // If no assessment data, add empty/zero values
+                $chartData['nilaiHarianData'][] = [
+                    'name' => $studentName,
+                    'data' => [0, 0, 0, 0, 0, 0, 0]
+                ];
+                
+                $chartData['progressHarianData'][] = [
+                    'name' => $studentName,
+                    'data' => [0, 0, 0, 0, 0, 0, 0]
+                ];
+                
+                $chartData['nilaiRataRataData'][] = [
+                    'name' => $studentName,
+                    'score' => 0
+                ];
+                
+                $chartData['trendAnalysisData'][] = [
+                    'name' => $studentName,
+                    'average' => 0,
+                    'min' => 0,
+                    'max' => 0,
+                    'consistency' => 0
+                ];
+            }
+        }
+    
+        return view('peleton.penilaianharian.grafik', [
+            'chartData' => $chartData,
+            'tugasPeleton' => $tugasPeleton
+        ]);
+    }
+    
 }

@@ -1,358 +1,589 @@
 @extends('layouts._index')
-
 @section('content')
-<style>
-.chart-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    padding: 15px;
-}
-
-.chart-container {
-    position: relative;
-    height: 350px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 15px;
-}
-
-.chart-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 15px;
-    color: #2c3e50;
-    text-align: center;
-}
-
-/* Perbaikan untuk Detail Nilai per Indikator - full width card */
-.full-width-chart {
-    grid-column: 1 / -1;
-    /* Mengambil seluruh lebar grid */
-    height: 400px;
-    /* Tinggi lebih besar untuk menampung banyak data */
-}
-
-@media (max-width: 768px) {
-    .chart-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .chart-container {
-        height: 300px;
-    }
-
-    .full-width-chart {
-        height: 350px;
-    }
-}
-</style>
-
 <section class="section">
     <div class="card">
         <div class='px-3 py-3 d-flex justify-content-between'>
-            <h6 class='card-title'>Grafik Penilaian Harian</h6>
+            <h6 class='card-title'>Grafik Penilaian Harian - Perbandingan Antar Siswa</h6>
         </div>
         <div class="card-body">
-            <div class="chart-grid">
-                <!-- Grafik Rata-rata -->
-                <div class="chart-container">
-                    <h5 class="chart-title">Rata-rata Nilai</h5>
-                    <canvas id="rataRataChart"></canvas>
-                </div>
+            <!-- First Graph: Nilai Harian Selama 7 Hari -->
+            <div class="mb-5">
+                <h6 class="text-center mb-3">Perbandingan Nilai Harian Siswa (7 Hari)</h6>
+                <div id="nilaiHarianChart"></div>
+            </div>
 
-                <!-- Grafik Perbandingan Indikator -->
-                <div class="chart-container">
-                    <h5 class="chart-title">Rata-rata per Indikator</h5>
-                    <canvas id="perbandinganIndikatorChart"></canvas>
-                </div>
+            <!-- Second Graph: Progress/Perubahan Harian -->
+            <div class="mb-5">
+                <h6 class="text-center mb-3">Perkembangan Nilai Harian Siswa (Hari 1-7)</h6>
+                <div id="progressHarianChart"></div>
+            </div>
 
-                <!-- Grafik Detail Nilai - Full Width -->
-                <div class="chart-container full-width-chart">
-                    <h5 class="chart-title">Detail Nilai per Indikator</h5>
-                    <canvas id="detailNilaiChart"></canvas>
-                </div>
+            <!-- Third Graph: Nilai Rata-rata Harian -->
+            <div class="mb-5">
+                <h6 class="text-center mb-3">Perbandingan Nilai Rata-rata Harian Siswa</h6>
+                <div id="nilaiRataRataChart"></div>
+            </div>
+
+            <!-- Fourth Graph: Analisis Trend (Radar Chart) -->
+            <div class="mb-5">
+                <h6 class="text-center mb-3">Analisis Trend Performa Harian Siswa (Min, Max, Rata-rata)</h6>
+                <div id="trendAnalysisChart"></div>
+            </div>
+
+            <!-- Fifth Graph: Konsistensi Performance -->
+            <div class="mb-5">
+                <h6 class="text-center mb-3">Tingkat Konsistensi Performa Harian Siswa</h6>
+                <div id="konsistensiChart"></div>
             </div>
         </div>
     </div>
-    </div>
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const grafikData = @json($grafikData ?? []);
+    // Get the data passed from controller
+    const chartData = @json($chartData);
 
-    if (!grafikData || grafikData.length === 0) {
-        console.warn('Data grafik tidak tersedia');
-        return;
-    }
-
-    // Persiapan data
-    const labels = grafikData.map(item => item.nama_siswa || 'Siswa');
-    const indikatorLabels = ['Indikator 1', 'Indikator 2', 'Indikator 3', 'Indikator 4', 'Indikator 5',
-        'Indikator 6', 'Indikator 7'
-    ];
-
-    // Konfigurasi default Chart.js
-    Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-    Chart.defaults.font.size = 12;
-    Chart.defaults.color = '#666';
-
-    // Plugin untuk menampilkan nilai di dalam batang dengan format desimal
-    const barValuePlugin = {
-        id: 'barValuePlugin',
-        afterDatasetsDraw(chart, args, options) {
-            const {
-                ctx,
-                data,
-                chartArea: {
-                    top,
-                    bottom,
-                    left,
-                    right,
-                    width,
-                    height
-                },
-                scales: {
-                    x,
-                    y
-                }
-            } = chart;
-
-            ctx.font = 'bold 11px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            chart.data.datasets.forEach((dataset, i) => {
-                const meta = chart.getDatasetMeta(i);
-                meta.data.forEach((bar, index) => {
-                    const rawValue = dataset.data[index];
-                    if (rawValue === 0 || isNaN(rawValue)) return;
-
-                    // Format nilai dengan desimal (contoh: 34,43)
-                    const formattedValue = parseFloat(rawValue).toFixed(2).replace('.',
-                        ',');
-
-                    // Ambil posisi batang
-                    const barTop = bar.y;
-                    const barBottom = y.getPixelForValue(0);
-                    const barHeight = Math.abs(barBottom - barTop);
-
-                    // Posisi X di tengah batang
-                    const textX = bar.x;
-
-                    // Posisi Y di tengah batang
-                    let textY;
-                    if (rawValue >= 0) {
-                        textY = barTop + (barHeight / 2);
-                    } else {
-                        textY = barTop - (barHeight / 2);
-                    }
-
-                    // Cek apakah batang cukup tinggi untuk menampilkan teks
-                    if (barHeight < 30) {
-                        // Jika batang terlalu pendek, letakkan teks di atas batang
-                        textY = barTop - 15;
-                        ctx.fillStyle = '#333333';
-                        ctx.strokeStyle = '#ffffff';
-                    } else {
-                        // Jika batang cukup tinggi, letakkan teks di dalam
-                        ctx.fillStyle = '#ffffff';
-                        ctx.strokeStyle = '#000000';
-                    }
-
-                    ctx.lineWidth = 1;
-
-                    // Gambar teks dengan stroke untuk kontras
-                    ctx.strokeText(formattedValue, textX, textY);
-                    ctx.fillText(formattedValue, textX, textY);
-                });
-            });
-        }
-    };
-
-    // Fungsi untuk membuat grafik dengan gaya seragam
-    function createUniformChart(config) {
-        const ctx = document.getElementById(config.id);
-        if (!ctx) return null;
-
-        return new Chart(ctx, {
-            type: 'bar',
-            plugins: [barValuePlugin],
-            data: config.data,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: config.showLegend || false,
-                        position: 'top',
-                        labels: {
-                            boxWidth: 12,
-                            padding: 10
-                        }
-                    },
-                    tooltip: {
-                        enabled: true,
-                        callbacks: {
-                            label: function(context) {
-                                const value = parseFloat(context.parsed.y);
-                                return context.dataset.label + ': ' + value.toFixed(2).replace('.',
-                                    ',');
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            maxRotation: 45,
-                            minRotation: 0,
-                            autoSkip: false,
-                            font: {
-                                size: 10
-                            }
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        reverse: !!config.reverse,
-                        max: config.max,
-                        grid: {
-                            drawBorder: false
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return value.toFixed(1).replace('.', ',');
-                            }
-                        }
-                    }
-                },
-                animation: {
-                    duration: 1000,
-                    easing: 'easeOutQuart'
-                },
-                layout: {
-                    padding: {
-                        top: 20,
-                        right: 10,
-                        bottom: 20,
-                        left: 10
-                    }
-                }
-            }
-        });
-    }
-
-    // Palette warna konsisten
+    // Color palette for different students
     const colors = [
-        'rgba(54, 162, 235, 0.7)', // Biru
-        'rgba(255, 99, 132, 0.7)', // Merah
-        'rgba(75, 192, 192, 0.7)', // Hijau
-        'rgba(153, 102, 255, 0.7)', // Ungu
-        'rgba(255, 159, 64, 0.7)', // Orange
-        'rgba(199, 199, 199, 0.7)', // Abu-abu
-        'rgba(255, 205, 86, 0.7)' // Kuning
+        '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899',
+        '#EF4444', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
+        '#14B8A6', '#F472B6', '#A855F7', '#22D3EE', '#FDE047'
     ];
 
-    const borderColors = [
-        'rgba(54, 162, 235, 1)',
-        'rgba(255, 99, 132, 1)',
-        'rgba(75, 192, 192, 1)',
-        'rgba(153, 102, 255, 1)',
-        'rgba(255, 159, 64, 1)',
-        'rgba(199, 199, 199, 1)',
-        'rgba(255, 205, 86, 1)'
-    ];
-
-    // 1. Grafik Rata-rata Nilai
-    const rataRataData = grafikData.map(item => {
-        const nilai = parseFloat(item.rata_rata || 0);
-        return isNaN(nilai) ? 0 : nilai;
-    });
-
-    createUniformChart({
-        id: 'rataRataChart',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Rata-rata Nilai',
-                data: rataRataData,
-                backgroundColor: colors[0],
-                borderColor: borderColors[0],
-                borderWidth: 1,
-                borderRadius: 4,
-                borderSkipped: false
-            }]
+    // 1. Nilai Harian Chart (Line Chart)
+    const nilaiHarianChart = new ApexCharts(document.querySelector("#nilaiHarianChart"), {
+        series: chartData.nilaiHarianData.map((student, index) => ({
+            name: student.name,
+            data: student.data,
+            color: colors[index % colors.length]
+        })),
+        chart: {
+            type: 'line',
+            height: 450,
+            toolbar: {
+                show: true
+            },
+            zoom: {
+                enabled: true
+            },
+            animations: {
+                enabled: true,
+                easing: 'easeinout',
+                speed: 800
+            }
         },
-        max: 100
+        stroke: {
+            width: 3,
+            curve: 'smooth'
+        },
+        markers: {
+            size: 6,
+            strokeWidth: 2,
+            strokeColors: '#fff',
+            fillOpacity: 1,
+            hover: {
+                size: 8
+            }
+        },
+        xaxis: {
+            categories: chartData.days,
+            title: {
+                text: 'Hari Ke-',
+                style: {
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                }
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Nilai Harian',
+                style: {
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                }
+            },
+            labels: {
+                formatter: function(val) {
+                    return val.toFixed(1);
+                }
+            }
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'center',
+            fontSize: '12px',
+            itemMargin: {
+                horizontal: 8,
+                vertical: 2
+            }
+        },
+        tooltip: {
+            shared: true,
+            intersect: false,
+            y: {
+                formatter: function(val, opts) {
+                    return opts.w.globals.seriesNames[opts.seriesIndex] + ': ' + val.toFixed(2);
+                }
+            }
+        },
+        grid: {
+            borderColor: '#e7e7e7',
+            strokeDashArray: 3
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                return val > 0 ? val.toFixed(1) : '';
+            },
+            style: {
+                fontSize: '9px',
+                colors: ['#000'],
+                fontWeight: 'bold'
+            },
+            background: {
+                enabled: true,
+                foreColor: '#fff',
+                borderRadius: 3,
+                opacity: 0.8,
+                padding: 1
+            },
+            offsetY: -8
+        }
     });
+    nilaiHarianChart.render();
 
-    // 2. Grafik Rata-rata per Indikator
-    const avgPerIndikator = indikatorLabels.map((_, index) => {
-        const indikatorKey = `nilai_harian_${index + 1}`;
-        let total = 0;
-        let count = 0;
+    // 2. Progress Harian Chart (Line Chart with markers and annotations) - Sama persis dengan contoh
+    const progressHarianChart = new ApexCharts(document.querySelector("#progressHarianChart"), {
+        series: chartData.nilaiHarianData.map((student, index) => ({
+            name: student.name,
+            data: student.data,
+            color: colors[index % colors.length]
+        })),
+        chart: {
+            type: 'line',
+            height: 450,
+            toolbar: {
+                show: true
+            },
+            zoom: {
+                enabled: true
+            },
+            animations: {
+                enabled: true,
+                easing: 'easeinout',
+                speed: 800
+            }
+        },
+        stroke: {
+            width: 3,
+            curve: 'smooth'
+        },
+        markers: {
+            size: 6,
+            strokeWidth: 2,
+            strokeColors: '#fff',
+            fillOpacity: 1,
+            hover: {
+                size: 8
+            }
+        },
+        xaxis: {
+            categories: chartData.days,
+            title: {
+                text: 'Hari Ke-',
+                style: {
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                }
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Nilai Harian',
+                style: {
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                }
+            },
+            labels: {
+                formatter: function(val) {
+                    return val.toFixed(1);
+                }
+            }
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'center',
+            fontSize: '12px',
+            itemMargin: {
+                horizontal: 8,
+                vertical: 2
+            }
+        },
+        tooltip: {
+            shared: true,
+            intersect: false,
+            y: {
+                formatter: function(val, opts) {
+                    return opts.w.globals.seriesNames[opts.seriesIndex] + ': ' + val.toFixed(2);
+                }
+            }
+        },
+        grid: {
+            borderColor: '#e7e7e7',
+            strokeDashArray: 3
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                return val > 0 ? val.toFixed(1) : '';
+            },
+            style: {
+                fontSize: '9px',
+                colors: ['#000'],
+                fontWeight: 'bold'
+            },
+            background: {
+                enabled: true,
+                foreColor: '#fff',
+                borderRadius: 3,
+                opacity: 0.8,
+                padding: 1
+            },
+            offsetY: -8
+        },
+        annotations: {
+            points: chartData.nilaiHarianData.flatMap((student, studentIndex) => {
+                const points = [];
+                for (let i = 1; i < student.data.length; i++) {
+                    if (student.data[i] !== null && student.data[i - 1] !== null) {
+                        const diff = student.data[i] - student.data[i - 1];
+                        if (diff !== 0) {
+                            points.push({
+                                x: chartData.days[i],
+                                y: student.data[i],
+                                marker: {
+                                    size: 6,
+                                    fillColor: diff > 0 ? '#10B981' : '#EF4444',
+                                    strokeColor: '#fff',
+                                    radius: 2
+                                },
+                                label: {
+                                    borderColor: diff > 0 ? '#10B981' : '#EF4444',
+                                    style: {
+                                        color: '#fff',
+                                        background: diff > 0 ? '#10B981' : '#EF4444',
+                                        fontSize: '10px'
+                                    },
+                                    text: diff > 0 ? `+${diff.toFixed(1)}` :
+                                        `${diff.toFixed(1)}`,
+                                    offsetY: -15
+                                }
+                            });
+                        }
+                    }
+                }
+                return points;
+            })
+        }
+    });
+    progressHarianChart.render();
 
-        grafikData.forEach(item => {
-            const nilai = parseFloat(item[indikatorKey] || 0);
-            if (!isNaN(nilai) && nilai > 0) {
-                total += nilai;
-                count++;
+    // 3. Nilai Rata-rata Chart (Column Chart)
+    const nilaiRataRataChart = new ApexCharts(document.querySelector("#nilaiRataRataChart"), {
+        series: chartData.nilaiRataRataData.map((student, index) => ({
+            name: student.name,
+            data: [student.score],
+            color: colors[index % colors.length]
+        })),
+        chart: {
+            type: 'bar',
+            height: 450,
+            toolbar: {
+                show: true
+            },
+            animations: {
+                enabled: true,
+                easing: 'easeinout',
+                speed: 800
+            }
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                borderRadius: 8,
+                columnWidth: '60%',
+                distributed: false,
+                dataLabels: {
+                    position: 'top'
+                }
+            }
+        },
+        xaxis: {
+            categories: ['Nilai Rata-rata'],
+            title: {
+                text: 'Siswa',
+                style: {
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                }
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Nilai',
+                style: {
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                }
+            },
+            labels: {
+                formatter: function(val) {
+                    return val.toFixed(1);
+                }
+            }
+        },
+        legend: {
+            position: 'right',
+            fontSize: '12px',
+            itemMargin: {
+                horizontal: 8,
+                vertical: 2
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function(val) {
+                    return 'Nilai Rata-rata: ' + val.toFixed(2);
+                }
+            }
+        },
+        grid: {
+            borderColor: '#e7e7e7',
+            strokeDashArray: 3
+        },
+        colors: colors,
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                return val.toFixed(1);
+            },
+            style: {
+                fontSize: '10px',
+                colors: ['#fff'],
+                fontWeight: 'bold'
+            },
+            offsetY: -20
+        }
+    });
+    nilaiRataRataChart.render();
+
+    // 4. Trend Analysis Chart (Multi-series Column)
+    const trendAnalysisChart = new ApexCharts(document.querySelector("#trendAnalysisChart"), {
+        series: [{
+                name: 'Rata-rata',
+                data: chartData.trendAnalysisData.map(student => student.average)
+            },
+            {
+                name: 'Nilai Minimum',
+                data: chartData.trendAnalysisData.map(student => student.min)
+            },
+            {
+                name: 'Nilai Maksimum',
+                data: chartData.trendAnalysisData.map(student => student.max)
+            }
+        ],
+        chart: {
+            type: 'bar',
+            height: 450,
+            toolbar: {
+                show: true
+            },
+            animations: {
+                enabled: true,
+                easing: 'easeinout',
+                speed: 800
+            }
+        },
+        plotOptions: {
+            bar: {
+                borderRadius: 4,
+                columnWidth: '75%',
+                grouped: true
+            }
+        },
+        xaxis: {
+            categories: chartData.trendAnalysisData.map(student => student.name),
+            title: {
+                text: 'Siswa',
+                style: {
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                }
+            },
+            labels: {
+                rotate: -45,
+                style: {
+                    fontSize: '11px'
+                }
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Nilai',
+                style: {
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                }
+            },
+            labels: {
+                formatter: function(val) {
+                    return val.toFixed(1);
+                }
+            }
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'center',
+            fontSize: '12px',
+            itemMargin: {
+                horizontal: 8,
+                vertical: 2
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function(val, opts) {
+                    return opts.w.globals.seriesNames[opts.seriesIndex] + ': ' + val.toFixed(2);
+                }
+            }
+        },
+        grid: {
+            borderColor: '#e7e7e7',
+            strokeDashArray: 3
+        },
+        colors: ['#10B981', '#F59E0B', '#EF4444'],
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                return val > 0 ? val.toFixed(1) : '';
+            },
+            style: {
+                fontSize: '9px',
+                colors: ['#fff'],
+                fontWeight: 'bold'
+            },
+            offsetY: -2
+        }
+    });
+    trendAnalysisChart.render();
+
+    // 5. Konsistensi Chart (Donut Chart)
+    const konsistensiChart = new ApexCharts(document.querySelector("#konsistensiChart"), {
+        series: chartData.trendAnalysisData.map(student => student.consistency),
+        labels: chartData.trendAnalysisData.map(student => student.name),
+        chart: {
+            type: 'donut',
+            height: 450,
+            animations: {
+                enabled: true,
+                easing: 'easeinout',
+                speed: 800
+            }
+        },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '65%',
+                    labels: {
+                        show: true,
+                        name: {
+                            show: true,
+                            fontSize: '14px',
+                            fontWeight: 'bold'
+                        },
+                        value: {
+                            show: true,
+                            fontSize: '16px',
+                            fontWeight: 'bold',
+                            formatter: function(val) {
+                                return val + '%';
+                            }
+                        },
+                        total: {
+                            show: true,
+                            label: 'Rata-rata Konsistensi',
+                            fontSize: '12px',
+                            formatter: function(w) {
+                                const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                return (total / w.globals.seriesTotals.length).toFixed(1) + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        legend: {
+            position: 'bottom',
+            horizontalAlign: 'center',
+            fontSize: '11px',
+            itemMargin: {
+                horizontal: 5,
+                vertical: 2
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function(val) {
+                    return val.toFixed(1) + '% Konsistensi';
+                }
+            }
+        },
+        colors: colors,
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                return val.toFixed(1) + '%';
+            },
+            style: {
+                fontSize: '10px',
+                colors: ['#fff'],
+                fontWeight: 'bold'
+            }
+        }
+    });
+    konsistensiChart.render();
+
+    // Responsive handling
+    window.addEventListener('resize', function() {
+        nilaiHarianChart.updateOptions({
+            chart: {
+                height: window.innerWidth < 768 ? 350 : 450
             }
         });
-
-        return count > 0 ? parseFloat((total / count).toFixed(2)) : 0;
-    });
-
-    createUniformChart({
-        id: 'perbandinganIndikatorChart',
-        data: {
-            labels: indikatorLabels,
-            datasets: [{
-                label: 'Rata-rata per Indikator',
-                data: avgPerIndikator,
-                backgroundColor: colors[1],
-                borderColor: borderColors[1],
-                borderWidth: 1,
-                borderRadius: 4,
-                borderSkipped: false
-            }]
-        },
-        max: 100
-    });
-
-    // 3. Grafik Detail Nilai (Grouped Bar Chart) - Full Width
-    const detailDatasets = indikatorLabels.map((indikator, index) => {
-        const data = grafikData.map(item => {
-            const nilai = parseFloat(item[`nilai_harian_${index + 1}`] || 0);
-            return isNaN(nilai) ? 0 : nilai;
+        progressHarianChart.updateOptions({
+            chart: {
+                height: window.innerWidth < 768 ? 350 : 450
+            }
         });
-
-        return {
-            label: indikator,
-            data: data,
-            backgroundColor: colors[index % colors.length],
-            borderColor: borderColors[index % borderColors.length],
-            borderWidth: 1,
-            borderRadius: 4,
-            borderSkipped: false
-        };
-    });
-
-    createUniformChart({
-        id: 'detailNilaiChart',
-        data: {
-            labels: labels,
-            datasets: detailDatasets
-        },
-        max: 100,
-        showLegend: true
+        nilaiRataRataChart.updateOptions({
+            chart: {
+                height: window.innerWidth < 768 ? 350 : 450
+            }
+        });
+        trendAnalysisChart.updateOptions({
+            chart: {
+                height: window.innerWidth < 768 ? 350 : 450
+            }
+        });
+        konsistensiChart.updateOptions({
+            chart: {
+                height: window.innerWidth < 768 ? 350 : 450
+            }
+        });
     });
 });
 </script>
