@@ -18,12 +18,6 @@
                 <div id="progressHarianChart"></div>
             </div>
 
-            <!-- Third Graph: Nilai Rata-rata Harian -->
-            <div class="mb-5">
-                <h6 class="text-center mb-3">Perbandingan Nilai Rata-rata Harian Siswa</h6>
-                <div id="nilaiRataRataChart"></div>
-            </div>
-
             <!-- Fourth Graph: Analisis Trend (Radar Chart) -->
             <div class="mb-5">
                 <h6 class="text-center mb-3">Analisis Trend Performa Harian Siswa (Min, Max, Rata-rata)</h6>
@@ -292,96 +286,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     progressHarianChart.render();
 
-    // 3. Nilai Rata-rata Chart (Column Chart)
-    const nilaiRataRataChart = new ApexCharts(document.querySelector("#nilaiRataRataChart"), {
-        series: chartData.nilaiRataRataData.map((student, index) => ({
-            name: student.name,
-            data: [student.score],
-            color: colors[index % colors.length]
-        })),
-        chart: {
-            type: 'bar',
-            height: 450,
-            toolbar: {
-                show: true
-            },
-            animations: {
-                enabled: true,
-                easing: 'easeinout',
-                speed: 800
-            }
-        },
-        plotOptions: {
-            bar: {
-                horizontal: false,
-                borderRadius: 8,
-                columnWidth: '60%',
-                distributed: false,
-                dataLabels: {
-                    position: 'top'
-                }
-            }
-        },
-        xaxis: {
-            categories: ['Nilai Rata-rata'],
-            title: {
-                text: 'Siswa',
-                style: {
-                    fontSize: '12px',
-                    fontWeight: 'bold'
-                }
-            }
-        },
-        yaxis: {
-            title: {
-                text: 'Nilai',
-                style: {
-                    fontSize: '12px',
-                    fontWeight: 'bold'
-                }
-            },
-            labels: {
-                formatter: function(val) {
-                    return val.toFixed(1);
-                }
-            }
-        },
-        legend: {
-            position: 'right',
-            fontSize: '12px',
-            itemMargin: {
-                horizontal: 8,
-                vertical: 2
-            }
-        },
-        tooltip: {
-            y: {
-                formatter: function(val) {
-                    return 'Nilai Rata-rata: ' + val.toFixed(2);
-                }
-            }
-        },
-        grid: {
-            borderColor: '#e7e7e7',
-            strokeDashArray: 3
-        },
-        colors: colors,
-        dataLabels: {
-            enabled: true,
-            formatter: function(val) {
-                return val.toFixed(1);
-            },
-            style: {
-                fontSize: '10px',
-                colors: ['#fff'],
-                fontWeight: 'bold'
-            },
-            offsetY: -20
-        }
-    });
-    nilaiRataRataChart.render();
-
-    // 4. Trend Analysis Chart (Multi-series Column)
+    // 3. Trend Analysis Chart (Multi-series Column)
     const trendAnalysisChart = new ApexCharts(document.querySelector("#trendAnalysisChart"), {
         series: [{
                 name: 'Rata-rata',
@@ -565,11 +470,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         progressHarianChart.updateOptions({
-            chart: {
-                height: window.innerWidth < 768 ? 350 : 450
-            }
-        });
-        nilaiRataRataChart.updateOptions({
             chart: {
                 height: window.innerWidth < 768 ? 350 : 450
             }
