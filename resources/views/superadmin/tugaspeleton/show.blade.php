@@ -148,12 +148,17 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="hari_tgl_1">Hari Tanggal 1</label>
-                            <input type="text" id="hari_tgl_1" name="hari_tgl_1"
-                                class="form-control square formatted-field" readonly placeholder="Input hari_tgl_1"
-                                required value="{{ old('hari_tgl_1', $tugaspeleton->hari_tgl_1 ?? '') }}">
+                            <div class="input-group">
+                                <input type="text" id="hari_tgl_1" name="hari_tgl_1" class="form-control square"
+                                    placeholder="Contoh: SENIN, 1 JANUARI 2023 atau PELANTIKAN" required
+                                    value="{{ old('hari_tgl_1', $tugaspeleton->hari_tgl_1 ?? '') }}">
+                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="1">
+                                    <i class="bi bi-calendar3"></i>
+                                </button>
+                            </div>
                             <input type="date" id="picker_1" name="picker_1"
-                                class="form-control square picker-field d-none" data-target="1"
-                                value="{{ old('picker_1', $tugaspeleton->picker_1 ?? '') }}">
+                                class="form-control square picker-field d-none mt-2" data-target="1"
+                                value="{{ old('picker_1', $data->picker_1 ?? '') }}">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -169,12 +174,17 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="hari_tgl_2">Hari Tanggal 2</label>
-                            <input type="text" id="hari_tgl_2" name="hari_tgl_2"
-                                class="form-control square formatted-field" readonly placeholder="Input hari_tgl_2"
-                                required value="{{ old('hari_tgl_2', $tugaspeleton->hari_tgl_2 ?? '') }}">
+                            <div class="input-group">
+                                <input type="text" id="hari_tgl_2" name="hari_tgl_2" class="form-control square"
+                                    placeholder="Contoh: SENIN, 2 JANUARI 2023 atau PELANTIKAN" required
+                                    value="{{ old('hari_tgl_2', $tugaspeleton->hari_tgl_2 ?? '') }}">
+                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="1">
+                                    <i class="bi bi-calendar3"></i>
+                                </button>
+                            </div>
                             <input type="date" id="picker_2" name="picker_2"
-                                class="form-control square picker-field d-none" data-target="2"
-                                value="{{ old('picker_2', $tugaspeleton->picker_2 ?? '') }}">
+                                class="form-control square picker-field d-none mt-2" data-target="1"
+                                value="{{ old('picker_2', $data->picker_2 ?? '') }}">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -190,12 +200,17 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="hari_tgl_3">Hari Tanggal 3</label>
-                            <input type="text" id="hari_tgl_3" name="hari_tgl_3"
-                                class="form-control square formatted-field" readonly placeholder="Input hari_tgl_3"
-                                required value="{{ old('hari_tgl_3', $tugaspeleton->hari_tgl_3 ?? '') }}">
+                            <div class="input-group">
+                                <input type="text" id="hari_tgl_3" name="hari_tgl_3" class="form-control square"
+                                    placeholder="Contoh: SENIN, 3 JANUARI 2023 atau PELANTIKAN" required
+                                    value="{{ old('hari_tgl_3', $tugaspeleton->hari_tgl_3 ?? '') }}">
+                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="1">
+                                    <i class="bi bi-calendar3"></i>
+                                </button>
+                            </div>
                             <input type="date" id="picker_3" name="picker_3"
-                                class="form-control square picker-field d-none" data-target="3"
-                                value="{{ old('picker_3', $tugaspeleton->picker_3 ?? '') }}">
+                                class="form-control square picker-field d-none mt-2" data-target="1"
+                                value="{{ old('picker_3', $data->picker_3 ?? '') }}">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -211,12 +226,17 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="hari_tgl_4">Hari Tanggal 4</label>
-                            <input type="text" id="hari_tgl_4" name="hari_tgl_4"
-                                class="form-control square formatted-field" readonly placeholder="Input hari_tgl_4"
-                                required value="{{ old('hari_tgl_4', $tugaspeleton->hari_tgl_4 ?? '') }}">
+                            <div class="input-group">
+                                <input type="text" id="hari_tgl_4" name="hari_tgl_4" class="form-control square"
+                                    placeholder="Contoh: SENIN, 4 JANUARI 2023 atau PELANTIKAN" required
+                                    value="{{ old('hari_tgl_4', $tugaspeleton->hari_tgl_4 ?? '') }}">
+                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="1">
+                                    <i class="bi bi-calendar3"></i>
+                                </button>
+                            </div>
                             <input type="date" id="picker_4" name="picker_4"
-                                class="form-control square picker-field d-none" data-target="4"
-                                value="{{ old('picker_4', $tugaspeleton->picker_4 ?? '') }}">
+                                class="form-control square picker-field d-none mt-2" data-target="1"
+                                value="{{ old('picker_4', $data->picker_4 ?? '') }}">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -232,12 +252,17 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="hari_tgl_5">Hari Tanggal 5</label>
-                            <input type="text" id="hari_tgl_5" name="hari_tgl_5"
-                                class="form-control square formatted-field" readonly placeholder="Input hari_tgl_5"
-                                required value="{{ old('hari_tgl_5', $tugaspeleton->hari_tgl_5 ?? '') }}">
+                            <div class="input-group">
+                                <input type="text" id="hari_tgl_5" name="hari_tgl_5" class="form-control square"
+                                    placeholder="Contoh: SENIN, 5 JANUARI 2023 atau PELANTIKAN" required
+                                    value="{{ old('hari_tgl_5', $tugaspeleton->hari_tgl_5 ?? '') }}">
+                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="1">
+                                    <i class="bi bi-calendar3"></i>
+                                </button>
+                            </div>
                             <input type="date" id="picker_5" name="picker_5"
-                                class="form-control square picker-field d-none" data-target="5"
-                                value="{{ old('picker_5', $tugaspeleton->picker_5 ?? '') }}">
+                                class="form-control square picker-field d-none mt-2" data-target="1"
+                                value="{{ old('picker_5', $data->picker_5 ?? '') }}">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -253,12 +278,17 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="hari_tgl_6">Hari Tanggal 6</label>
-                            <input type="text" id="hari_tgl_6" name="hari_tgl_6"
-                                class="form-control square formatted-field" readonly placeholder="Input hari_tgl_6"
-                                required value="{{ old('hari_tgl_6', $tugaspeleton->hari_tgl_6 ?? '') }}">
+                            <div class="input-group">
+                                <input type="text" id="hari_tgl_6" name="hari_tgl_6" class="form-control square"
+                                    placeholder="Contoh: SENIN, 6 JANUARI 2023 atau PELANTIKAN" required
+                                    value="{{ old('hari_tgl_6', $tugaspeleton->hari_tgl_6 ?? '') }}">
+                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="1">
+                                    <i class="bi bi-calendar3"></i>
+                                </button>
+                            </div>
                             <input type="date" id="picker_6" name="picker_6"
-                                class="form-control square picker-field d-none" data-target="6"
-                                value="{{ old('picker_6', $tugaspeleton->picker_6 ?? '') }}">
+                                class="form-control square picker-field d-none mt-2" data-target="1"
+                                value="{{ old('picker_6', $data->picker_6 ?? '') }}">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -274,12 +304,17 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="hari_tgl_7">Hari Tanggal 7</label>
-                            <input type="text" id="hari_tgl_7" name="hari_tgl_7"
-                                class="form-control square formatted-field" readonly placeholder="Input hari_tgl_7"
-                                required value="{{ old('hari_tgl_7', $tugaspeleton->hari_tgl_7 ?? '') }}">
+                            <div class="input-group">
+                                <input type="text" id="hari_tgl_7" name="hari_tgl_7" class="form-control square"
+                                    placeholder="Contoh: SENIN, 7 JANUARI 2023 atau PELANTIKAN" required
+                                    value="{{ old('hari_tgl_7', $tugaspeleton->hari_tgl_7 ?? '') }}">
+                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="1">
+                                    <i class="bi bi-calendar3"></i>
+                                </button>
+                            </div>
                             <input type="date" id="picker_7" name="picker_7"
-                                class="form-control square picker-field d-none" data-target="7"
-                                value="{{ old('picker_7', $tugaspeleton->picker_7 ?? '') }}">
+                                class="form-control square picker-field d-none mt-2" data-target="1"
+                                value="{{ old('picker_7', $data->picker_7 ?? '') }}">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -342,20 +377,31 @@ document.querySelectorAll('.picker-field').forEach(picker => {
         if (!isNaN(inputDate)) {
             textInput.value = formatTanggalIndo(inputDate);
             this.classList.add('d-none');
-            textInput.classList.remove('d-none');
         }
     });
 });
 
-// Event listener untuk semua input text yang sudah jadi formatted-field
-document.querySelectorAll('.formatted-field').forEach(textInput => {
-    textInput.addEventListener('click', function() {
-        const id = this.id.split('_')[2];
+// Event listener untuk tombol kalender
+document.querySelectorAll('.picker-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const id = this.getAttribute('data-target');
         const picker = document.getElementById(`picker_${id}`);
-        this.classList.add('d-none');
-        picker.classList.remove('d-none');
-        picker.focus();
+        picker.classList.toggle('d-none');
+
+        // Focus the picker when shown
+        if (!picker.classList.contains('d-none')) {
+            picker.focus();
+        }
     });
+});
+
+// Close picker when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.picker-btn') && !e.target.closest('.picker-field')) {
+        document.querySelectorAll('.picker-field').forEach(picker => {
+            picker.classList.add('d-none');
+        });
+    }
 });
 </script>
 @endsection
