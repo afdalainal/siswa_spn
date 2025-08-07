@@ -4,7 +4,7 @@
             <img src="{{asset('assets/logo.png')}}" alt="" srcset="">
         </div>
         <div class="sidebar-menu">
-            <ul class="menu">
+            <ul class="menu" style="position: relative; top: -50px;">
                 <li class='sidebar-title'>Main Menu</li>
 
                 @if(Auth::user()->role === 'superadmin')
