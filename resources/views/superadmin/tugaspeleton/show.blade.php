@@ -178,12 +178,12 @@
                                 <input type="text" id="hari_tgl_2" name="hari_tgl_2" class="form-control square"
                                     placeholder="Contoh: SENIN, 2 JANUARI 2023 atau PELANTIKAN" required
                                     value="{{ old('hari_tgl_2', $tugaspeleton->hari_tgl_2 ?? '') }}">
-                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="1">
+                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="2">
                                     <i class="bi bi-calendar3"></i>
                                 </button>
                             </div>
                             <input type="date" id="picker_2" name="picker_2"
-                                class="form-control square picker-field d-none mt-2" data-target="1"
+                                class="form-control square picker-field d-none mt-2" data-target="2"
                                 value="{{ old('picker_2', $data->picker_2 ?? '') }}">
                         </div>
                     </div>
@@ -204,12 +204,12 @@
                                 <input type="text" id="hari_tgl_3" name="hari_tgl_3" class="form-control square"
                                     placeholder="Contoh: SENIN, 3 JANUARI 2023 atau PELANTIKAN" required
                                     value="{{ old('hari_tgl_3', $tugaspeleton->hari_tgl_3 ?? '') }}">
-                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="1">
+                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="3">
                                     <i class="bi bi-calendar3"></i>
                                 </button>
                             </div>
                             <input type="date" id="picker_3" name="picker_3"
-                                class="form-control square picker-field d-none mt-2" data-target="1"
+                                class="form-control square picker-field d-none mt-2" data-target="3"
                                 value="{{ old('picker_3', $data->picker_3 ?? '') }}">
                         </div>
                     </div>
@@ -230,12 +230,12 @@
                                 <input type="text" id="hari_tgl_4" name="hari_tgl_4" class="form-control square"
                                     placeholder="Contoh: SENIN, 4 JANUARI 2023 atau PELANTIKAN" required
                                     value="{{ old('hari_tgl_4', $tugaspeleton->hari_tgl_4 ?? '') }}">
-                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="1">
+                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="4">
                                     <i class="bi bi-calendar3"></i>
                                 </button>
                             </div>
                             <input type="date" id="picker_4" name="picker_4"
-                                class="form-control square picker-field d-none mt-2" data-target="1"
+                                class="form-control square picker-field d-none mt-2" data-target="4"
                                 value="{{ old('picker_4', $data->picker_4 ?? '') }}">
                         </div>
                     </div>
@@ -256,12 +256,12 @@
                                 <input type="text" id="hari_tgl_5" name="hari_tgl_5" class="form-control square"
                                     placeholder="Contoh: SENIN, 5 JANUARI 2023 atau PELANTIKAN" required
                                     value="{{ old('hari_tgl_5', $tugaspeleton->hari_tgl_5 ?? '') }}">
-                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="1">
+                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="5">
                                     <i class="bi bi-calendar3"></i>
                                 </button>
                             </div>
                             <input type="date" id="picker_5" name="picker_5"
-                                class="form-control square picker-field d-none mt-2" data-target="1"
+                                class="form-control square picker-field d-none mt-2" data-target="5"
                                 value="{{ old('picker_5', $data->picker_5 ?? '') }}">
                         </div>
                     </div>
@@ -282,12 +282,12 @@
                                 <input type="text" id="hari_tgl_6" name="hari_tgl_6" class="form-control square"
                                     placeholder="Contoh: SENIN, 6 JANUARI 2023 atau PELANTIKAN" required
                                     value="{{ old('hari_tgl_6', $tugaspeleton->hari_tgl_6 ?? '') }}">
-                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="1">
+                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="6">
                                     <i class="bi bi-calendar3"></i>
                                 </button>
                             </div>
                             <input type="date" id="picker_6" name="picker_6"
-                                class="form-control square picker-field d-none mt-2" data-target="1"
+                                class="form-control square picker-field d-none mt-2" data-target="6"
                                 value="{{ old('picker_6', $data->picker_6 ?? '') }}">
                         </div>
                     </div>
@@ -308,12 +308,12 @@
                                 <input type="text" id="hari_tgl_7" name="hari_tgl_7" class="form-control square"
                                     placeholder="Contoh: SENIN, 7 JANUARI 2023 atau PELANTIKAN" required
                                     value="{{ old('hari_tgl_7', $tugaspeleton->hari_tgl_7 ?? '') }}">
-                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="1">
+                                <button class="btn btn-outline-secondary picker-btn" type="button" data-target="7">
                                     <i class="bi bi-calendar3"></i>
                                 </button>
                             </div>
                             <input type="date" id="picker_7" name="picker_7"
-                                class="form-control square picker-field d-none mt-2" data-target="1"
+                                class="form-control square picker-field d-none mt-2" data-target="7"
                                 value="{{ old('picker_7', $data->picker_7 ?? '') }}">
                         </div>
                     </div>
