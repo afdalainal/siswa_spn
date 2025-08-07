@@ -6,7 +6,7 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav d-flex align-items-center navbar-light ms-auto">
-            <li class="dropdown nav-icon">
+            <!-- <li class="dropdown nav-icon">
                 <a href="#" data-bs-toggle="dropdown" class="nav-link  dropdown-toggle nav-link-lg nav-link-user">
                     <div class="d-lg-inline-block">
                         <i data-feather="bell"></i>
@@ -28,12 +28,11 @@
                         </li>
                     </ul>
                 </div>
-            </li>
+            </li> -->
             <li class="dropdown">
                 <a href="#" data-bs-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
                     <div class="avatar me-1">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRT2W7IxcouGjzXwEKkrzOfTfaa97cz2g1qA&s"
-                            alt="" srcset="">
+                        <img src="{{asset('assets/logo.png')}}" alt="" srcset="">
                     </div>
                     <div class="d-none d-md-block d-lg-inline-block">{{ Auth::user()->name }}</div>
                 </a>

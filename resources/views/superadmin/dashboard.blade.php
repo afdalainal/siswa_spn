@@ -1,10 +1,6 @@
 @extends('layouts._index')
 
 @section('content')
-<div class="page-title">
-    <h5>Dashboard Superadmin</h5>
-</div>
-
 <section class="section">
     <!-- Statistik  -->
     <div class="row g-3">

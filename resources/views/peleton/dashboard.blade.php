@@ -1,10 +1,6 @@
 @extends('layouts._index')
 
 @section('content')
-<div class="page-title">
-    <h5>Dashboard Peleton</h5>
-</div>
-
 <section class="section">
     @if($currentTugas)
     <div class="row">

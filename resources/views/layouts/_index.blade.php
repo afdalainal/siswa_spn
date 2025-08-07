@@ -14,9 +14,7 @@
 
     <link rel="stylesheet" href="{{asset('assets/vendors/perfect-scrollbar/perfect-scrollbar.css')}}">
     <link rel="stylesheet" href="{{asset('assets/css/app.css')}}">
-    <link rel="shortcut icon"
-        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRT2W7IxcouGjzXwEKkrzOfTfaa97cz2g1qA&s"
-        type="image/x-icon">
+    <link rel="shortcut icon" href="{{asset('assets/logo.png')}}" type="image/x-icon">
 
     <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">

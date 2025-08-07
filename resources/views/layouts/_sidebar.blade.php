@@ -1,8 +1,7 @@
 <div id="sidebar" class='active'>
     <div class="sidebar-wrapper active">
         <div class="sidebar-header">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRT2W7IxcouGjzXwEKkrzOfTfaa97cz2g1qA&s"
-                alt="" srcset="">
+            <img src="{{asset('assets/logo.png')}}" alt="" srcset="">
         </div>
         <div class="sidebar-menu">
             <ul class="menu">
