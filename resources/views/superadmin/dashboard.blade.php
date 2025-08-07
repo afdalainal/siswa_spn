@@ -35,21 +35,21 @@
             </div>
         </div>
 
-        <!-- Card Santri -->
+        <!-- Card Siswa -->
         <div class="col-md-3">
             <div class="card stat-card h-100">
                 <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="me-2">
-                            <h6 class="text-muted mb-1">Total Santri</h6>
+                            <h6 class="text-muted mb-1">Total Siswa</h6>
                             <h3 class="mb-0">{{ $siswaStats['total'] }}</h3>
                         </div>
-                        <div class="bg-success bg-opacity-10 p-3 rounded">
+                        <div class="bg-info bg-opacity-10 p-3 rounded">
                             <i class="fas fa-user-graduate fa-lg "></i>
                         </div>
                     </div>
                     <div class="mt-auto">
-                        <span class="badge bg-success bg-opacity-10 ">
+                        <span class="badge bg-info bg-opacity-10 ">
                             <i class="fas fa-check-circle me-1"></i> Aktif: {{ $siswaStats['active'] }}
                         </span>
                     </div>
@@ -66,12 +66,12 @@
                             <h6 class="text-muted mb-1">Total Pengasuh</h6>
                             <h3 class="mb-0">{{ $pengasuhStats }}</h3>
                         </div>
-                        <div class="bg-info bg-opacity-10 p-3 rounded">
+                        <div class="bg-success bg-opacity-10 p-3 rounded">
                             <i class="fas fa-chalkboard-teacher fa-lg "></i>
                         </div>
                     </div>
                     <div class="mt-auto">
-                        <span class="badge bg-info bg-opacity-10 ">
+                        <span class="badge bg-success bg-opacity-10 ">
                             <i class="fas fa-users me-1"></i> Pengasuh
                         </span>
                     </div>
