@@ -43,6 +43,12 @@
                         </li>
                     </ul>
                 </li>
+                <li class="sidebar-item {{ request()->routeIs('laporan.index') ? 'active' : '' }}">
+                    <a href="{{route('laporan.index')}}" class='sidebar-link'>
+                        <i class="bi bi-clipboard-data"></i>
+                        <span>Laporan</span>
+                    </a>
+                </li>
                 @endif
 
                 @if(Auth::user()->role === 'peleton')

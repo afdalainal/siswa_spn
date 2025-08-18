@@ -17,11 +17,11 @@ class UserSeeder extends Seeder
             'role' => 'superadmin',
         ]);
 
-        // User::create([
-        //     'name' => 'Peleton User',
-        //     'email' => 'peleton@gmail.com',
-        //     'password' => Hash::make('12345678'),
-        //     'role' => 'peleton',
-        // ]);
+        User::create([
+            'name' => 'Peleton User',
+            'email' => 'peleton@gmail.com',
+            'password' => Hash::make('12345678'),
+            'role' => 'peleton',
+        ]);
     }
 }
