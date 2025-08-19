@@ -76,8 +76,8 @@
                 </table>
             </div>
             @else
-            <div class="alert alert-info">
-                Tidak ada data penugasan untuk bulan {{ $namaBulan }}
+            <div class="alert alert-info text-center">
+                Tidak ada data laporan untuk ditampilkan pada bulan ini
             </div>
             @endif
         </div>
@@ -87,11 +87,10 @@
 <section class="section">
     <div class="card">
         <div class='px-3 py-3 d-flex justify-content-between'>
-            <h6 class='card-title'>Grafik Rank Siswa</h6>
+            <h6 class='card-title'>Grafik Rank Siswa - {{ $namaBulan }}</h6>
         </div>
         <div class="card-body">
             <div class="mb-5">
-                <h6 class="text-center mb-3">Peringkat Siswa - {{ $namaBulan }}</h6>
                 <div id="rankChart"></div>
             </div>
         </div>
@@ -107,7 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ambil data semua siswa (sudah diurutkan dari controller berdasarkan rank)
     const allStudents = chartData.rankData;
     const siswaWithRank = allStudents.filter(student => student.rank !== null);
-    const siswaTanpaRank = allStudents.filter(student => student.rank === null);
 
     // Jika tidak ada siswa dengan rank, tampilkan pesan
     if (siswaWithRank.length === 0) {
@@ -170,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
         xaxis: {
             categories: categories,
             title: {
-                text: 'Nama Siswa',
+                text: 'Siswa',
                 style: {
                     fontSize: '14px',
                     fontWeight: 'bold'
@@ -205,31 +203,68 @@ document.addEventListener('DOMContentLoaded', function() {
             tickAmount: Math.min(maxRank - 1, 10) // Batasi jumlah tick maksimal 10
         },
         tooltip: {
-            y: {
-                formatter: function(val, opts) {
-                    const studentName = categories[opts.dataPointIndex];
-                    const studentData = allStudents.find(s => s.name === studentName);
+            enabled: true,
+            shared: false,
+            followCursor: true, // PERBAIKAN: tooltip mengikuti cursor
+            intersect: false,
+            fixed: {
+                enabled: false // PERBAIKAN: tidak fixed position
+            },
+            custom: function({
+                series,
+                seriesIndex,
+                dataPointIndex,
+                w
+            }) {
+                // Ambil data siswa berdasarkan index
+                const studentName = categories[dataPointIndex];
+                const studentData = allStudents[dataPointIndex];
+                const rankValue = series[seriesIndex][dataPointIndex];
 
-                    if (val === null || !studentData.memiliki_nilai) {
-                        return `
-                            <div>
-                                <strong>Tidak memiliki rank</strong><br>
-                                Total Nilai: 0
-                            </div>
-                        `;
-                    }
+                // Format konten tooltip
+                let content = `
+                    <div class="custom-tooltip" style="
+                        background: #fff; 
+                        border: 1px solid #ccc; 
+                        border-radius: 6px; 
+                        padding: 10px; 
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                        font-size: 12px;
+                        min-width: 150px;
+                    ">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+                            ${studentName}
+                        </div>
+                `;
 
-                    return `
-                        <div>
-                            <strong>Peringkat: ${val}</strong><br>
-                            Total Nilai: ${studentData.total_nilai ? studentData.total_nilai.toLocaleString() : '0'}
+                if (rankValue === null || !studentData.memiliki_nilai) {
+                    content += `
+                        <div style="color: #666; margin-bottom: 4px;">
+                            <strong style="color: #f39c12;">Tidak memiliki rank</strong>
+                        </div>
+                        <div style="color: #666;">
+                            Total Nilai: <span style="color: #e74c3c; font-weight: bold;">0</span>
+                        </div>
+                    `;
+                } else {
+                    content += `
+                        <div style="color: #666; margin-bottom: 4px;">
+                            Peringkat: <span style="color: #3B82F6; font-weight: bold;">${rankValue}</span>
+                        </div>
+                        <div style="color: #666;">
+                            Total Nilai: <span style="color: #27ae60; font-weight: bold;">${studentData.total_nilai ? studentData.total_nilai.toLocaleString() : '0'}</span>
                         </div>
                     `;
                 }
+
+                content += `</div>`;
+                return content;
             },
-            x: {
-                show: true
-            }
+            // PERBAIKAN: Konfigurasi posisi tooltip
+            style: {
+                fontSize: '12px'
+            },
+            theme: 'light'
         },
         grid: {
             borderColor: '#e7e7e7',
@@ -271,24 +306,6 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             offsetY: -10
         },
-        title: {
-            text: `Grafik Peringkat Siswa (${siswaWithRank.length} dari ${allStudents.length} siswa memiliki rank)`,
-            align: 'center',
-            style: {
-                fontSize: '16px',
-                fontWeight: 'bold'
-            }
-        },
-        subtitle: {
-            text: siswaTanpaRank.length > 0 ?
-                `${siswaTanpaRank.length} siswa tidak memiliki nilai (diurutkan berdasarkan rank)` :
-                'Diurutkan berdasarkan rank terbaik ke terburuk',
-            align: 'center',
-            style: {
-                fontSize: '12px',
-                color: '#999'
-            }
-        }
     };
 
     // Render chart
