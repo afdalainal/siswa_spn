@@ -87,13 +87,17 @@ class LaporanController extends Controller
         // Urutkan berdasarkan total nilai (yang memiliki nilai di atas)
         $this->prosesRanking($laporan);
 
+        // Siapkan data untuk grafik rank
+        $chartData = $this->prepareChartData($laporan);
+
         return view('superadmin.laporan.index', [
             'laporan' => $laporan,
             'mingguGroups' => $mingguGroups,
             'bulan' => $bulan,
             'tahun' => $tahun,
             'namaBulan' => $namaBulan,
-            'bulanNames' => $this->bulanNames
+            'bulanNames' => $this->bulanNames,
+            'chartData' => $chartData
         ]);
     }
 
@@ -128,5 +132,45 @@ class LaporanController extends Controller
             
             $item['rank'] = $rank + $count;
         }
+    }
+
+    private function prepareChartData($laporan)
+    {
+        $rankData = [];
+        
+        // Ambil semua siswa untuk grafik
+        foreach ($laporan as $item) {
+            $rankData[] = [
+                'name' => $item['siswa']->nama,
+                'rank' => $item['memiliki_nilai'] ? $item['rank'] : null,
+                'total_nilai' => $item['total_nilai'],
+                'memiliki_nilai' => $item['memiliki_nilai']
+            ];
+        }
+
+        // Urutkan berdasarkan rank (siswa dengan rank tertinggi di depan)
+        // Siswa tanpa rank akan berada di belakang
+        usort($rankData, function($a, $b) {
+            // Jika keduanya memiliki rank, urutkan berdasarkan rank (ascending = rank terbaik di depan)
+            if ($a['rank'] !== null && $b['rank'] !== null) {
+                return $a['rank'] <=> $b['rank'];
+            }
+            
+            // Siswa dengan rank selalu di depan siswa tanpa rank
+            if ($a['rank'] !== null && $b['rank'] === null) {
+                return -1;
+            }
+            
+            if ($a['rank'] === null && $b['rank'] !== null) {
+                return 1;
+            }
+            
+            // Jika keduanya tidak memiliki rank, urutkan berdasarkan nama
+            return strcmp($a['name'], $b['name']);
+        });
+
+        return [
+            'rankData' => $rankData
+        ];
     }
 }
