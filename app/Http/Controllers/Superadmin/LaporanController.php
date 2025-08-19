@@ -136,41 +136,24 @@ class LaporanController extends Controller
 
     private function prepareChartData($laporan)
     {
-        $rankData = [];
-        
-        // Ambil semua siswa untuk grafik
-        foreach ($laporan as $item) {
-            $rankData[] = [
+        $rankData = array_map(function($item) {
+            return [
                 'name' => $item['siswa']->nama,
-                'rank' => $item['memiliki_nilai'] ? $item['rank'] : null,
-                'total_nilai' => $item['total_nilai'],
-                'memiliki_nilai' => $item['memiliki_nilai']
+                'rank' => $item['rank'] ?? null,
+                'total_nilai' => $item['total_nilai'] ?? 0,
+                'has_rank' => isset($item['rank'])
             ];
-        }
-
-        // Urutkan berdasarkan rank (siswa dengan rank tertinggi di depan)
-        // Siswa tanpa rank akan berada di belakang
+        }, $laporan);
+    
         usort($rankData, function($a, $b) {
-            // Jika keduanya memiliki rank, urutkan berdasarkan rank (ascending = rank terbaik di depan)
-            if ($a['rank'] !== null && $b['rank'] !== null) {
-                return $a['rank'] <=> $b['rank'];
+            if ($a['rank'] === null && $b['rank'] === null) {
+                return strcmp($a['name'], $b['name']);
             }
-            
-            // Siswa dengan rank selalu di depan siswa tanpa rank
-            if ($a['rank'] !== null && $b['rank'] === null) {
-                return -1;
-            }
-            
-            if ($a['rank'] === null && $b['rank'] !== null) {
-                return 1;
-            }
-            
-            // Jika keduanya tidak memiliki rank, urutkan berdasarkan nama
-            return strcmp($a['name'], $b['name']);
+            if ($a['rank'] === null) return 1;
+            if ($b['rank'] === null) return -1;
+            return $a['rank'] <=> $b['rank'];
         });
-
-        return [
-            'rankData' => $rankData
-        ];
+    
+        return ['rankData' => $rankData];
     }
 }

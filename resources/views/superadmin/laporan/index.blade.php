@@ -100,231 +100,125 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Get the data passed from controller
     const chartData = @json($chartData);
-
-    // Ambil data semua siswa (sudah diurutkan dari controller berdasarkan rank)
     const allStudents = chartData.rankData;
-    const siswaWithRank = allStudents.filter(student => student.rank !== null);
 
-    // Jika tidak ada siswa dengan rank, tampilkan pesan
-    if (siswaWithRank.length === 0) {
+    if (allStudents.length === 0) {
         document.getElementById('rankChart').innerHTML =
-            '<div class="alert alert-info text-center">Tidak ada data rank untuk ditampilkan pada bulan ini</div>';
+            '<div class="alert alert-info text-center">Tidak ada data siswa untuk ditampilkan</div>';
         return;
     }
 
-    // Prepare data untuk chart (semua siswa)
-    const categories = allStudents.map(student => student.name);
-    const rankValues = allStudents.map(student => student.rank);
+    // Filter data
+    const rankedStudents = allStudents.filter(s => s.rank !== null);
+    const unrankedStudents = allStudents.filter(s => s.rank === null);
+    const existingRanks = [...new Set(rankedStudents.map(s => s.rank))].sort((a, b) => a - b);
+    const maxRank = existingRanks.length > 0 ? Math.max(...existingRanks) : 0;
 
-    // Dapatkan rank tertinggi untuk menentukan maksimum Y-axis
-    const validRanks = rankValues.filter(rank => rank !== null);
-    const maxRank = validRanks.length > 0 ? Math.max(...validRanks) : 1;
-
-    // Konfigurasi ApexCharts Line Chart
+    // Konfigurasi grafik
     const rankChartOptions = {
         series: [{
             name: 'Peringkat',
-            data: rankValues
+            data: allStudents.map(student => ({
+                x: student.name,
+                y: student.rank !== null ? student.rank : maxRank +
+                    1, // Unranked di bawah
+                rank: student.rank !== null ? student.rank : 'N/R',
+                totalNilai: student.total_nilai || 0
+            }))
         }],
         chart: {
             type: 'line',
-            height: 450,
+            height: 500,
             toolbar: {
-                show: true,
-                tools: {
-                    download: true,
-                    selection: true,
-                    zoom: true,
-                    zoomin: true,
-                    zoomout: true,
-                    pan: true,
-                    reset: true
-                }
-            },
-            animations: {
-                enabled: true,
-                easing: 'easeinout',
-                speed: 800
+                show: true
             }
         },
+        colors: ['#3B82F6'],
         stroke: {
             width: 3,
             curve: 'smooth'
         },
         markers: {
-            size: function(val, opts) {
-                // Siswa tanpa rank tidak ditampilkan markernya
-                return rankValues[opts.dataPointIndex] !== null ? 6 : 0;
-            },
-            strokeWidth: 2,
-            strokeColors: '#fff',
-            fillOpacity: 1,
-            hover: {
-                size: 8
-            }
+            size: 7,
+            colors: allStudents.map(s => s.rank !== null ? '#3B82F6' : '#94A3B8')
         },
         xaxis: {
-            categories: categories,
-            title: {
-                text: 'Siswa',
-                style: {
-                    fontSize: '14px',
-                    fontWeight: 'bold'
-                }
-            },
+            categories: allStudents.map(s => s.name),
             labels: {
                 rotate: -45,
                 style: {
+                    colors: allStudents.map(s => s.rank !== null ? '#374151' : '#94A3B8'),
                     fontSize: '11px'
-                },
-                trim: true,
-                maxHeight: 120
+                }
             }
         },
         yaxis: {
             title: {
-                text: 'Peringkat',
-                style: {
-                    fontSize: '14px',
-                    fontWeight: 'bold'
-                }
-            },
-            reversed: true, // Rank 1 di atas, rank terburuk di bawah
-            min: 1,
-            max: maxRank,
-            forceNiceScale: true,
+                text: ''
+            }, // Kosongkan title
             labels: {
-                formatter: function(val) {
-                    return 'Rank ' + Math.round(val);
-                }
+                show: false // Sembunyikan label y-axis
             },
-            tickAmount: Math.min(maxRank - 1, 10) // Batasi jumlah tick maksimal 10
+            min: 0,
+            max: maxRank + 2,
+            reversed: true,
+            forceNiceScale: false,
+            show: false // Sembunyikan seluruh y-axis
         },
         tooltip: {
-            enabled: true,
-            shared: false,
-            followCursor: true, // PERBAIKAN: tooltip mengikuti cursor
-            intersect: false,
-            fixed: {
-                enabled: false // PERBAIKAN: tidak fixed position
-            },
             custom: function({
-                series,
-                seriesIndex,
-                dataPointIndex,
-                w
+                dataPointIndex
             }) {
-                // Ambil data siswa berdasarkan index
-                const studentName = categories[dataPointIndex];
-                const studentData = allStudents[dataPointIndex];
-                const rankValue = series[seriesIndex][dataPointIndex];
-
-                // Format konten tooltip
-                let content = `
-                    <div class="custom-tooltip" style="
-                        background: #fff; 
-                        border: 1px solid #ccc; 
-                        border-radius: 6px; 
-                        padding: 10px; 
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                        font-size: 12px;
-                        min-width: 150px;
-                    ">
-                        <div style="font-weight: bold; margin-bottom: 8px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 5px;">
-                            ${studentName}
-                        </div>
+                const student = allStudents[dataPointIndex];
+                return `
+                    <div class="apexcharts-tooltip-title">${student.name}</div>
+                    <div class="apexcharts-tooltip-series-group">
+                        <span class="apexcharts-tooltip-text">
+                            <strong>Peringkat:</strong> ${student.rank !== null ? student.rank : 'N/R'}
+                        </span>
+                        <span class="apexcharts-tooltip-text">
+                            <strong>Total Nilai:</strong> ${student.total_nilai || 0}
+                        </span>
+                    </div>
                 `;
-
-                if (rankValue === null || !studentData.memiliki_nilai) {
-                    content += `
-                        <div style="color: #666; margin-bottom: 4px;">
-                            <strong style="color: #f39c12;">Tidak memiliki rank</strong>
-                        </div>
-                        <div style="color: #666;">
-                            Total Nilai: <span style="color: #e74c3c; font-weight: bold;">0</span>
-                        </div>
-                    `;
-                } else {
-                    content += `
-                        <div style="color: #666; margin-bottom: 4px;">
-                            Peringkat: <span style="color: #3B82F6; font-weight: bold;">${rankValue}</span>
-                        </div>
-                        <div style="color: #666;">
-                            Total Nilai: <span style="color: #27ae60; font-weight: bold;">${studentData.total_nilai ? studentData.total_nilai.toLocaleString() : '0'}</span>
-                        </div>
-                    `;
-                }
-
-                content += `</div>`;
-                return content;
-            },
-            // PERBAIKAN: Konfigurasi posisi tooltip
-            style: {
-                fontSize: '12px'
-            },
-            theme: 'light'
-        },
-        grid: {
-            borderColor: '#e7e7e7',
-            strokeDashArray: 3,
-            xaxis: {
-                lines: {
-                    show: true
-                }
-            },
-            yaxis: {
-                lines: {
-                    show: true
-                }
             }
         },
-        colors: ['#3B82F6'],
         dataLabels: {
-            enabled: true,
+            enabled: true, // Aktifkan data labels
             formatter: function(val, opts) {
-                // Hanya tampilkan label untuk siswa yang memiliki rank
-                if (val === null) {
-                    return '';
-                }
-                return 'Rank ' + Math.round(val);
+                const student = allStudents[opts.dataPointIndex];
+                return student.rank !== null ? val : 'N/R';
             },
             style: {
-                fontSize: '10px',
                 colors: ['#fff'],
                 fontWeight: 'bold'
             },
             background: {
                 enabled: true,
-                foreColor: '#3B82F6',
-                borderRadius: 3,
-                padding: 4,
-                opacity: 0.9,
-                borderWidth: 1,
-                borderColor: '#3B82F6'
-            },
-            offsetY: -10
-        },
-    };
-
-    // Render chart
-    const rankChart = new ApexCharts(document.querySelector("#rankChart"), rankChartOptions);
-    rankChart.render();
-
-    // Responsive handling
-    window.addEventListener('resize', function() {
-        rankChart.updateOptions({
-            chart: {
-                height: window.innerWidth < 768 ? 350 : 450
-            },
-            xaxis: {
-                labels: {
-                    rotate: window.innerWidth < 768 ? -90 : -45
+                foreColor: function({
+                    dataPointIndex
+                }) {
+                    return allStudents[dataPointIndex].rank !== null ? '#3B82F6' : '#94A3B8';
                 }
             }
-        });
-    });
+        },
+        grid: {
+            yaxis: {
+                lines: {
+                    show: false
+                } // Sembunyikan grid lines y-axis
+            },
+            xaxis: {
+                lines: {
+                    show: true
+                } // Tampilkan grid lines x-axis
+            }
+        }
+    };
+
+    const rankChart = new ApexCharts(document.querySelector("#rankChart"), rankChartOptions);
+    rankChart.render();
 });
 </script>
 @endsection
