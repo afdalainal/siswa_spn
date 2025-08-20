@@ -19,7 +19,8 @@
                     </select>
                     <button type="submit" class="btn btn-primary">Filter</button>
                 </form>
-                <a href="" target="_blank" class="btn btn-outline-secondary">
+                <a href="{{ route('laporan.print', ['bulan' => $bulan, 'tahun' => $tahun, 'download' => true]) }}"
+                    target="_blank" class="btn btn-outline-secondary">
                     <i class="bi bi-printer"></i>
                 </a>
             </div>

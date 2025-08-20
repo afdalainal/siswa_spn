@@ -26,6 +26,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:superadmin'])->group(function () {
         Route::get('/dashboard/superadmin', [\App\Http\Controllers\Superadmin\DashboardController::class, 'index'])->name('dashboard.superadmin');
         Route::get('laporan', [\App\Http\Controllers\Superadmin\LaporanController::class, 'index'])->name('laporan.index');
+        Route::get('laporan/print', [\App\Http\Controllers\Superadmin\LaporanController::class, 'print'])->name('laporan.print');
         Route::resource('siswa', \App\Http\Controllers\Superadmin\SiswaController::class);
         Route::resource('pengasuh', \App\Http\Controllers\Superadmin\PengasuhController::class);
         Route::resource('akunpeleton', \App\Http\Controllers\Superadmin\AkunPeletonController::class);
