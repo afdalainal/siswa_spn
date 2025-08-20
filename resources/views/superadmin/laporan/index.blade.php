@@ -19,6 +19,9 @@
                     </select>
                     <button type="submit" class="btn btn-primary">Filter</button>
                 </form>
+                <a href="" target="_blank" class="btn btn-outline-secondary">
+                    <i class="bi bi-printer"></i>
+                </a>
             </div>
         </div>
         <div class="card-body">
@@ -141,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: allStudents.map(student => ({
                 x: student.name,
                 y: student.rank !== null ? student.rank : maxRank + 1,
-                rank: student.rank !== null ? student.rank : 'N/R',
+                rank: student.rank !== null ? student.rank : '-',
                 totalNilai: student.total_nilai || 0
             }))
         }],
@@ -206,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     student.name + '</div>' +
                     '<div class="apexcharts-tooltip-series-group apexcharts-active" style="order: 1; display: flex; flex-direction: column;">' +
                     '<span class="apexcharts-tooltip-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' +
-                    '<strong>Peringkat:</strong> ' + (student.rank !== null ? student.rank : 'N/R') +
+                    '<strong>Peringkat:</strong> ' + (student.rank !== null ? student.rank : '-') +
                     '</span>' +
                     '<span class="apexcharts-tooltip-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' +
                     '<strong>Total Nilai:</strong> ' + (student.total_nilai || 0) +
@@ -218,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
             enabled: true,
             formatter: function(val, opts) {
                 const student = allStudents[opts.dataPointIndex];
-                return student.rank !== null ? student.rank : 'N/R';
+                return student.rank !== null ? student.rank : '-';
             },
             style: {
                 colors: ['#fff'],
