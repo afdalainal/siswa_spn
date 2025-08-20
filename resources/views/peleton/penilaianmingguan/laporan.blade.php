@@ -434,7 +434,7 @@
                         <div class="signature-rank">{{ $tugasPeleton->pengasuhDanki->pangkat_nrp ?? '' }}</div>
                     </td>
                     <td style="width: 35%;">
-                        <div class="signature-title">DANMEN PENGASUH SISWA DIKTUKBA POLRI GEL II TA 2024</div>
+                        <div class="signature-title">DANMEN PENGASUH SISWA DIKTUKBA POLRI GEL II TA 2025</div>
                         <div style="height: 30px;"></div>
                         <div class="signature-name">{{ $tugasPeleton->pengasuhDanmen->nama ?? '' }}</div>
                         <div class="signature-rank">{{ $tugasPeleton->pengasuhDanmen->pangkat_nrp ?? '' }}</div>
