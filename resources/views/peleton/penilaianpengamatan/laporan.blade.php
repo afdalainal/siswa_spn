@@ -29,16 +29,40 @@
     }
 
     .header {
-        text-align: center;
+        position: relative;
         margin-bottom: 5px;
     }
 
-    .header h2 {
+    .header-left {
+        position: absolute;
+        top: 0;
+        left: 0;
+        border: 1px solid #000;
+        padding: 8px;
+        background-color: #fff;
+        z-index: 10;
+        min-width: 200px;
+    }
+
+    .header-left p {
+        margin: 2px 0;
+        font-size: 9px;
+        font-weight: bold;
+        text-align: center;
+        line-height: 1.2;
+    }
+
+    .header-center {
+        text-align: center;
+        padding-top: 10px;
+    }
+
+    .header-center h2 {
         margin: 2px 0;
         font-size: 12px;
     }
 
-    .header p {
+    .header-center p {
         margin: 2px 0;
         font-size: 9px;
     }
@@ -57,7 +81,7 @@
     .header-info {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 20px;
+        margin-top: 35px;
         font-size: 8px;
     }
 
@@ -196,6 +220,55 @@
         margin: 0;
     }
 
+    /* Responsive adjustments */
+    @media screen and (max-width: 1024px) {
+        .header-left {
+            position: relative;
+            margin-bottom: 15px;
+            width: auto;
+            display: inline-block;
+        }
+
+        .header-center {
+            padding-top: 0;
+        }
+
+        .data-table {
+            font-size: 6px;
+        }
+
+        .header-left p {
+            font-size: 8px;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        body {
+            padding: 3mm;
+        }
+
+        .header-left {
+            min-width: 150px;
+            padding: 6px;
+        }
+
+        .header-left p {
+            font-size: 7px;
+        }
+
+        .data-table {
+            font-size: 5px;
+        }
+
+        .header-center h2 {
+            font-size: 10px;
+        }
+
+        .header-center p {
+            font-size: 8px;
+        }
+    }
+
     @media print {
         body {
             padding: 0;
@@ -215,11 +288,11 @@
             padding: 1px;
         }
 
-        .header h2 {
+        .header-center h2 {
             font-size: 11px;
         }
 
-        .header p {
+        .header-center p {
             font-size: 8px;
         }
 
@@ -229,6 +302,10 @@
 
         .date-location {
             font-size: 7px;
+        }
+
+        .header-left {
+            position: absolute;
         }
 
         @page {
@@ -246,12 +323,17 @@
 
         <div class="container">
             <div class="header">
-                <p class="header-title">KEPOLISIAN NEGARA REPUBLIK INDONESIA</p>
-                <p class="header-title">DAERAH SUMATERA BARAT</p>
-                <p class="header-title">SEKOLAH POLISI NEGARA</p>
 
-                <p class="header-subtitle">DAFTAR NILAI MENTAL HASIL PENGAMATAN HARIAN</p>
-                <p>SISWA DIKTUK BINTARA POLRI ANGKATAN. LI GEL II T.A 2024 SPN POLDA SUMBAR</p>
+                <div class="header-left">
+                    <p class="header-title">KEPOLISIAN NEGARA REPUBLIK INDONESIA</p>
+                    <p class="header-title">DAERAH SUMATERA BARAT</p>
+                    <p class="header-title">SEKOLAH POLISI NEGARA</p>
+                </div>
+
+                <div class="header-center">
+                    <p class="header-subtitle">DAFTAR NILAI MENTAL HASIL PENGAMATAN HARIAN</p>
+                    <p>SISWA DIKTUK BINTARA POLRI ANGKATAN. LI GEL II T.A 2025 SPN POLDA SUMBAR</p>
+                </div>
 
                 <table class="header-info">
                     <tr>

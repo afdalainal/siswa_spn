@@ -24,17 +24,45 @@
         overflow: hidden;
     }
 
+    .page-break {
+        page-break-before: always;
+    }
+
     .header {
-        text-align: center;
+        position: relative;
         margin-bottom: 5px;
     }
 
-    .header h2 {
+    .header-left {
+        position: absolute;
+        top: 0;
+        left: 0;
+        border: 1px solid #000;
+        padding: 8px;
+        background-color: #fff;
+        z-index: 10;
+        min-width: 200px;
+    }
+
+    .header-left p {
+        margin: 2px 0;
+        font-size: 9px;
+        font-weight: bold;
+        text-align: center;
+        line-height: 1.2;
+    }
+
+    .header-center {
+        text-align: center;
+        padding-top: 10px;
+    }
+
+    .header-center h2 {
         margin: 2px 0;
         font-size: 12px;
     }
 
-    .header p {
+    .header-center p {
         margin: 2px 0;
         font-size: 9px;
     }
@@ -53,7 +81,7 @@
     .header-info {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 20px;
+        margin-top: 35px;
         font-size: 8px;
     }
 
@@ -99,6 +127,12 @@
         font-weight: bold;
     }
 
+    /* EXPLICITLY SET RIGHT BORDER FOR LAST COLUMN */
+    .data-table tr th:last-child,
+    .data-table tr td:last-child {
+        border-right: 1px solid #000 !important;
+    }
+
     .text-left {
         text-align: left;
     }
@@ -122,20 +156,20 @@
         min-width: 60px;
     }
 
-    .hari-col {
-        width: 5%;
+    .indikator-col {
+        width: 2.5%;
     }
 
-    .nilai-col {
-        width: 4%;
+    .score-col {
+        width: 3.5%;
+    }
+
+    .pelanggaran-col {
+        width: 2.5%;
     }
 
     .rank-col {
-        width: 4%;
-    }
-
-    .keterangan-col {
-        width: 15%;
+        width: 3.5%;
     }
 
     .header-col {
@@ -186,8 +220,53 @@
         margin: 0;
     }
 
-    .highlight {
-        background-color: #ffff99;
+    /* Responsive adjustments */
+    @media screen and (max-width: 1024px) {
+        .header-left {
+            position: relative;
+            margin-bottom: 15px;
+            width: auto;
+            display: inline-block;
+        }
+
+        .header-center {
+            padding-top: 0;
+        }
+
+        .data-table {
+            font-size: 6px;
+        }
+
+        .header-left p {
+            font-size: 8px;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        body {
+            padding: 3mm;
+        }
+
+        .header-left {
+            min-width: 150px;
+            padding: 6px;
+        }
+
+        .header-left p {
+            font-size: 7px;
+        }
+
+        .data-table {
+            font-size: 5px;
+        }
+
+        .header-center h2 {
+            font-size: 10px;
+        }
+
+        .header-center p {
+            font-size: 8px;
+        }
     }
 
     @media print {
@@ -209,11 +288,11 @@
             padding: 1px;
         }
 
-        .header h2 {
+        .header-center h2 {
             font-size: 11px;
         }
 
-        .header p {
+        .header-center p {
             font-size: 8px;
         }
 
@@ -223,6 +302,10 @@
 
         .date-location {
             font-size: 7px;
+        }
+
+        .header-left {
+            position: absolute;
         }
 
         @page {
@@ -236,12 +319,18 @@
 <body>
     <div class="container">
         <div class="header">
-            <p class="header-title">KEPOLISIAN NEGARA REPUBLIK INDONESIA</p>
-            <p class="header-title">DAERAH SUMATERA BARAT</p>
-            <p class="header-title">SEKOLAH POLISI NEGARA</p>
 
-            <p class="header-subtitle"> REKAPITULASI HASIL PENILAIAN MENTAL KEPRIBADIAN ( MINGGUAN )</p>
-            <p>SISWA DIKTUK BINTARA POLRI GEL II TAHUN 2024</p>
+            <div class="header-left">
+                <p class="header-title">KEPOLISIAN NEGARA REPUBLIK INDONESIA</p>
+                <p class="header-title">DAERAH SUMATERA BARAT</p>
+                <p class="header-title">SEKOLAH POLISI NEGARA</p>
+            </div>
+
+            <div class="header-center">
+                <p class="header-subtitle"> REKAPITULASI HASIL PENILAIAN MENTAL KEPRIBADIAN ( MINGGUAN )</p>
+                <p>SISWA DIKTUK BINTARA POLRI GEL II TAHUN 2025</p>
+            </div>
+
 
             <table class="header-info">
                 <tr>
@@ -254,21 +343,18 @@
                     <td class="header-info-right">
                         HARI/TGL :
                         @php
-                        if(isset($tugasPeleton->created_at)) {
-                        $days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-                        $months = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
-                        'September', 'Oktober', 'November', 'Desember'];
-
-                        $date = new DateTime($tugasPeleton->created_at);
-                        $dayName = strtoupper($days[$date->format('w')]);
-                        $day = $date->format('d');
-                        $monthName = strtoupper($months[$date->format('n')]);
-                        $year = $date->format('Y');
-
-                        echo $dayName . ', ' . $day . ' ' . $monthName . ' ' . $year;
-                        } else {
-                        echo '-';
+                        // Cari field terakhir yang memiliki nilai valid (dari hari_tgl_7 ke hari_tgl_1)
+                        $tanggalTerakhir = null;
+                        for ($i = 7; $i >= 1; $i--) {
+                        $fieldName = 'hari_tgl_' . $i;
+                        if (!empty($tugasPeleton->$fieldName) && preg_match('/^[A-Z]+, \d{1,2} [A-Z]+ \d{4}$/',
+                        $tugasPeleton->$fieldName)) {
+                        $tanggalTerakhir = $tugasPeleton->$fieldName;
+                        break;
                         }
+                        }
+
+                        echo $tanggalTerakhir ?? '-';
                         @endphp
                     </td>
                 </tr>
@@ -324,21 +410,18 @@
             <div class="date-location">
                 PADANG,
                 @php
-                if(isset($tugasPeleton->created_at)) {
-                $days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-                $months = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
-                'September', 'Oktober', 'November', 'Desember'];
-
-                $date = new DateTime($tugasPeleton->created_at);
-                $dayName = strtoupper($days[$date->format('w')]);
-                $day = $date->format('d');
-                $monthName = strtoupper($months[$date->format('n')]);
-                $year = $date->format('Y');
-
-                echo $dayName . ', ' . $day . ' ' . $monthName . ' ' . $year;
-                } else {
-                echo '-';
+                // Cari field terakhir yang memiliki nilai valid (dari hari_tgl_7 ke hari_tgl_1)
+                $tanggalTerakhir = null;
+                for ($i = 7; $i >= 1; $i--) {
+                $fieldName = 'hari_tgl_' . $i;
+                if (!empty($tugasPeleton->$fieldName) && preg_match('/^[A-Z]+, \d{1,2} [A-Z]+ \d{4}$/',
+                $tugasPeleton->$fieldName)) {
+                $tanggalTerakhir = $tugasPeleton->$fieldName;
+                break;
                 }
+                }
+
+                echo $tanggalTerakhir ?? '-';
                 @endphp
             </div>
 
