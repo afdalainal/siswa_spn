@@ -332,7 +332,7 @@
             </div>
 
             <div class="header-center">
-                <p class="header-subtitle">REKAPITULASI HASIL PENILAIAN MENTAL KEPRIBADIAN (BULANAN)</p>
+                <p class="header-subtitle">REKAPITULASI HASIL PENILAIAN SISWA (BULANAN)</p>
                 <p>SISWA DIKTUK BINTARA POLRI GEL II TAHUN 2025</p>
             </div>
 
@@ -341,15 +341,12 @@
                     <td class="header-info-left">
                         PERIODE : {{ strtoupper($namaBulan) }}
                     </td>
-                    <td class="header-info-center">
+                    <td class="header-info-right">
                         @if(count($mingguGroups) > 0)
                         MINGGU {{ implode(', ', array_keys($mingguGroups->toArray())) }}
                         @else
                         -
                         @endif
-                    </td>
-                    <td class="header-info-right">
-                        TANGGAL CETAK : {{ date('d M Y') }}
                     </td>
                 </tr>
             </table>
@@ -414,31 +411,9 @@
         <!-- Footer Section -->
         <div class="footer-section">
             <div class="date-location">
-                PADANG, {{ strtoupper(date('d M Y')) }}
+                PADANG,
+                {{ isset($tanggalCetak) && !empty($tanggalCetak) ? strtoupper($tanggalCetak) : strtoupper(date('j') . ' ' . ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'][date('n')] . ' ' . date('Y')) }}
             </div>
-
-            <table class="signature-table">
-                <tr>
-                    <td style="width: 25%;">
-                        <div class="signature-title">DANKI PENGASUH</div>
-                        <div style="height: 30px;"></div>
-                        <div class="signature-name">_________________________</div>
-                        <div class="signature-rank">NRP. __________________</div>
-                    </td>
-                    <td style="width: 35%;">
-                        <div class="signature-title">DANMEN PENGASUH SISWA DIKTUKBA POLRI GEL II TA 2025</div>
-                        <div style="height: 30px;"></div>
-                        <div class="signature-name">_________________________</div>
-                        <div class="signature-rank">NRP. __________________</div>
-                    </td>
-                    <td style="width: 40%;">
-                        <div class="signature-title">DANTON PENGASUH</div>
-                        <div style="height: 30px;"></div>
-                        <div class="signature-name">_________________________</div>
-                        <div class="signature-rank">NRP. __________________</div>
-                    </td>
-                </tr>
-            </table>
         </div>
     </div>
 </body>

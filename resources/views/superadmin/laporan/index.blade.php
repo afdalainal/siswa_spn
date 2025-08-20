@@ -19,7 +19,7 @@
                     </select>
                     <button type="submit" class="btn btn-primary">Filter</button>
                 </form>
-                <a href="{{ route('laporan.print', ['bulan' => $bulan, 'tahun' => $tahun, 'download' => true]) }}"
+                <a href="{{ route('laporan.laporan', ['bulan' => $bulan, 'tahun' => $tahun, 'download' => true]) }}"
                     target="_blank" class="btn btn-outline-secondary">
                     <i class="bi bi-printer"></i>
                 </a>
