@@ -136,6 +136,11 @@ class LaporanController extends Controller
 
     private function prepareChartData($laporan)
     {
+        // Cek jika laporan kosong
+        if (empty($laporan)) {
+            return ['rankData' => []];
+        }
+    
         $rankData = array_map(function($item) {
             return [
                 'name' => $item['siswa']->nama,

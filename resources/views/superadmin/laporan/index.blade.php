@@ -101,13 +101,32 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const chartData = @json($chartData);
-    const allStudents = chartData.rankData;
+    const mingguGroups = @json($mingguGroups);
 
-    if (allStudents.length === 0) {
+    console.log('Chart Data:', chartData);
+    console.log('Minggu Groups:', mingguGroups);
+    console.log('Minggu Groups Keys:', Object.keys(mingguGroups));
+
+    // Cek apakah ada data minggu (sama seperti kondisi tabel)
+    if (!mingguGroups || Object.keys(mingguGroups).length === 0) {
+        console.log('No minggu data - showing message');
         document.getElementById('rankChart').innerHTML =
-            '<div class="alert alert-info text-center">Tidak ada data siswa untuk ditampilkan</div>';
+            '<div class="alert alert-info text-center">Tidak ada data laporan untuk ditampilkan pada bulan ini</div>';
         return;
     }
+
+    const allStudents = chartData.rankData;
+    console.log('All Students:', allStudents);
+
+    // Pastikan data siswa ada
+    if (!allStudents || !Array.isArray(allStudents) || allStudents.length === 0) {
+        console.log('No students data - showing message');
+        document.getElementById('rankChart').innerHTML =
+            '<div class="alert alert-info text-center">Tidak ada data laporan untuk ditampilkan pada bulan ini</div>';
+        return;
+    }
+
+    console.log('Proceeding to render chart...');
 
     // Filter data
     const rankedStudents = allStudents.filter(s => s.rank !== null);
@@ -121,8 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
             name: 'Peringkat',
             data: allStudents.map(student => ({
                 x: student.name,
-                y: student.rank !== null ? student.rank : maxRank +
-                    1, // Unranked di bawah
+                y: student.rank !== null ? student.rank : maxRank + 1,
                 rank: student.rank !== null ? student.rank : 'N/R',
                 totalNilai: student.total_nilai || 0
             }))
@@ -156,43 +174,56 @@ document.addEventListener('DOMContentLoaded', function() {
         yaxis: {
             title: {
                 text: ''
-            }, // Kosongkan title
-            labels: {
-                show: false // Sembunyikan label y-axis
             },
-            min: 0,
-            max: maxRank + 2,
-            reversed: true,
+            labels: {
+                show: false
+            },
+            min: 1, // Set minimum ke 1 (rank terbaik)
+            max: maxRank > 0 ? maxRank + 1 : 2, // Set maksimum sesuai rank terburuk + unranked
+            reversed: true, // Rank 1 di atas, rank besar di bawah
             forceNiceScale: false,
-            show: false // Sembunyikan seluruh y-axis
+            show: false,
+            // Hilangkan padding atas dan bawah
+            axisBorder: {
+                show: false
+            },
+            axisTicks: {
+                show: false
+            }
         },
         tooltip: {
+            enabled: true,
+            shared: false,
+            followCursor: true,
             custom: function({
-                dataPointIndex
+                series,
+                seriesIndex,
+                dataPointIndex,
+                w
             }) {
                 const student = allStudents[dataPointIndex];
-                return `
-                    <div class="apexcharts-tooltip-title">${student.name}</div>
-                    <div class="apexcharts-tooltip-series-group">
-                        <span class="apexcharts-tooltip-text">
-                            <strong>Peringkat:</strong> ${student.rank !== null ? student.rank : 'N/R'}
-                        </span>
-                        <span class="apexcharts-tooltip-text">
-                            <strong>Total Nilai:</strong> ${student.total_nilai || 0}
-                        </span>
-                    </div>
-                `;
+                return '<div class="apexcharts-tooltip-title" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' +
+                    student.name + '</div>' +
+                    '<div class="apexcharts-tooltip-series-group apexcharts-active" style="order: 1; display: flex; flex-direction: column;">' +
+                    '<span class="apexcharts-tooltip-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' +
+                    '<strong>Peringkat:</strong> ' + (student.rank !== null ? student.rank : 'N/R') +
+                    '</span>' +
+                    '<span class="apexcharts-tooltip-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' +
+                    '<strong>Total Nilai:</strong> ' + (student.total_nilai || 0) +
+                    '</span>' +
+                    '</div>';
             }
         },
         dataLabels: {
-            enabled: true, // Aktifkan data labels
+            enabled: true,
             formatter: function(val, opts) {
                 const student = allStudents[opts.dataPointIndex];
-                return student.rank !== null ? val : 'N/R';
+                return student.rank !== null ? student.rank : 'N/R';
             },
             style: {
                 colors: ['#fff'],
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                fontSize: '10px'
             },
             background: {
                 enabled: true,
@@ -200,6 +231,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     dataPointIndex
                 }) {
                     return allStudents[dataPointIndex].rank !== null ? '#3B82F6' : '#94A3B8';
+                },
+                borderRadius: 2,
+                padding: 4,
+                opacity: 0.9,
+                borderWidth: 1,
+                borderColor: function({
+                    dataPointIndex
+                }) {
+                    return allStudents[dataPointIndex].rank !== null ? '#3B82F6' : '#94A3B8';
+                },
+                dropShadow: {
+                    enabled: false
                 }
             }
         },
@@ -207,12 +250,33 @@ document.addEventListener('DOMContentLoaded', function() {
             yaxis: {
                 lines: {
                     show: false
-                } // Sembunyikan grid lines y-axis
+                }
             },
             xaxis: {
                 lines: {
                     show: true
-                } // Tampilkan grid lines x-axis
+                }
+            },
+            padding: {
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0
+            }
+        },
+        // Hilangkan margin chart untuk posisi marker yang tepat
+        chart: {
+            type: 'line',
+            height: 500,
+            toolbar: {
+                show: true
+            },
+            offsetY: 0,
+            offsetX: 0
+        },
+        plotOptions: {
+            line: {
+                isSlopeChart: false
             }
         }
     };
