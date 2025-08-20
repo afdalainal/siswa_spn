@@ -3,26 +3,34 @@
 @section('content')
 <section class="section">
     <div class="card">
-        <div class='px-3 py-3 d-flex justify-content-between'>
-            <h6 class='card-title'>Laporan Bulanan - {{ $namaBulan }}</h6>
-            <div class="card-right d-flex align-items-center">
-                <form method="GET" action="{{ route('laporan.index') }}" class="d-flex gap-2">
-                    <select name="bulan" class="form-select" required>
-                        @foreach($bulanNames as $num => $name)
-                        <option value="{{ $num }}" {{ $num == $bulan ? 'selected' : '' }}>{{ $name }}</option>
-                        @endforeach
-                    </select>
-                    <select name="tahun" class="form-select" required>
-                        @for($i = date('Y') - 2; $i <= date('Y') + 2; $i++) <option value="{{ $i }}"
-                            {{ $i == $tahun ? 'selected' : '' }}>{{ $i }}</option>
-                            @endfor
-                    </select>
-                    <button type="submit" class="btn btn-primary">Filter</button>
-                </form>
-                <a href="{{ route('laporan.laporan', ['bulan' => $bulan, 'tahun' => $tahun, 'download' => true]) }}"
-                    target="_blank" class="btn btn-outline-secondary">
-                    <i class="bi bi-printer"></i>
-                </a>
+        <div class='px-3 py-3'>
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-md-auto">
+                    <h6 class='card-title mb-0'>Laporan Bulanan - {{ $namaBulan }}</h6>
+                </div>
+                <div class="col-12 col-md">
+                    <div class="d-flex flex-column flex-sm-row gap-2 justify-content-md-end">
+                        <form method="GET" action="{{ route('laporan.index') }}" class="d-flex gap-2 flex-wrap">
+                            <select name="bulan" class="form-select form-select-sm" required
+                                style="width: auto; min-width: 120px;">
+                                @foreach($bulanNames as $num => $name)
+                                <option value="{{ $num }}" {{ $num == $bulan ? 'selected' : '' }}>{{ $name }}</option>
+                                @endforeach
+                            </select>
+                            <select name="tahun" class="form-select form-select-sm" required
+                                style="width: auto; min-width: 100px;">
+                                @for($i = date('Y') - 2; $i <= date('Y') + 2; $i++) <option value="{{ $i }}"
+                                    {{ $i == $tahun ? 'selected' : '' }}>{{ $i }}</option>
+                                    @endfor
+                            </select>
+                            <button type="submit" class="btn btn-outline-primary btn-sm px-3">Filter</button>
+                        </form>
+                        <a href="{{ route('laporan.laporan', ['bulan' => $bulan, 'tahun' => $tahun, 'download' => true]) }}"
+                            target="_blank" class="btn btn-outline-secondary btn-sm px-4">
+                            <i class="bi bi-printer"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="card-body">
@@ -45,7 +53,6 @@
                         @foreach($laporan as $item)
                         <tr class="{{ $item['memiliki_nilai'] ? '' : 'text-muted' }}">
                             <td>{{ $loop->iteration }}</td>
-
                             <td>{{ $item['siswa']->nama }}</td>
                             <td>{{ $item['siswa']->nosis }}</td>
                             @foreach($mingguGroups as $mingguKe => $group)
