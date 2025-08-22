@@ -29,6 +29,10 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link href="{{ asset('assets/css/app-BwHaPEbd.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/app-CbOl0bzA.css') }}" rel="stylesheet" />
+    <link href="{{ asset('build/assets/app-DlYOw6CL.js') }}" rel="stylesheet" />
+    <link href="{{ asset('build/assets/app-BwHaPEbd.css') }}" rel="stylesheet" />
 
     <style>
     .pwa-install-container {
