@@ -97,19 +97,33 @@
 
 <section class="section">
     <div class="card">
-        <div class='px-3 py-3 d-flex justify-content-between'>
+        <div class='px-3 py-3 d-flex justify-content-between align-items-center'>
             <h6 class='card-title'>Grafik Rank Siswa - {{ $namaBulan }}</h6>
-        </div>
-        <div class="card-body">
-            <div class="mb-5">
-                <div id="rankChart"></div>
+            <div class="chart-controls d-flex align-items-center gap-2">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="chartPrev">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="chartNext">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
             </div>
+        </div>
+        <div class="chart-wrapper">
+            <div id="rankChart"></div>
         </div>
     </div>
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
+// Variable untuk pagination
+let currentStartIndex = 0;
+let studentsPerView = 5;
+let totalStudents = 0;
+let chartInstance = null;
+
 document.addEventListener('DOMContentLoaded', function() {
     const chartData = @json($chartData);
     const mingguGroups = @json($mingguGroups);
@@ -137,163 +151,446 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
+    totalStudents = allStudents.length;
     console.log('Proceeding to render chart...');
 
-    // Filter data
-    const rankedStudents = allStudents.filter(s => s.rank !== null);
-    const unrankedStudents = allStudents.filter(s => s.rank === null);
-    const existingRanks = [...new Set(rankedStudents.map(s => s.rank))].sort((a, b) => a - b);
-    const maxRank = existingRanks.length > 0 ? Math.max(...existingRanks) : 0;
+    // Function untuk render chart dengan data subset
+    function renderChart(startIndex) {
+        const endIndex = Math.min(startIndex + studentsPerView, totalStudents);
+        const currentStudents = allStudents.slice(startIndex, endIndex);
 
-    // Konfigurasi grafik
-    const rankChartOptions = {
-        series: [{
-            name: 'Peringkat',
-            data: allStudents.map(student => ({
-                x: student.name,
-                y: student.rank !== null ? student.rank : maxRank + 1,
-                rank: student.rank !== null ? student.rank : '-',
-                totalNilai: student.total_nilai || 0
-            }))
-        }],
-        chart: {
-            type: 'line',
-            height: 500,
-            toolbar: {
-                show: true
-            }
-        },
-        colors: ['#3B82F6'],
-        stroke: {
-            width: 3,
-            curve: 'smooth'
-        },
-        markers: {
-            size: 7,
-            colors: allStudents.map(s => s.rank !== null ? '#3B82F6' : '#94A3B8')
-        },
-        xaxis: {
-            categories: allStudents.map(s => s.name),
-            labels: {
-                rotate: -45,
-                style: {
-                    colors: allStudents.map(s => s.rank !== null ? '#374151' : '#94A3B8'),
-                    fontSize: '11px'
-                }
-            }
-        },
-        yaxis: {
-            title: {
-                text: ''
-            },
-            labels: {
-                show: false
-            },
-            min: 1, // Set minimum ke 1 (rank terbaik)
-            max: maxRank > 0 ? maxRank + 1 : 2, // Set maksimum sesuai rank terburuk + unranked
-            reversed: true, // Rank 1 di atas, rank besar di bawah
-            forceNiceScale: false,
-            show: false,
-            // Hilangkan padding atas dan bawah
-            axisBorder: {
-                show: false
-            },
-            axisTicks: {
-                show: false
-            }
-        },
-        tooltip: {
-            enabled: true,
-            shared: false,
-            followCursor: true,
-            custom: function({
-                series,
-                seriesIndex,
-                dataPointIndex,
-                w
-            }) {
-                const student = allStudents[dataPointIndex];
-                return '<div class="apexcharts-tooltip-title" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' +
-                    student.name + '</div>' +
-                    '<div class="apexcharts-tooltip-series-group apexcharts-active" style="order: 1; display: flex; flex-direction: column;">' +
-                    '<span class="apexcharts-tooltip-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' +
-                    '<strong>Peringkat:</strong> ' + (student.rank !== null ? student.rank : '-') +
-                    '</span>' +
-                    '<span class="apexcharts-tooltip-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">' +
-                    '<strong>Total Nilai:</strong> ' + (student.total_nilai || 0) +
-                    '</span>' +
-                    '</div>';
-            }
-        },
-        dataLabels: {
-            enabled: true,
-            formatter: function(val, opts) {
-                const student = allStudents[opts.dataPointIndex];
-                return student.rank !== null ? student.rank : '-';
-            },
-            style: {
-                colors: ['#fff'],
-                fontWeight: 'bold',
-                fontSize: '10px'
-            },
-            background: {
-                enabled: true,
-                foreColor: function({
-                    dataPointIndex
-                }) {
-                    return allStudents[dataPointIndex].rank !== null ? '#3B82F6' : '#94A3B8';
+        // Filter data
+        const rankedStudents = allStudents.filter(s => s.rank !== null);
+        const unrankedStudents = allStudents.filter(s => s.rank === null);
+        const existingRanks = [...new Set(rankedStudents.map(s => s.rank))].sort((a, b) => a - b);
+        const maxRank = existingRanks.length > 0 ? Math.max(...existingRanks) : 0;
+
+        // Destroy chart sebelumnya jika ada
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        // Konfigurasi grafik
+        const rankChartOptions = {
+            series: [{
+                name: 'Peringkat',
+                data: currentStudents.map(student => ({
+                    x: student.name,
+                    y: student.rank !== null ? student.rank : maxRank + 1,
+                    rank: student.rank !== null ? student.rank : '-',
+                    totalNilai: student.total_nilai || 0
+                }))
+            }],
+            chart: {
+                type: 'line',
+                height: 'auto',
+                width: '100%',
+                toolbar: {
+                    show: true
                 },
-                borderRadius: 2,
-                padding: 4,
-                opacity: 0.9,
-                borderWidth: 1,
-                borderColor: function({
-                    dataPointIndex
-                }) {
-                    return allStudents[dataPointIndex].rank !== null ? '#3B82F6' : '#94A3B8';
-                },
-                dropShadow: {
-                    enabled: false
+                animations: {
+                    enabled: true,
+                    easing: 'easeinout',
+                    speed: 800,
+                    animateGradually: {
+                        enabled: true,
+                        delay: 150
+                    }
                 }
-            }
-        },
-        grid: {
-            yaxis: {
-                lines: {
-                    show: false
+            },
+            colors: ['#3B82F6'],
+            stroke: {
+                width: 3,
+                curve: 'smooth'
+            },
+            markers: {
+                size: 7,
+                colors: currentStudents.map(s => s.rank !== null ? '#3B82F6' : '#94A3B8'),
+                strokeColors: '#fff',
+                strokeWidth: 2,
+                hover: {
+                    size: 9
                 }
             },
             xaxis: {
-                lines: {
-                    show: true
+                categories: currentStudents.map(s => s.name),
+                labels: {
+                    rotate: 0,
+                    rotateAlways: false,
+                    maxHeight: 80,
+                    trim: false,
+                    hideOverlappingLabels: false,
+                    style: {
+                        colors: currentStudents.map(s => s.rank !== null ? '#374151' : '#94A3B8'),
+                        fontSize: '12px',
+                        fontWeight: '600'
+                    },
+                    offsetY: 10,
+                    formatter: function(value) {
+                        // Potong nama jika terlalu panjang dan tambahkan ellipsis
+                        if (value && value.length > 15) {
+                            return value.substring(0, 15) + '...';
+                        }
+                        return value;
+                    }
+                },
+                axisBorder: {
+                    show: true,
+                    color: '#E5E7EB',
+                    height: 1
+                },
+                axisTicks: {
+                    show: true,
+                    color: '#E5E7EB',
+                    height: 6
                 }
             },
-            padding: {
-                top: 0,
-                bottom: 0,
-                left: 0,
-                right: 0
-            }
-        },
-        // Hilangkan margin chart untuk posisi marker yang tepat
-        chart: {
-            type: 'line',
-            height: 500,
-            toolbar: {
-                show: true
+            yaxis: {
+                show: false,
+                title: {
+                    text: ''
+                },
+                labels: {
+                    show: false
+                },
+                min: 1,
+                max: maxRank > 0 ? maxRank + 1 : 2,
+                reversed: true,
+                forceNiceScale: false
             },
-            offsetY: 0,
-            offsetX: 0
-        },
-        plotOptions: {
-            line: {
-                isSlopeChart: false
+            tooltip: {
+                enabled: true,
+                shared: false,
+                followCursor: true,
+                theme: 'light',
+                custom: function({
+                    series,
+                    seriesIndex,
+                    dataPointIndex,
+                    w
+                }) {
+                    const student = currentStudents[dataPointIndex];
+                    return '<div style="padding: 12px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">' +
+                        '<div style="font-weight: 600; font-size: 14px; color: #1F2937; margin-bottom: 8px; border-bottom: 1px solid #E5E7EB; padding-bottom: 4px;">' +
+                        student.name + '</div>' +
+                        '<div style="color: #4B5563; font-size: 12px; margin-bottom: 4px;">' +
+                        '<strong>Peringkat :</strong> ' + (student.rank !== null ? '#' + student.rank :
+                            '-') +
+                        '</div>' +
+                        '<div style="color: #4B5563; font-size: 12px;">' +
+                        '<strong>Total Nilai :</strong> ' + (student.total_nilai ? student.total_nilai
+                            .toLocaleString() : '0') +
+                        '</div>' +
+                        '</div>';
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: function(val, opts) {
+                    const student = currentStudents[opts.dataPointIndex];
+                    return student.rank !== null ? student.rank : '-';
+                },
+                style: {
+                    colors: ['#fff'],
+                    fontWeight: 'bold',
+                    fontSize: '10px'
+                },
+                background: {
+                    enabled: true,
+                    foreColor: function({
+                        dataPointIndex
+                    }) {
+                        return currentStudents[dataPointIndex].rank !== null ? '#3B82F6' : '#94A3B8';
+                    },
+                    borderRadius: 2,
+                    padding: 4,
+                    opacity: 0.9,
+                    borderWidth: 1,
+                    borderColor: function({
+                        dataPointIndex
+                    }) {
+                        return currentStudents[dataPointIndex].rank !== null ? '#3B82F6' : '#94A3B8';
+                    },
+                    dropShadow: {
+                        enabled: false
+                    }
+                }
+            },
+            grid: {
+                show: true,
+                borderColor: '#F3F4F6',
+                strokeDashArray: 0,
+                position: 'back',
+                xaxis: {
+                    lines: {
+                        show: true
+                    }
+                },
+                yaxis: {
+                    lines: {
+                        show: false
+                    }
+                },
+                padding: {
+                    top: 20,
+                    bottom: 50,
+                    left: 80,
+                    right: 80
+                }
+            },
+            chart: {
+                type: 'line',
+                height: 500,
+                width: '100%',
+                toolbar: {
+                    show: true
+                },
+                offsetY: 0,
+                offsetX: 0
+            },
+            plotOptions: {
+                line: {
+                    isSlopeChart: false
+                }
+            },
+            responsive: [{
+                breakpoint: 768,
+                options: {
+                    xaxis: {
+                        labels: {
+                            style: {
+                                fontSize: '11px'
+                            },
+                            maxHeight: 70,
+                            formatter: function(value) {
+                                if (value && value.length > 12) {
+                                    return value.substring(0, 12) + '...';
+                                }
+                                return value;
+                            }
+                        }
+                    },
+                    grid: {
+                        padding: {
+                            left: 60,
+                            right: 60,
+                            bottom: 45
+                        }
+                    }
+                }
+            }, {
+                breakpoint: 576,
+                options: {
+                    xaxis: {
+                        labels: {
+                            style: {
+                                fontSize: '10px'
+                            },
+                            maxHeight: 60,
+                            formatter: function(value) {
+                                if (value && value.length > 10) {
+                                    return value.substring(0, 10) + '...';
+                                }
+                                return value;
+                            }
+                        }
+                    },
+                    grid: {
+                        padding: {
+                            left: 50,
+                            right: 50,
+                            bottom: 40
+                        }
+                    }
+                }
+            }]
+        };
+
+        chartInstance = new ApexCharts(document.querySelector("#rankChart"), rankChartOptions);
+        chartInstance.render();
+
+        // Update button states
+        updateNavigationButtons();
+    }
+
+    // Function untuk update navigation buttons
+    function updateNavigationButtons() {
+        const prevBtn = document.getElementById('chartPrev');
+        const nextBtn = document.getElementById('chartNext');
+
+        prevBtn.disabled = currentStartIndex <= 0;
+        nextBtn.disabled = currentStartIndex + studentsPerView >= totalStudents;
+
+        if (currentStartIndex <= 0) {
+            prevBtn.classList.add('disabled');
+        } else {
+            prevBtn.classList.remove('disabled');
+        }
+
+        if (currentStartIndex + studentsPerView >= totalStudents) {
+            nextBtn.classList.add('disabled');
+        } else {
+            nextBtn.classList.remove('disabled');
+        }
+    }
+
+    // Event listeners untuk navigation
+    document.getElementById('chartPrev').addEventListener('click', function() {
+        if (currentStartIndex > 0) {
+            currentStartIndex = Math.max(0, currentStartIndex - studentsPerView);
+            renderChart(currentStartIndex);
+        }
+    });
+
+    document.getElementById('chartNext').addEventListener('click', function() {
+        if (currentStartIndex + studentsPerView < totalStudents) {
+            currentStartIndex = Math.min(totalStudents - studentsPerView, currentStartIndex +
+                studentsPerView);
+            renderChart(currentStartIndex);
+        }
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') {
+            if (e.key === 'ArrowLeft' && currentStartIndex > 0) {
+                currentStartIndex = Math.max(0, currentStartIndex - studentsPerView);
+                renderChart(currentStartIndex);
+            } else if (e.key === 'ArrowRight' && currentStartIndex + studentsPerView < totalStudents) {
+                currentStartIndex = Math.min(totalStudents - studentsPerView, currentStartIndex +
+                    studentsPerView);
+                renderChart(currentStartIndex);
             }
         }
-    };
+    });
 
-    const rankChart = new ApexCharts(document.querySelector("#rankChart"), rankChartOptions);
-    rankChart.render();
+    // Initial render
+    renderChart(currentStartIndex);
 });
 </script>
+
+<style>
+.chart-wrapper {
+    padding: 20px;
+}
+
+.chart-controls {
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chart-controls .btn {
+    min-width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    border-color: #3B82F6;
+    color: #3B82F6;
+}
+
+.chart-controls .btn:hover:not(.disabled) {
+    background-color: #3B82F6;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.chart-controls .btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.chart-controls .btn i {
+    font-size: 14px;
+}
+
+#rankChart {
+    background: white;
+    border-radius: 8px;
+    min-height: 400px;
+    width: 100%;
+}
+
+.apexcharts-canvas {
+    background: white !important;
+    border-radius: 8px;
+}
+
+.apexcharts-tooltip {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Memastikan semua elemen chart terlihat penuh */
+.apexcharts-svg {
+    overflow: visible !important;
+}
+
+.apexcharts-xaxis-texts-g text {
+    text-anchor: middle !important;
+    dominant-baseline: hanging !important;
+}
+
+@media (max-width: 768px) {
+    .chart-wrapper {
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    .chart-controls {
+        justify-content: center;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .chart-controls .text-muted {
+        order: -1;
+        width: 100%;
+        text-align: center;
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+
+    .chart-controls .btn-group {
+        flex-shrink: 0;
+    }
+
+    #rankChart {
+        min-height: 350px;
+    }
+}
+
+@media (max-width: 576px) {
+    .px-3.py-3 {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 15px;
+    }
+
+    .chart-controls {
+        align-self: stretch;
+        justify-content: space-between;
+    }
+}
+
+/* Custom scrollbar untuk chart area jika diperlukan */
+.chart-wrapper::-webkit-scrollbar {
+    height: 6px;
+}
+
+.chart-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.chart-wrapper::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.chart-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+</style>
 @endsection

@@ -3,9 +3,14 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PwaController;
 
-// Route::get('/', fn() => view('welcome'));
+// Route PWA
+Route::get('/manifest.json', [PwaController::class, 'manifest']);
+Route::get('/sw.js', [PwaController::class, 'serviceWorker']);
+Route::get('/offline', [PwaController::class, 'offline'])->name('offline');
 
+// Route utama
 Route::get('/', function () {
     return Auth::check() ? redirect('/dashboard') : redirect('/login');
 });
@@ -53,14 +58,22 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('penilaianmingguan', \App\Http\Controllers\Peleton\PenilaianMingguanController::class);
         Route::get('/penilaianmingguan/grafik/{id}', [\App\Http\Controllers\Peleton\PenilaianMingguanController::class, 'grafik'])->name('penilaianmingguan.grafik');
         Route::get('/penilaianmingguan/laporan/{id}', [\App\Http\Controllers\Peleton\PenilaianMingguanController::class, 'laporan'])->name('penilaianmingguan.laporan');
-        
-        
     });
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Route untuk testing PWA
+Route::get('/test-pwa', function () {
+    return view('test');
+});
+
+// Route untuk debug PWA
+Route::get('/pwa-debug', function () {
+    return view('pwa-debug');
 });
 
 require __DIR__.'/auth.php';
